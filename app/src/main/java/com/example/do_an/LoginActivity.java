@@ -51,7 +51,11 @@ public class LoginActivity extends AppCompatActivity {
                             FirebaseUser user = mAuth.getCurrentUser();
                             if (user != null) {
                                 Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent(this, MainActivity.class));
+
+                                // Chuyển sang ProfileActivity
+                                Intent intent = new Intent(this, ProfileActivity.class); // sau này sửa lại
+                                intent.putExtra("userEmail", user.getEmail()); // Gửi email qua
+                                startActivity(intent);
                                 finish();
                             }
                         } else {
