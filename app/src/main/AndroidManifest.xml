@@ -3,11 +3,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.do_an">
 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/avatar"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
@@ -16,27 +20,47 @@
 
         <!-- Màn hình Đăng ký -->
         <activity
-            android:name=".RegisterActivity"
+            android:name=".user.RegisterActivity"
             android:exported="false" />
 
-        <activity android:name=".ForgotPasswordActivity"
+        <activity android:name=".user.ForgotPasswordActivity"
             android:exported="false" />
 
-        <activity android:name=".UserInfoActivity"
+        <activity android:name=".user.UserInfoActivity"
             android:exported="false" />
 
-        <activity android:name=".ProfileActivity"
+        <activity android:name=".user.ProfileActivity"
             android:exported="false" />
 
-<!--        <activity android:name=".API.TestMain" android:exported="false" />-->
+        <activity android:name=".application.InforApp"
+            android:exported="false" />
+
+        <activity android:name=".UI.Account"
+            android:exported="false" />
+
+        <activity android:name=".application.SearchActivity"
+            android:exported="false" />
+
+<!--        <activity android:name=".application.ReadActivity"-->
+<!--            android:exported="false" />-->
+
         <activity android:name=".API.AIReadingAssistant" android:exported="false" />
         <activity android:name=".API.AISummarizer" android:exported="false" />
         <activity android:name=".API.AIVoiceReader" />
         <activity android:name=".API.AIBookRecommender" android:exported="false" />
         <activity android:name=".API.GeminiAPIHelper" android:exported="false" />
 
+<!--        <activity android:name=".user.LoginActivity"-->
+<!--            android:exported="false" />-->
+
+        <activity android:name=".application.ReadActivity"
+            android:exported="false"/>
+
+        <activity android:name=".Story.FavoriteManager"
+            android:exported="false"  />
+
         <activity
-            android:name=".LoginActivity"
+            android:name=".user.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -46,6 +70,9 @@
 
         <activity android:name=".MainActivity"
             android:exported="false" />
+
+<!--        <activity android:name=".application.PDFListActivity"-->
+<!--            android:exported="false" />-->
 
     </application>
 

@@ -1,0 +1,16 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+
+    <!-- Màu nền bên trong -->
+    <solid android:color="#80D8FF" />
+
+    <!-- Viền trắng quanh ảnh -->
+    <stroke
+        android:width="3dp"
+        android:color="#FFFFFF" />
+
+    <!-- Kích thước gợi ý (có thể bỏ) -->
+    <size
+        android:width="100dp"
+        android:height="100dp" />
+</shape>

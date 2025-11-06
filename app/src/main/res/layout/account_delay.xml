@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/bg_gradient"
+    tools:context=".UI.Account">
+
+    <ImageView
+        android:id="@+id/imgAvatar"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="60dp"
+        android:layout_gravity="center_horizontal"
+        android:src="@drawable/avatar"
+        android:scaleType="centerCrop"
+        android:background="@drawable/avatar_frame"
+        android:clipToOutline="true"
+        android:contentDescription="Avatar" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="40dp" />
+
+
+    <TextView
+        android:id="@+id/tvProfile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="50dp"
+        android:text="Xem hồ sơ"
+        android:textSize="20sp"
+        android:textColor="#1E88E5"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="10dp" />
+
+    <TextView
+        android:id="@+id/tvSettings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="50dp"
+        android:text="Cài đặt"
+        android:textSize="20sp"
+        android:textColor="#1E88E5"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="10dp" />
+
+    <TextView
+        android:id="@+id/tvHistory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="50dp"
+        android:text="Lịch sử"
+        android:textSize="20sp"
+        android:textColor="#1E88E5"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="10dp" />
+
+    <TextView
+        android:id="@+id/tvAnalytics"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="50dp"
+        android:text="Thống kê"
+        android:textSize="20sp"
+        android:textColor="#1E88E5"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="10dp" />
+
+    <TextView
+        android:id="@+id/tvInformation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="50dp"
+        android:text="Thông tin ứng dụng"
+        android:textSize="20sp"
+        android:textColor="#1E88E5"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="10dp" />
+
+    <Button
+        android:id="@+id/btnLogout"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="180dp"
+        android:backgroundTint="#FF5722"
+        android:text="Đăng xuất"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp" />
+</LinearLayout>

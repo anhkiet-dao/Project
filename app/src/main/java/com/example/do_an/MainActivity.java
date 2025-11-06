@@ -14,6 +14,8 @@ import android.widget.EditText;
 import android.widget.Button;
 import android.speech.tts.TextToSpeech;
 import java.util.Locale;
+import com.example.do_an.UI.Account;
+import android.content.Intent;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,10 +27,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_profile);
+//        Intent intent = new Intent(MainActivity.this, Account.class);
+//        startActivity(intent);
+//
+//        // Kết thúc MainActivity để không quay lại
+//        finish();
 
-        // Xử lý phần viền (status bar + navigation bar)
+        EdgeToEdge.enable(this);
+        setContentView(R.layout.activity_main);
+
         View rootView = findViewById(android.R.id.content);
         ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
             // Lấy Insets thật (thanh trạng thái + thanh điều hướng)
@@ -45,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
             return WindowInsetsCompat.CONSUMED;
         });
     }
+
+
 //    protected void onCreate(Bundle savedInstanceState) {
 //        super.onCreate(savedInstanceState);
 //        setContentView(R.layout.activity_main);

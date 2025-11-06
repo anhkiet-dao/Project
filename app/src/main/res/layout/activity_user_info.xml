@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".UserInfoActivity"
+    tools:context=".user.UserInfoActivity"
     android:background="@drawable/bg_gradient"
     android:padding="24dp">
 
@@ -20,6 +20,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="20dp" />
+
+        <ImageView
+            android:id="@+id/imgAvatar"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/avatar"
+            android:scaleType="centerCrop"
+            android:background="@drawable/avatar_frame"
+            android:clipToOutline="true"
+            android:contentDescription="Avatar" />
 
         <EditText
             android:id="@+id/edtFullName"
@@ -76,6 +87,15 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:inputType="phone"
+            android:padding="10dp" />
+
+        <EditText
+            android:id="@+id/edtinterest"
+            android:hint="Nhập sở thích"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:inputType="textPersonName"
             android:padding="10dp" />
 
         <Button

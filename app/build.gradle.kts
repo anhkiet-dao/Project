@@ -45,8 +45,26 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    implementation("com.google.firebase:firebase-auth:24.0.1")
-    implementation ("com.google.firebase:firebase-database:21.0.0")
-    implementation("com.google.android.material:material:1.11.0")
+    implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
+
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-database")
+    implementation("com.google.firebase:firebase-storage")
+
+    implementation ("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor ("com.github.bumptech.glide:compiler:4.16.0")
+
+
+    implementation ("com.google.firebase:firebase-storage:20.3.1")
+    implementation ("com.google.firebase:firebase-database:20.3.1")
+
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+
+    implementation ("org.jsoup:jsoup:1.16.1")
+    implementation ("com.google.firebase:firebase-firestore:25.1.1")
+    implementation ("com.google.firebase:firebase-analytics:22.1.2")
+    implementation ("androidx.viewpager2:viewpager2:1.0.0")
 }
+

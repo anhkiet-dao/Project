@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:background="@drawable/bg_gradient"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="28dp"
+    tools:context=".application.ReadActivity">
+
+    <!-- Thanh công cụ trên cùng -->
+    <LinearLayout
+        android:id="@+id/topBar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="12dp"
+        android:elevation="4dp">
+
+        <!-- Nút quay lại -->
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/img_2"/>
+
+        <!-- Tiêu đề sách -->
+        <TextView
+            android:id="@+id/txtTieuDe"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="16dp"
+            android:text="Tên sách"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:ellipsize="end"
+            android:singleLine="true" />
+
+        <!-- Hàng nút chức năng -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/btnFavorite"
+                android:layout_width="40dp"
+                android:layout_height="28dp"
+                android:layout_marginStart="8dp"
+                android:src="@drawable/img_3"
+                android:contentDescription="Yêu thích" />
+
+            <ImageView
+                android:id="@+id/btnDown"
+                android:layout_width="40dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="12dp"
+                android:src="@drawable/img_4"
+                android:contentDescription="Tải xuống" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Phần đọc nội dung -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/pdfViewPager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="4dp" />
+
+    <!-- Thanh công cụ dưới cùng -->
+    <LinearLayout
+        android:id="@+id/bottomBar"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:background="#33000000"
+        android:padding="4dp">
+
+        <!-- Trang trước -->
+        <ImageButton
+            android:id="@+id/btnPrevPage"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/rounded_button"
+            android:src="@drawable/img_5"
+            android:contentDescription="Trang trước"
+            android:padding="5dp"
+            android:scaleType="centerInside"
+            android:elevation="4dp"
+            android:layout_margin="8dp"/>
+
+        <!-- Trang sau -->
+        <ImageButton
+            android:id="@+id/btnNextPage"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/rounded_button"
+            android:src="@drawable/img_6"
+            android:contentDescription="Trang sau"
+            android:padding="5dp"
+            android:scaleType="centerInside"
+            android:elevation="4dp"
+            android:layout_margin="8dp"/>
+
+
+        <!-- Phóng to -->
+        <ImageButton
+            android:id="@+id/btnZoomIn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/rounded_button"
+            android:src="@drawable/img_7"
+            android:contentDescription="Phóng to"
+            android:padding="5dp"
+            android:scaleType="centerInside"
+            android:elevation="4dp"
+            android:layout_margin="8dp"/>
+
+        <!-- Thu nhỏ -->
+        <ImageButton
+            android:id="@+id/btnZoomOut"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/rounded_button"
+            android:src="@drawable/img_8"
+            android:contentDescription="Thu nhỏ"
+            android:padding="5dp"
+            android:scaleType="centerInside"
+            android:elevation="4dp"
+            android:layout_margin="8dp"/>
+
+        <!-- Thư viện của tôi -->
+        <ImageButton
+            android:id="@+id/btnLibrary"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/rounded_button"
+            android:src="@drawable/img_10"
+            android:contentDescription="Thư viện của tôi"
+            android:padding="5dp"
+            android:scaleType="centerInside"
+            android:elevation="4dp"
+            android:layout_margin="8dp"/>
+
+        <!-- Cài đặt -->
+        <ImageButton
+            android:id="@+id/btnSettings"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/rounded_button"
+            android:src="@drawable/img_11"
+            android:contentDescription="Cài đặt"
+            android:padding="5dp"
+            android:scaleType="centerInside"
+            android:elevation="4dp"
+            android:layout_margin="8dp"/>
+
+    </LinearLayout>
+
+</LinearLayout>
