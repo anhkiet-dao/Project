@@ -8,6 +8,7 @@ import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.content.Intent;
 
 import com.example.do_an.R;
 import com.example.do_an.Story.FavoriteManager;
@@ -15,6 +16,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import android.content.SharedPreferences;
+import androidx.appcompat.app.AppCompatDelegate;
+import android.view.View;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -23,6 +27,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import android.widget.ImageButton;
+import android.widget.Switch;
+import androidx.appcompat.widget.AppCompatButton;
 
 public class ReadActivity extends AppCompatActivity {
 
@@ -42,6 +49,11 @@ public class ReadActivity extends AppCompatActivity {
 
     private ImageView btnPrevPage, btnNextPage, btnZoomIn, btnZoomOut;
 
+    private ImageView btnSettings;
+
+    private View bottomBar;
+    private ImageButton btnMenu;
+
     // Các biến hỗ trợ
     private float currentZoom = 1.0f; // Mức zoom mặc định
     private int currentPage = 0;
@@ -57,16 +69,35 @@ public class ReadActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // 🔹 Đọc chế độ Dark Mode từ SharedPreferences
+        SharedPreferences prefs = getSharedPreferences("AppSettings", MODE_PRIVATE);
+        boolean darkMode = prefs.getBoolean("darkMode", false);
+        if (darkMode) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+
         setContentView(R.layout.activity_reading);
 
+        // 🔹 Ánh xạ View chính
         txtTieuDe = findViewById(R.id.txtTieuDe);
         pdfViewPager = findViewById(R.id.pdfViewPager);
         btnFavorite = findViewById(R.id.btnFavorite);
-
         btnPrevPage = findViewById(R.id.btnPrevPage);
         btnNextPage = findViewById(R.id.btnNextPage);
         btnZoomIn = findViewById(R.id.btnZoomIn);
         btnZoomOut = findViewById(R.id.btnZoomOut);
+        bottomBar = findViewById(R.id.bottomBar);
+        btnMenu = findViewById(R.id.btnMenu);
+
+        // 🔹 Settings panel
+        View settingsContainer = findViewById(R.id.settingsContainer);
+        AppCompatButton btnCloseSettings = findViewById(R.id.btnCloseSettings);
+        Switch switchDarkMode = findViewById(R.id.switch_dark_mode);
+        Switch switchShowBottomBar = findViewById(R.id.switch_show_bottom_bar);
+        ImageButton btnSettings = findViewById(R.id.btnSettings);
 
         db = FirebaseFirestore.getInstance();
         favoriteManager = new FavoriteManager();
@@ -75,7 +106,6 @@ public class ReadActivity extends AppCompatActivity {
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             userEmail = currentUser.getEmail();
-            Log.d(TAG, "Đăng nhập bằng email: " + userEmail);
         } else {
             Toast.makeText(this, "Bạn chưa đăng nhập!", Toast.LENGTH_SHORT).show();
             finish();
@@ -84,16 +114,63 @@ public class ReadActivity extends AppCompatActivity {
 
         txtTieuDe.setText(currentTitle);
 
-        // 🔍 Kiểm tra xem truyện này đã được yêu thích chưa
+        // 🔍 Kiểm tra truyện đã yêu thích
         checkIfFavorite();
-
-        // ❤️ Khi nhấn vào biểu tượng yêu thích
         btnFavorite.setOnClickListener(v -> toggleFavorite());
 
         // 📘 Tải PDF truyện
         loadPdfFromFirestore(currentTitle);
 
-        // 🔹 Nút trang trước
+        // 👇 Hiển thị hoặc ẩn thanh bottomBar theo SharedPreferences
+        boolean showBottomBar = prefs.getBoolean("showBottomBar", true);
+        if (showBottomBar) {
+            bottomBar.setVisibility(View.VISIBLE);
+            btnMenu.setVisibility(View.GONE);
+        } else {
+            bottomBar.setVisibility(View.GONE);
+            btnMenu.setVisibility(View.VISIBLE);
+        }
+
+        // 🎛️ Nút menu (3 chấm) để hiển thị lại BottomBar
+        btnMenu.setOnClickListener(v -> {
+            bottomBar.setVisibility(View.VISIBLE);
+            btnMenu.setVisibility(View.GONE);
+            prefs.edit().putBoolean("showBottomBar", true).apply();
+        });
+
+        // 🔹 Nút đóng Settings
+        btnCloseSettings.setOnClickListener(v -> settingsContainer.setVisibility(View.GONE));
+
+        // 🔹 Nút mở Settings panel
+        btnSettings.setOnClickListener(v -> {
+            settingsContainer.setVisibility(View.VISIBLE);
+            switchDarkMode.setChecked(prefs.getBoolean("darkMode", false));
+            switchShowBottomBar.setChecked(prefs.getBoolean("showBottomBar", true));
+        });
+
+        // 🔹 Switch Dark Mode
+        switchDarkMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            prefs.edit().putBoolean("darkMode", isChecked).apply();
+            if (isChecked) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            }
+        });
+
+        // 🔹 Switch Show BottomBar
+        switchShowBottomBar.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            prefs.edit().putBoolean("showBottomBar", isChecked).apply();
+            if (isChecked) {
+                bottomBar.setVisibility(View.VISIBLE);
+                btnMenu.setVisibility(View.GONE);
+            } else {
+                bottomBar.setVisibility(View.GONE);
+                btnMenu.setVisibility(View.VISIBLE);
+            }
+        });
+
+        // 📖 Nút điều khiển trang
         btnPrevPage.setOnClickListener(v -> {
             if (pdfPageAdapter == null) return;
             if (currentPage > 0) {
@@ -103,7 +180,7 @@ public class ReadActivity extends AppCompatActivity {
                 Toast.makeText(this, "Đây là trang đầu tiên!", Toast.LENGTH_SHORT).show();
             }
         });
-        // 🔹 Nút trang sau
+
         btnNextPage.setOnClickListener(v -> {
             if (pdfPageAdapter == null) return;
             int totalPages = pdfPageAdapter.getItemCount();
@@ -114,7 +191,7 @@ public class ReadActivity extends AppCompatActivity {
                 Toast.makeText(this, "Đây là trang cuối cùng!", Toast.LENGTH_SHORT).show();
             }
         });
-        // 🔹 Theo dõi trang hiện tại khi vuốt
+
         pdfViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
@@ -122,7 +199,8 @@ public class ReadActivity extends AppCompatActivity {
                 currentPage = position;
             }
         });
-        // 🔹 Nút phóng to
+
+        // 🔍 Nút Zoom In/Out
         btnZoomIn.setOnClickListener(v -> {
             if (pdfViewPager.getScaleX() < 3.0f) {
                 currentZoom += 0.25f;
@@ -132,7 +210,7 @@ public class ReadActivity extends AppCompatActivity {
                 Toast.makeText(this, "Đã phóng to tối đa!", Toast.LENGTH_SHORT).show();
             }
         });
-        // 🔹 Nút thu nhỏ
+
         btnZoomOut.setOnClickListener(v -> {
             if (pdfViewPager.getScaleX() > 0.5f) {
                 currentZoom -= 0.25f;
@@ -143,6 +221,7 @@ public class ReadActivity extends AppCompatActivity {
             }
         });
     }
+
 
     /**
      * 🔍 Kiểm tra truyện có trong danh sách yêu thích hay không
@@ -279,4 +358,20 @@ public class ReadActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences prefs = getSharedPreferences("AppSettings", MODE_PRIVATE);
+        boolean showBottomBar = prefs.getBoolean("showBottomBar", true);
+
+        if (showBottomBar) {
+            bottomBar.setVisibility(View.VISIBLE);
+            btnMenu.setVisibility(View.GONE);
+        } else {
+            bottomBar.setVisibility(View.GONE);
+            btnMenu.setVisibility(View.VISIBLE);
+        }
+    }
+
 }
