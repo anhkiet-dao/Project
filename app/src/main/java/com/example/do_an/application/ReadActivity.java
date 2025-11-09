@@ -12,6 +12,7 @@ import android.content.Intent;
 
 import com.example.do_an.R;
 import com.example.do_an.Story.FavoriteManager;
+import com.example.do_an.Story.ListActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -58,13 +59,14 @@ public class ReadActivity extends AppCompatActivity {
     private float currentZoom = 1.0f; // Mức zoom mặc định
     private int currentPage = 0;
 
-    private String currentStoryId = "doraemon_001";
-    private String currentTitle = "Doraemon";
-    private String currentAuthor = "Fujiko F. Fujio";
-    private String currentCategory = "Thiếu nhi";
-    private String currentDescription = "Truyện tranh nổi tiếng của Nhật Bản";
-    private String currentImageUrl = "https://example.com/doraemon.jpg";
+    private String currentStoryId;
+    private String currentTitle;
+    private String currentAuthor;
+    private String currentCategory;
+    private String currentDescription;
+    private String currentImageUrl;
     private String currentReadUrl = "";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +93,14 @@ public class ReadActivity extends AppCompatActivity {
         btnZoomOut = findViewById(R.id.btnZoomOut);
         bottomBar = findViewById(R.id.bottomBar);
         btnMenu = findViewById(R.id.btnMenu);
+        ImageView btnBack = findViewById(R.id.btnBack);
+
+        btnBack.setOnClickListener(v -> {
+            Intent intent = new Intent(ReadActivity.this, ListActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+            finish(); // ✅ Đóng activity hiện tại để quay lại danh sách
+        });
 
         // 🔹 Settings panel
         View settingsContainer = findViewById(R.id.settingsContainer);
@@ -108,6 +118,20 @@ public class ReadActivity extends AppCompatActivity {
             userEmail = currentUser.getEmail();
         } else {
             Toast.makeText(this, "Bạn chưa đăng nhập!", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        Intent intent = getIntent();
+        currentStoryId = intent.getStringExtra("STORY_ID");
+        currentTitle = intent.getStringExtra("STORY_TITLE");
+        currentAuthor = intent.getStringExtra("STORY_AUTHOR");
+        currentCategory = intent.getStringExtra("STORY_CATEGORY");
+        currentImageUrl = intent.getStringExtra("STORY_IMAGE_URL");
+        currentDescription = intent.getStringExtra("STORY_DESCRIPTION");
+
+        if (currentStoryId == null || currentTitle == null) {
+            Toast.makeText(this, "Lỗi: Không có thông tin truyện!", Toast.LENGTH_LONG).show();
             finish();
             return;
         }
@@ -268,24 +292,24 @@ public class ReadActivity extends AppCompatActivity {
         }
     }
 
-    private void loadPdfFromFirestore(String tenTruyen) {
-        db.collection("doraemon")
+    private void loadPdfFromFirestore(String storyDocumentId) {
+        db.collection("Truyentranh").document(storyDocumentId)
                 .get()
-                .addOnSuccessListener(query -> {
-                    for (DocumentSnapshot doc : query.getDocuments()) {
-                        String title = doc.getString("title");
-                        if (title != null && title.equalsIgnoreCase(tenTruyen.trim())) {
-                            String pdfUrl = doc.getString("pdfUrl");
-                            if (pdfUrl != null && !pdfUrl.isEmpty()) {
-                                currentReadUrl = pdfUrl;
-                                downloadPdfToCache(pdfUrl, "temp_story.pdf");
-                            } else {
-                                Toast.makeText(this, "Không tìm thấy file PDF!", Toast.LENGTH_SHORT).show();
-                            }
-                            return;
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        // Tìm thấy truyện, lấy pdfUrl
+                        String pdfUrl = doc.getString("pdfUrl");
+
+                        if (pdfUrl != null && !pdfUrl.isEmpty()) {
+                            currentReadUrl = pdfUrl; // Lưu lại để dùng cho Favorite
+                            downloadPdfToCache(pdfUrl, "temp_story.pdf");
+                        } else {
+                            Toast.makeText(this, "Truyện này không có file PDF!", Toast.LENGTH_SHORT).show();
                         }
+                    } else {
+                        // Không tìm thấy document
+                        Toast.makeText(this, "Không tìm thấy dữ liệu PDF cho truyện '" + storyDocumentId + "'!", Toast.LENGTH_SHORT).show();
                     }
-                    Toast.makeText(this, "Không tìm thấy truyện '" + tenTruyen + "' trong Firestore!", Toast.LENGTH_SHORT).show();
                 })
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "Lỗi tải Firestore: " + e.getMessage(), Toast.LENGTH_LONG).show());

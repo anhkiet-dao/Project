@@ -66,5 +66,10 @@ dependencies {
     implementation ("com.google.firebase:firebase-firestore:25.1.1")
     implementation ("com.google.firebase:firebase-analytics:22.1.2")
     implementation ("androidx.viewpager2:viewpager2:1.0.0")
+
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+    implementation("androidx.cardview:cardview:1.0.0")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+
 }
 
