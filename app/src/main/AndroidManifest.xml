@@ -35,14 +35,10 @@
         <activity android:name=".application.InforApp"
             android:exported="false" />
 
-        <activity android:name=".UI.Account"
-            android:exported="false" />
-
-        <activity android:name=".application.SearchActivity"
-            android:exported="false" />
-
-<!--        <activity android:name=".application.ReadActivity"-->
+<!--        <activity android:name=".UI.Account"-->
 <!--            android:exported="false" />-->
+
+        <activity android:name=".application.HistoryActivity"/>
 
         <activity android:name=".API.AIReadingAssistant" android:exported="false" />
         <activity android:name=".API.AISummarizer" android:exported="false" />
@@ -56,8 +52,17 @@
         <activity android:name=".application.ReadActivity"
             android:exported="false"/>
 
+        <activity android:name=".Story.FavoriteActivity"
+            android:exported="false"/>
+
+        <activity android:name=".Story.ListActivity"
+            android:exported="false"/>
+
+        <activity android:name=".UI.MyList"
+            android:exported="false"/>
+
         <activity
-            android:name=".Story.ListActivity"
+            android:name=".UI.Account"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

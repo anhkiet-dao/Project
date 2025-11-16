@@ -53,7 +53,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="50dp"
-        android:text="Lịch sử"
+        android:text="Lịch sử xem"
+        android:textSize="20sp"
+        android:textColor="#1E88E5"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="10dp" />
+
+    <TextView
+        android:id="@+id/tvLike"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="50dp"
+        android:text="Truyện yêu thích"
         android:textSize="20sp"
         android:textColor="#1E88E5"
         android:clickable="true"

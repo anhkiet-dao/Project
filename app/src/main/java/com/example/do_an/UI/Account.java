@@ -19,6 +19,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.do_an.R;
+import com.example.do_an.Story.FavoriteActivity;
+import com.example.do_an.application.HistoryActivity;
 import com.example.do_an.application.InforApp;
 import com.example.do_an.user.LoginActivity;
 import com.example.do_an.user.ProfileActivity;
@@ -32,7 +34,7 @@ import com.google.firebase.database.ValueEventListener;
 
 public class Account extends AppCompatActivity {
 
-    TextView tvProfile, tvSettings, tvHistory, tvAnalytics, tvInformation;
+    TextView tvProfile, tvSettings, tvHistory, tvAnalytics, tvInformation, tvFavorite;
     Button btnLogout;
     ImageView imgAvatar;
 
@@ -52,6 +54,7 @@ public class Account extends AppCompatActivity {
         tvAnalytics = findViewById(R.id.tvAnalytics);
         tvInformation = findViewById(R.id.tvInformation);
         btnLogout = findViewById(R.id.btnLogout);
+        tvFavorite = findViewById(R.id.tvLike);
 
         // Firebase Auth
         auth = FirebaseAuth.getInstance();
@@ -118,6 +121,13 @@ public class Account extends AppCompatActivity {
             startActivity(new Intent(Account.this, LoginActivity.class));
             finish();
         });
+
+        //khi bam yeu thich
+        tvFavorite.setOnClickListener(v ->
+                startActivity(new Intent(Account.this, FavoriteActivity.class))
+        );
+
+        tvHistory.setOnClickListener(v -> startActivity((new Intent(Account.this, HistoryActivity.class))));
     }
 
     // 🔹 Hàm cắt bitmap thành hình tròn

@@ -13,6 +13,7 @@ import android.content.Intent;
 import com.example.do_an.R;
 import com.example.do_an.Story.FavoriteManager;
 import com.example.do_an.Story.ListActivity;
+import com.example.do_an.UI.MyList;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -31,6 +32,14 @@ import java.util.Map;
 import android.widget.ImageButton;
 import android.widget.Switch;
 import androidx.appcompat.widget.AppCompatButton;
+
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class ReadActivity extends AppCompatActivity {
 
@@ -96,7 +105,7 @@ public class ReadActivity extends AppCompatActivity {
         ImageView btnBack = findViewById(R.id.btnBack);
 
         btnBack.setOnClickListener(v -> {
-            Intent intent = new Intent(ReadActivity.this, ListActivity.class);
+            Intent intent = new Intent(ReadActivity.this, MyList.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
             finish(); // ✅ Đóng activity hiện tại để quay lại danh sách
@@ -244,6 +253,8 @@ public class ReadActivity extends AppCompatActivity {
                 Toast.makeText(this, "Đã thu nhỏ tối đa!", Toast.LENGTH_SHORT).show();
             }
         });
+
+        saveStartReadingHistory();
     }
 
 
@@ -382,6 +393,57 @@ public class ReadActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        saveEndReadingHistory(); // 🔹 Khi thoát hoặc đóng Activity thì lưu thời gian kết thúc
+    }
+
+    // 🔹 Lưu thời gian bắt đầu đọc
+    private String currentHistoryKey; // Biến toàn cục
+
+    private void saveStartReadingHistory() {
+        if (currentUser == null || currentStoryId == null) return;
+
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.getDefault());
+        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
+        String startTime = sdf.format(new Date());
+
+        HashMap<String, Object> historyData = new HashMap<>();
+        historyData.put("title", currentTitle);
+        historyData.put("author", currentAuthor);
+        historyData.put("startTime", startTime);
+        historyData.put("storyId", currentStoryId);
+
+        DatabaseReference dbRef = FirebaseDatabase.getInstance()
+                .getReference("History")
+                .child(userEmail.replace(".", "_"))
+                .push(); // Tạo node mới
+        currentHistoryKey = dbRef.getKey(); // ✅ Lưu key
+        dbRef.setValue(historyData)
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "✅ Đã lưu thời gian bắt đầu đọc"))
+                .addOnFailureListener(e -> Log.e(TAG, "❌ Lỗi lưu thời gian bắt đầu", e));
+    }
+
+    private void saveEndReadingHistory() {
+        if (currentUser == null || currentStoryId == null || currentHistoryKey == null) return;
+
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.getDefault());
+        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
+        String endTime = sdf.format(new Date());
+
+        DatabaseReference dbRef = FirebaseDatabase.getInstance()
+                .getReference("History")
+                .child(userEmail.replace(".", "_"))
+                .child(currentHistoryKey) // ✅ Dùng key từ startTime
+                .child("endTime");
+
+        dbRef.setValue(endTime)
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "✅ Đã lưu thời gian kết thúc đọc"))
+                .addOnFailureListener(e -> Log.e(TAG, "❌ Lỗi lưu thời gian kết thúc", e));
+    }
+
 
     @Override
     protected void onResume() {
