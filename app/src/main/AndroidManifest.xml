@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION"/>
 
     <application
         android:allowBackup="true"
@@ -17,6 +18,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Do_an"
         tools:targetApi="31">
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true"
+            tools:ignore="WrongManifestParent">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
         <!-- Màn hình Đăng ký -->
         <activity
@@ -35,8 +47,8 @@
         <activity android:name=".application.InforApp"
             android:exported="false" />
 
-<!--        <activity android:name=".UI.Account"-->
-<!--            android:exported="false" />-->
+        <activity android:name=".UI.Account"
+            android:exported="false" />
 
         <activity android:name=".application.HistoryActivity"/>
 
@@ -58,11 +70,14 @@
         <activity android:name=".Story.ListActivity"
             android:exported="false"/>
 
+<!--        <activity android:name=".application.DownloadedPdfActivity"-->
+<!--            android:exported="false"/>-->
+
         <activity android:name=".UI.MyList"
             android:exported="false"/>
 
         <activity
-            android:name=".UI.Account"
+            android:name=".application.DownloadedPdfActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

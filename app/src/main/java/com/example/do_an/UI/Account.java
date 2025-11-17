@@ -50,11 +50,9 @@ public class Account extends AppCompatActivity {
         imgAvatar = findViewById(R.id.imgAvatar);
         tvProfile = findViewById(R.id.tvProfile);
         tvSettings = findViewById(R.id.tvSettings);
-        tvHistory = findViewById(R.id.tvHistory);
         tvAnalytics = findViewById(R.id.tvAnalytics);
         tvInformation = findViewById(R.id.tvInformation);
         btnLogout = findViewById(R.id.btnLogout);
-        tvFavorite = findViewById(R.id.tvLike);
 
         // Firebase Auth
         auth = FirebaseAuth.getInstance();
@@ -121,13 +119,6 @@ public class Account extends AppCompatActivity {
             startActivity(new Intent(Account.this, LoginActivity.class));
             finish();
         });
-
-        //khi bam yeu thich
-        tvFavorite.setOnClickListener(v ->
-                startActivity(new Intent(Account.this, FavoriteActivity.class))
-        );
-
-        tvHistory.setOnClickListener(v -> startActivity((new Intent(Account.this, HistoryActivity.class))));
     }
 
     // 🔹 Hàm cắt bitmap thành hình tròn
