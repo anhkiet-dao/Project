@@ -39,13 +39,9 @@ public class MyList extends AppCompatActivity {
             selectButton(btnFavorite);
         });
 
-        // Mặc định hiển thị Readlist và chọn nút Readlist
         loadFragment(new ReadlistFragment());
         selectButton(btnReadlist);
 
-        // -------------------------------
-        // 🔍 Lắng nghe Search để gửi sang ReadlistFragment
-        // -------------------------------
         edtSearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}

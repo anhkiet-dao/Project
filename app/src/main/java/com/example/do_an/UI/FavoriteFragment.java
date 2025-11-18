@@ -24,6 +24,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.example.do_an.application.Encryption;
 
 public class FavoriteFragment extends Fragment {
 
@@ -90,7 +91,31 @@ public class FavoriteFragment extends Fragment {
                 favoriteList.clear();
                 for (DataSnapshot storySnap : snapshot.getChildren()) {
                     FavoriteStory story = storySnap.getValue(FavoriteStory.class);
-                    if (story != null) favoriteList.add(story);
+
+                    if (story != null) {
+                        try {
+                            if (story.getTitle() != null) {
+                                story.setTitle((story.getTitle()));
+                            }
+                            if (story.getAuthor() != null) {
+                                story.setAuthor((story.getAuthor()));
+                            }
+                            if (story.getCategory() != null) {
+                                story.setCategory((story.getCategory()));
+                            }
+                            if (story.getImageUrl() != null) {
+                                story.setImageUrl((story.getImageUrl()));
+                            }
+                            if (story.getReadUrl() != null) {
+                                story.setReadUrl((story.getReadUrl()));
+                            }
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        favoriteList.add(story);
+                    }
                 }
                 adapter.notifyDataSetChanged();
             }

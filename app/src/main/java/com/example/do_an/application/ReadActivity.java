@@ -54,6 +54,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import java.util.concurrent.TimeUnit;
+import okhttp3.Call;
 
 public class ReadActivity extends AppCompatActivity {
     private static final String TAG = "ReadActivity";
@@ -80,6 +81,8 @@ public class ReadActivity extends AppCompatActivity {
     private String currentImageUrl;
     private String currentReadUrl = "";
     private String mainStoryTitle;
+    private Call currentDownloadCall;
+    private boolean isActivityDestroyed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -285,7 +288,8 @@ public class ReadActivity extends AppCompatActivity {
                 Toast.makeText(this, "File PDF không tồn tại, tải lại...", Toast.LENGTH_SHORT).show();
                 loadPdfFromFirestore(mainStoryTitle); // Tải lại "LINK CŨ"
             }
-        } else {
+        }
+        else {
             // === ƯU TIÊN 3: Tải "LINK CŨ" (Link của truyện chính) ===
             loadPdfFromFirestore(mainStoryTitle);
         }
@@ -305,7 +309,7 @@ public class ReadActivity extends AppCompatActivity {
 
     private void downloadPdfWithOkHttp(String driveUrl, String fileName) {
 
-        runOnUiThread(() -> Toast.makeText(this, "Bắt đầu tải nhanh PDF...", Toast.LENGTH_SHORT).show());
+        runOnUiThread(() -> Toast.makeText(this, "Bắt đầu tải dữ liệu ...", Toast.LENGTH_SHORT).show());
 
         new Thread(() -> {
             try {
@@ -357,12 +361,12 @@ public class ReadActivity extends AppCompatActivity {
                 is.close();
 
                 runOnUiThread(() -> {
-                    Toast.makeText(this, "Tải PDF thành công!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Tải dữ liệu thành công!", Toast.LENGTH_SHORT).show();
                 });
 
             } catch (Exception e) {
-                e.printStackTrace();
-                runOnUiThread(() -> Toast.makeText(this, "Lỗi tải PDF!", Toast.LENGTH_SHORT).show());
+                    e.printStackTrace();
+                    runOnUiThread(() -> Toast.makeText(this, "Lỗi tải PDF!", Toast.LENGTH_SHORT).show());
             }
         }).start();
     }
@@ -386,37 +390,64 @@ public class ReadActivity extends AppCompatActivity {
     }
 
     private void checkIfFavorite() {
+        String mainStoryTitle = getIntent().getStringExtra("STORY_TITLE");
+        String episodeTitle = getIntent().getStringExtra("TAP");
+
+        String titleToCheck = mainStoryTitle;
+        if (episodeTitle != null && !episodeTitle.isEmpty()) {
+            titleToCheck = mainStoryTitle + " - " + episodeTitle;
+        }
+
+        final String finalTitleToCheck = titleToCheck;
+
         favoriteManager.getFavorites(userEmail, favorites -> {
+            boolean found = false; // Cờ đánh dấu tìm thấy hay chưa
+
             for (Map<String, Object> item : favorites) {
-                if (item != null && currentStoryId.equals(item.get("storyId"))) {
-                    isFavorite = true;
-                    btnFavorite.setImageResource(R.drawable.ic_favorite_filled);
-                    return;
+                if (item != null) {
+                    String id = (String) item.get("storyId");
+                    String title = (String) item.get("title");
+
+                    if (currentStoryId.equals(id) && finalTitleToCheck.equals(title)) {
+                        found = true;
+                        break; // Tìm thấy rồi thì thoát vòng lặp luôn
+                    }
                 }
             }
-            isFavorite = false;
-            btnFavorite.setImageResource(R.drawable.ic_favorite_border);
+
+            isFavorite = found;
+            if (isFavorite) {
+                btnFavorite.setImageResource(R.drawable.ic_favorite_filled);
+            } else {
+                btnFavorite.setImageResource(R.drawable.ic_favorite_border);
+            }
         });
     }
 
     private void toggleFavorite() {
-        // Lấy tên truyện chính, phòng trường hợp currentTitle là tên tập
         String mainStoryTitle = getIntent().getStringExtra("STORY_TITLE");
+        String episodeTitle = getIntent().getStringExtra("TAP");
+        String titleForFavorite = mainStoryTitle;
+
+        // Nếu có tên tập, nối chuỗi lại: "Tên Truyện - Tên Tập"
+        if (episodeTitle != null && !episodeTitle.isEmpty()) {
+            titleForFavorite = mainStoryTitle + " - " + episodeTitle;
+        }
 
         if (!isFavorite) {
-            // ➕ Thêm truyện yêu thích
+            // ➕ Thêm truyện yêu thích với tên mới
             favoriteManager.addFavorite(
                     userEmail,
                     currentStoryId,
-                    mainStoryTitle, // ⭐️ Luôn dùng tên truyện chính
+                    titleForFavorite, // ✨ Đã thay đổi ở đây: Lưu "Tên truyện - Tên tập"
                     currentAuthor,
                     currentCategory,
                     currentDescription,
                     currentImageUrl,
-                    currentReadUrl // Link (có thể là của tập hoặc của truyện)
+                    currentReadUrl // Link PDF của tập đó
             );
             btnFavorite.setImageResource(R.drawable.ic_favorite_filled);
-            Toast.makeText(this, "Đã thêm vào yêu thích ❤️", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Đã thêm: " + titleForFavorite + " vào yêu thích ❤️", Toast.LENGTH_SHORT).show();
             isFavorite = true;
         } else {
             // ❌ Xóa truyện yêu thích
@@ -478,6 +509,8 @@ public class ReadActivity extends AppCompatActivity {
                         .url(downloadUrl)
                         .build();
 
+                currentDownloadCall = client.newCall(request);
+
                 Response response = client.newCall(request).execute();
                 if (!response.isSuccessful()) {
                     runOnUiThread(() ->
@@ -498,6 +531,13 @@ public class ReadActivity extends AppCompatActivity {
                 byte[] buffer = new byte[64 * 1024]; // 64 KB
                 int len;
                 while ((len = is.read(buffer)) != -1) {
+                    if (isActivityDestroyed) {
+                        is.close();
+                        fos.close();
+                        pdfFile.delete();
+                        Log.d(TAG, "Đã hủy tải do thoát màn hình");
+                        return;
+                    }
                     fos.write(buffer, 0, len);
                 }
 
@@ -513,10 +553,12 @@ public class ReadActivity extends AppCompatActivity {
                 });
 
             } catch (Exception e) {
-                e.printStackTrace();
-                runOnUiThread(() ->
-                        Toast.makeText(this, "Lỗi khi tải: " + e.getMessage(), Toast.LENGTH_LONG).show()
-                );
+                if (isActivityDestroyed || "Canceled".equals(e.getMessage())) {
+                    Log.d(TAG, "Download cancelled by user exit.");
+                } else {
+                    e.printStackTrace();
+                    runOnUiThread(() -> Toast.makeText(this, "Lỗi tải PDF!", Toast.LENGTH_SHORT).show());
+                }
             }
         }).start();
     }
@@ -537,6 +579,12 @@ public class ReadActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        isActivityDestroyed = true;
+
+        if (currentDownloadCall != null && !currentDownloadCall.isCanceled()) {
+            currentDownloadCall.cancel();
+        }
+
         try {
             if (pdfPageAdapter != null) {
                 pdfPageAdapter.close();
@@ -572,11 +620,11 @@ public class ReadActivity extends AppCompatActivity {
         String startTime = sdf.format(new Date());
 
         HashMap<String, Object> historyData = new HashMap<>();
-        historyData.put("title", titleForHistory); // ⭐️ Luôn dùng tên truyện chính
-        historyData.put("author", currentAuthor);
-        historyData.put("episodeTitle", currentEpisodeTitle);
-        historyData.put("startTime", startTime);
-        historyData.put("storyId", currentStoryId);
+        historyData.put("title", Encryption.encrypt(titleForHistory)); // ⭐️ Luôn dùng tên truyện chính
+        historyData.put("author", Encryption.encrypt(currentAuthor));
+        historyData.put("episodeTitle", Encryption.encrypt(currentEpisodeTitle));
+        historyData.put("startTime", Encryption.encrypt(startTime));
+        historyData.put("storyId", Encryption.encrypt(currentStoryId));
 
         DatabaseReference dbRef = FirebaseDatabase.getInstance()
                 .getReference("History")
@@ -593,7 +641,7 @@ public class ReadActivity extends AppCompatActivity {
 
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.getDefault());
         sdf.setTimeZone(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
-        String endTime = sdf.format(new Date());
+        String endTime = Encryption.encrypt(sdf.format(new Date()));
 
         DatabaseReference dbRef = FirebaseDatabase.getInstance()
                 .getReference("History")

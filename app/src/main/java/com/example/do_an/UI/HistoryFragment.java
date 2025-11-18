@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.do_an.R;
+import com.example.do_an.application.Encryption;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -78,11 +79,11 @@ public class HistoryFragment extends Fragment {
                 SimpleDateFormat sdfTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
 
                 for (DataSnapshot item : snapshot.getChildren()) {
-                    String title = item.child("title").getValue(String.class); // tên truyện chính
-                    String author = item.child("author").getValue(String.class);
-                    String episodeTitle = item.child("episodeTitle").getValue(String.class); // ✅ thêm tên tập
-                    String startTimeStr = item.child("startTime").getValue(String.class);
-                    String endTimeStr = item.child("endTime").getValue(String.class);
+                    String title = Encryption.decrypt(item.child("title").getValue(String.class)); // tên truyện chính
+                    String author = Encryption.decrypt(item.child("author").getValue(String.class));
+                    String episodeTitle = Encryption.decrypt(item.child("episodeTitle").getValue(String.class)); // ✅ thêm tên tập
+                    String startTimeStr = Encryption.decrypt(item.child("startTime").getValue(String.class));
+                    String endTimeStr = Encryption.decrypt(item.child("endTime").getValue(String.class));
 
                     Date startDate = new Date();
                     Date endDate = new Date();

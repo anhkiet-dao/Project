@@ -54,14 +54,24 @@ public class ReadlistFragment extends Fragment {
 
         // Sự kiện click vào 1 truyện
         storyAdapter.setOnStoryClickListener(story -> {
-            Intent intent = new Intent(getContext(), SeriesActivity.class);
-            intent.putExtra("STORY_ID", story.getId());        // ID để query subcollection
-            intent.putExtra("STORY_NAME", story.getTenTruyen());
-            intent.putExtra("STORY_AUTHOR", story.getTacGia());
-            intent.putExtra("STORY_CATEGORY", story.getTheLoai());
-            intent.putExtra("STORY_IMAGE_URL", story.getAnhBia());
-            intent.putExtra("STORY_YEAR", story.getNamPhatHanh());
-            startActivity(intent);
+            SeriesFragment seriesFragment = new SeriesFragment();
+
+            Bundle args = new Bundle();
+            args.putString("STORY_ID", story.getId());
+            args.putString("STORY_NAME", story.getTenTruyen());
+            args.putString("STORY_AUTHOR", story.getTacGia());
+            args.putString("STORY_CATEGORY", story.getTheLoai());
+            args.putString("STORY_IMAGE_URL", story.getAnhBia());
+
+            seriesFragment.setArguments(args);
+
+            if (getActivity() != null) {
+                getActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.containerContent, seriesFragment) // ID khung chứa trong activity_mylist.xml
+                        .addToBackStack(null) // Quan trọng: Để bấm nút Back quay lại được danh sách
+                        .commit();
+            }
         });
 
         db = FirebaseFirestore.getInstance();
