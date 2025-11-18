@@ -58,8 +58,8 @@
         <activity android:name=".API.AIBookRecommender" android:exported="false" />
         <activity android:name=".API.GeminiAPIHelper" android:exported="false" />
 
-        <activity android:name=".user.LoginActivity"
-            android:exported="false" />
+<!--        <activity android:name=".user.LoginActivity"-->
+<!--            android:exported="false" />-->
 
         <activity android:name=".application.ReadActivity"
             android:exported="false"/>
@@ -70,14 +70,17 @@
         <activity android:name=".Story.ListActivity"
             android:exported="false"/>
 
-<!--        <activity android:name=".application.DownloadedPdfActivity"-->
-<!--            android:exported="false"/>-->
+        <activity android:name=".application.DownloadedPdfActivity"
+            android:exported="false"/>
 
         <activity android:name=".UI.MyList"
             android:exported="false"/>
 
+        <activity android:name=".Story.SeriesActivity"
+            android:exported="false"/>
+
         <activity
-            android:name=".application.DownloadedPdfActivity"
+            android:name=".user.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

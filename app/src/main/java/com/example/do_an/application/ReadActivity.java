@@ -14,6 +14,7 @@ import android.content.Intent;
 import com.example.do_an.R;
 import com.example.do_an.Story.FavoriteManager;
 import com.example.do_an.Story.ListActivity;
+import com.example.do_an.Story.SeriesActivity;
 import com.example.do_an.UI.MyList;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -52,34 +53,25 @@ import java.util.concurrent.Future;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import java.util.concurrent.TimeUnit;
 
 public class ReadActivity extends AppCompatActivity {
-
     private static final String TAG = "ReadActivity";
     private TextView txtTieuDe;
     private ViewPager2 pdfViewPager;
     private ImageView btnFavorite;
-
     private FirebaseFirestore db;
     private FavoriteManager favoriteManager;
     private FirebaseUser currentUser;
-
     private PdfPageAdapter pdfPageAdapter;
-
     private boolean isFavorite = false;
     private String userEmail;
-
     private ImageView btnPrevPage, btnNextPage, btnZoomIn, btnZoomOut;
-
     private ImageView btnSettings, btnDownLoad, btnLibrary;
-
     private View bottomBar;
     private ImageButton btnMenu;
-
-    // Các biến hỗ trợ
     private float currentZoom = 1.0f; // Mức zoom mặc định
     private int currentPage = 0;
-
     private String currentStoryId;
     private String currentTitle;
     private String currentAuthor;
@@ -87,13 +79,12 @@ public class ReadActivity extends AppCompatActivity {
     private String currentDescription;
     private String currentImageUrl;
     private String currentReadUrl = "";
-
+    private String mainStoryTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // 🔹 Đọc chế độ Dark Mode từ SharedPreferences
         SharedPreferences prefs = getSharedPreferences("AppSettings", MODE_PRIVATE);
         boolean darkMode = prefs.getBoolean("darkMode", false);
         if (darkMode) {
@@ -104,7 +95,6 @@ public class ReadActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_reading);
 
-        // 🔹 Ánh xạ View chính
         txtTieuDe = findViewById(R.id.txtTieuDe);
         pdfViewPager = findViewById(R.id.pdfViewPager);
         btnFavorite = findViewById(R.id.btnFavorite);
@@ -118,14 +108,8 @@ public class ReadActivity extends AppCompatActivity {
         btnLibrary = findViewById(R.id.btnLibrary);
         ImageView btnBack = findViewById(R.id.btnBack);
 
-        btnBack.setOnClickListener(v -> {
-            Intent intent = new Intent(ReadActivity.this, MyList.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(intent);
-            finish(); // ✅ Đóng activity hiện tại để quay lại danh sách
-        });
+        btnBack.setOnClickListener(v -> finish());
 
-        // 🔹 Settings panel
         View settingsContainer = findViewById(R.id.settingsContainer);
         AppCompatButton btnCloseSettings = findViewById(R.id.btnCloseSettings);
         Switch switchDarkMode = findViewById(R.id.switch_dark_mode);
@@ -151,12 +135,26 @@ public class ReadActivity extends AppCompatActivity {
         });
 
         Intent intent = getIntent();
+
+        String episodePdfLink = intent.getStringExtra("PDF_LINK");
+        String episodeTitle = intent.getStringExtra("TAP");
+        String pdfPath = intent.getStringExtra("PDF_PATH");
+
         currentStoryId = intent.getStringExtra("STORY_ID");
         currentTitle = intent.getStringExtra("STORY_TITLE");
         currentAuthor = intent.getStringExtra("STORY_AUTHOR");
         currentCategory = intent.getStringExtra("STORY_CATEGORY");
         currentImageUrl = intent.getStringExtra("STORY_IMAGE_URL");
         currentDescription = intent.getStringExtra("STORY_DESCRIPTION");
+        mainStoryTitle = intent.getStringExtra("STORY_TITLE");
+
+        if (episodeTitle != null) {
+            currentTitle = episodeTitle; // Ưu tiên tên tập "Tập 01"
+        } else if (pdfPath != null) {
+            currentTitle = new File(pdfPath).getName().replace(".pdf", ""); // Tên file local
+        } else {
+            currentTitle = mainStoryTitle; // Tên truyện chính
+        }
 
         if (currentStoryId == null || currentTitle == null) {
             Toast.makeText(this, "Lỗi: Không có thông tin truyện!", Toast.LENGTH_LONG).show();
@@ -166,14 +164,10 @@ public class ReadActivity extends AppCompatActivity {
 
         txtTieuDe.setText(currentTitle);
 
-        // 🔍 Kiểm tra truyện đã yêu thích
         checkIfFavorite();
         btnFavorite.setOnClickListener(v -> toggleFavorite());
 
-        // 📘 Tải PDF truyện
-//        loadPdfFromFirestore(currentTitle);
 
-        // 👇 Hiển thị hoặc ẩn thanh bottomBar theo SharedPreferences
         boolean showBottomBar = prefs.getBoolean("showBottomBar", true);
         if (showBottomBar) {
             bottomBar.setVisibility(View.VISIBLE);
@@ -183,24 +177,20 @@ public class ReadActivity extends AppCompatActivity {
             btnMenu.setVisibility(View.VISIBLE);
         }
 
-        // 🎛️ Nút menu (3 chấm) để hiển thị lại BottomBar
         btnMenu.setOnClickListener(v -> {
             bottomBar.setVisibility(View.VISIBLE);
             btnMenu.setVisibility(View.GONE);
             prefs.edit().putBoolean("showBottomBar", true).apply();
         });
 
-        // 🔹 Nút đóng Settings
         btnCloseSettings.setOnClickListener(v -> settingsContainer.setVisibility(View.GONE));
 
-        // 🔹 Nút mở Settings panel
         btnSettings.setOnClickListener(v -> {
             settingsContainer.setVisibility(View.VISIBLE);
             switchDarkMode.setChecked(prefs.getBoolean("darkMode", false));
             switchShowBottomBar.setChecked(prefs.getBoolean("showBottomBar", true));
         });
 
-        // 🔹 Switch Dark Mode
         switchDarkMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
             prefs.edit().putBoolean("darkMode", isChecked).apply();
             if (isChecked) {
@@ -210,7 +200,6 @@ public class ReadActivity extends AppCompatActivity {
             }
         });
 
-        // 🔹 Switch Show BottomBar
         switchShowBottomBar.setOnCheckedChangeListener((buttonView, isChecked) -> {
             prefs.edit().putBoolean("showBottomBar", isChecked).apply();
             if (isChecked) {
@@ -222,7 +211,6 @@ public class ReadActivity extends AppCompatActivity {
             }
         });
 
-        // 📖 Nút điều khiển trang
         btnPrevPage.setOnClickListener(v -> {
             if (pdfPageAdapter == null) return;
             if (currentPage > 0) {
@@ -252,7 +240,6 @@ public class ReadActivity extends AppCompatActivity {
             }
         });
 
-        // 🔍 Nút Zoom In/Out
         btnZoomIn.setOnClickListener(v -> {
             if (pdfViewPager.getScaleX() < 3.0f) {
                 currentZoom += 0.25f;
@@ -273,29 +260,34 @@ public class ReadActivity extends AppCompatActivity {
             }
         });
 
+        String displayTitle = currentTitle; // Giữ lại tên hiển thị (VD: "Tập 01")
+        currentTitle = mainStoryTitle != null ? mainStoryTitle : displayTitle;
+
         saveStartReadingHistory();
 
+        currentTitle = displayTitle; // Trả lại tên hiển thị cho
+        txtTieuDe.setText(currentTitle);
+
         // Kiểm tra xem có mở PDF từ DownloadedPdfActivity không
-        String pdfPath = intent.getStringExtra("PDF_PATH");
-        if (pdfPath != null) {
+        if (episodePdfLink != null && !episodePdfLink.isEmpty()) {
+            // === ƯU TIÊN 1: Tải "LINK MỚI" (Link tập) ===
+            currentReadUrl = episodePdfLink; // Lưu link tập để tải/favorite
+            downloadPdfToCache(currentReadUrl, "temp_episode.pdf");
+
+        } else if (pdfPath != null) {
+            // === ƯU TIÊN 2: Tải file LOCAL (từ DownloadedPdfActivity) ===
             File pdfFile = new File(pdfPath);
             if (pdfFile.exists()) {
-                // Lấy title từ tên file (nếu cần)
-                currentTitle = pdfFile.getName().replace(".pdf", "");
-                txtTieuDe.setText(currentTitle);
-
                 setupPdfRenderer(pdfFile);
-
-                findAndSetCurrentReadUrl(currentTitle);
-
+                // Tìm link PDF gốc dựa trên tên truyện chính
+                findAndSetCurrentReadUrl(mainStoryTitle);
             } else {
                 Toast.makeText(this, "File PDF không tồn tại, tải lại...", Toast.LENGTH_SHORT).show();
-                loadPdfFromFirestore(currentTitle); // Tải về cache
-                btnDownLoad.setVisibility(View.VISIBLE);
+                loadPdfFromFirestore(mainStoryTitle); // Tải lại "LINK CŨ"
             }
         } else {
-
-            loadPdfFromFirestore(currentTitle); // Tải về cache để đọc
+            // === ƯU TIÊN 3: Tải "LINK CŨ" (Link của truyện chính) ===
+            loadPdfFromFirestore(mainStoryTitle);
         }
 
         btnDownLoad.setOnClickListener(v -> {
@@ -323,6 +315,9 @@ public class ReadActivity extends AppCompatActivity {
 
                 OkHttpClient client = new OkHttpClient.Builder()
                         .retryOnConnectionFailure(true)
+                        .connectTimeout(60, TimeUnit.SECONDS)
+                        .readTimeout(60, TimeUnit.SECONDS)
+                        .writeTimeout(60, TimeUnit.SECONDS)
                         .build();
 
                 Request request = new Request.Builder()
@@ -390,9 +385,6 @@ public class ReadActivity extends AppCompatActivity {
                         Log.e(TAG, "Lỗi khi tìm pdfUrl: " + e.getMessage()));
     }
 
-    /**
-     * 🔍 Kiểm tra truyện có trong danh sách yêu thích hay không
-     */
     private void checkIfFavorite() {
         favoriteManager.getFavorites(userEmail, favorites -> {
             for (Map<String, Object> item : favorites) {
@@ -407,21 +399,21 @@ public class ReadActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * ❤️ Toggle yêu thích
-     */
     private void toggleFavorite() {
+        // Lấy tên truyện chính, phòng trường hợp currentTitle là tên tập
+        String mainStoryTitle = getIntent().getStringExtra("STORY_TITLE");
+
         if (!isFavorite) {
             // ➕ Thêm truyện yêu thích
             favoriteManager.addFavorite(
                     userEmail,
                     currentStoryId,
-                    currentTitle,
+                    mainStoryTitle, // ⭐️ Luôn dùng tên truyện chính
                     currentAuthor,
                     currentCategory,
                     currentDescription,
                     currentImageUrl,
-                    currentReadUrl
+                    currentReadUrl // Link (có thể là của tập hoặc của truyện)
             );
             btnFavorite.setImageResource(R.drawable.ic_favorite_filled);
             Toast.makeText(this, "Đã thêm vào yêu thích ❤️", Toast.LENGTH_SHORT).show();
@@ -460,7 +452,7 @@ public class ReadActivity extends AppCompatActivity {
 
     private void downloadPdfToCache(String pdfUrl, String fileName) {
         runOnUiThread(() ->
-                Toast.makeText(this, "Bắt đầu tải nhanh PDF...", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Đang tải dữ liệu...", Toast.LENGTH_SHORT).show()
         );
 
         new Thread(() -> {
@@ -477,6 +469,9 @@ public class ReadActivity extends AppCompatActivity {
                 // ---- B2: Tạo OkHttpClient ----
                 OkHttpClient client = new OkHttpClient.Builder()
                         .retryOnConnectionFailure(true)
+                        .connectTimeout(60, TimeUnit.SECONDS)
+                        .readTimeout(60, TimeUnit.SECONDS)
+                        .writeTimeout(60, TimeUnit.SECONDS)
                         .build();
 
                 Request request = new Request.Builder()
@@ -486,7 +481,7 @@ public class ReadActivity extends AppCompatActivity {
                 Response response = client.newCall(request).execute();
                 if (!response.isSuccessful()) {
                     runOnUiThread(() ->
-                            Toast.makeText(this, "Không tải được PDF!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "Không tải thành công dữ liệu!", Toast.LENGTH_SHORT).show()
                     );
                     return;
                 }
@@ -513,7 +508,7 @@ public class ReadActivity extends AppCompatActivity {
 
                 // ---- B5: Thông báo thành công và mở PDF ----
                 runOnUiThread(() -> {
-                    Toast.makeText(this, "Tải PDF thành công!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Tải dữ liệu thành công!", Toast.LENGTH_SHORT).show();
                     setupPdfRenderer(pdfFile);
                 });
 
@@ -525,8 +520,6 @@ public class ReadActivity extends AppCompatActivity {
             }
         }).start();
     }
-
-
 
     private void setupPdfRenderer(File pdfFile) {
         try {
@@ -560,19 +553,28 @@ public class ReadActivity extends AppCompatActivity {
         saveEndReadingHistory(); // 🔹 Khi thoát hoặc đóng Activity thì lưu thời gian kết thúc
     }
 
-    // 🔹 Lưu thời gian bắt đầu đọc
     private String currentHistoryKey; // Biến toàn cục
 
     private void saveStartReadingHistory() {
         if (currentUser == null || currentStoryId == null) return;
+
+        // Lấy tên truyện chính, phòng trường hợp currentTitle là tên tập
+        String mainStoryTitle = getIntent().getStringExtra("STORY_TITLE");
+        // Nếu tên chính null, dùng tạm currentTitle (currentTitle lúc này đã được gán là mainStoryTitle ở onCreate)
+        String episodeTitle = getIntent().getStringExtra("TAP");
+        String currentEpisodeTitle = (episodeTitle != null && !episodeTitle.isEmpty())
+                ? episodeTitle
+                : currentTitle;
+        String titleForHistory = (mainStoryTitle != null) ? mainStoryTitle : currentTitle;
 
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.getDefault());
         sdf.setTimeZone(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
         String startTime = sdf.format(new Date());
 
         HashMap<String, Object> historyData = new HashMap<>();
-        historyData.put("title", currentTitle);
+        historyData.put("title", titleForHistory); // ⭐️ Luôn dùng tên truyện chính
         historyData.put("author", currentAuthor);
+        historyData.put("episodeTitle", currentEpisodeTitle);
         historyData.put("startTime", startTime);
         historyData.put("storyId", currentStoryId);
 
@@ -603,7 +605,6 @@ public class ReadActivity extends AppCompatActivity {
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "✅ Đã lưu thời gian kết thúc đọc"))
                 .addOnFailureListener(e -> Log.e(TAG, "❌ Lỗi lưu thời gian kết thúc", e));
     }
-
 
     @Override
     protected void onResume() {
@@ -659,7 +660,4 @@ public class ReadActivity extends AppCompatActivity {
             }
         }).start();
     }
-
-
-
 }

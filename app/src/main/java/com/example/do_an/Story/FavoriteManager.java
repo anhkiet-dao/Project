@@ -60,7 +60,6 @@ public class FavoriteManager {
         favoriteData.put("title", title);
         favoriteData.put("author", author);
         favoriteData.put("category", category);
-        favoriteData.put("description", description);
         favoriteData.put("imageUrl", imageUrl);
         favoriteData.put("readUrl", readUrl);
 

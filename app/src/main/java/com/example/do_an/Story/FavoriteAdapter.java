@@ -55,7 +55,6 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.FavVie
         holder.tvStoryTitle.setText(story.getTitle());
         holder.tvAuthor.setText("Tác giả: " + story.getAuthor());
         holder.tvCategory.setText("Thể loại: " + story.getCategory());
-        holder.tvDescription.setText("Mô tả: " + story.getDescription());
 
         String imageUrl = story.getImageUrl();
         if (imageUrl == null || imageUrl.trim().isEmpty()) {
@@ -106,7 +105,6 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.FavVie
             tvStoryTitle = itemView.findViewById(R.id.tvStoryTitle);
             tvAuthor = itemView.findViewById(R.id.tvAuthor);
             tvCategory = itemView.findViewById(R.id.tvCategory);
-            tvDescription = itemView.findViewById(R.id.tvDescription);
             btnRemoveFav = itemView.findViewById(R.id.btnRemoveFav);
         }
     }

@@ -5,7 +5,6 @@ public class FavoriteStory {
     private String title;
     private String author;
     private String category;
-    private String description;
     private String imageUrl;
     private String readUrl;
 
@@ -22,7 +21,6 @@ public class FavoriteStory {
     public String getTitle() { return title; }
     public String getAuthor() { return author; }
     public String getCategory() { return category; }
-    public String getDescription() { return description; }
     public String getImageUrl() { return imageUrl; }
     public String getReadUrl() { return readUrl; }
 }

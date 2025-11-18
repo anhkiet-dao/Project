@@ -1,22 +1,19 @@
 package com.example.do_an.Story;
 
-
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.do_an.R;
-import com.example.do_an.application.ReadActivity;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
-import android.content.Intent;
 
 public class ListActivity extends AppCompatActivity {
     RecyclerView recyclerView;
@@ -36,25 +33,15 @@ public class ListActivity extends AppCompatActivity {
         storyAdapter = new StoryAdapter(this, storyList);
         recyclerView.setAdapter(storyAdapter);
 
+        // Quan trọng: truyền đúng STORY_ID khi click
         storyAdapter.setOnStoryClickListener(story -> {
-            Intent intent = new Intent(ListActivity.this, ReadActivity.class);
-
-            // 🔹 Gửi dữ liệu qua Intent
-            // Chúng ta sẽ dùng ID của truyện (ví dụ: "Doraemon")
-            intent.putExtra("STORY_ID", story.getId());
-            intent.putExtra("STORY_TITLE", story.getTenTruyen());
-            intent.putExtra("STORY_AUTHOR", story.getTacGia());
-            intent.putExtra("STORY_CATEGORY", story.getTheLoai());
-            intent.putExtra("STORY_IMAGE_URL", story.getAnhBia());
-            // ReadActivity có thể cần thêm description, nhưng Story model không có?
-            // Tạm gửi tên truyện làm mô tả nếu bạn chưa có
-            intent.putExtra("STORY_DESCRIPTION", "Truyện " + story.getTenTruyen());
-
+            Intent intent = new Intent(ListActivity.this, SeriesActivity.class);
+            intent.putExtra("STORY_ID", story.getId());        // ID để query subcollection
+            intent.putExtra("STORY_NAME", story.getTenTruyen());
             startActivity(intent);
         });
 
         db = FirebaseFirestore.getInstance();
-
         loadStories();
     }
 
@@ -65,13 +52,14 @@ public class ListActivity extends AppCompatActivity {
                     storyList.clear();
                     for (DocumentSnapshot doc : queryDocumentSnapshots) {
                         Story story = doc.toObject(Story.class);
-                        story.setId(doc.getId());
-                        storyList.add(story);
+                        if (story != null) {
+                            story.setId(doc.getId()); // RẤT QUAN TRỌNG!
+                            storyList.add(story);
+                        }
                     }
                     storyAdapter.notifyDataSetChanged();
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(this, "Lỗi tải dữ liệu!", Toast.LENGTH_SHORT).show()
-                );
+                        Toast.makeText(this, "Lỗi tải dữ liệu: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 }
