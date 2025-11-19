@@ -34,7 +34,7 @@
             android:layout_marginStart="16dp"
             android:text="Tên sách"
             android:textColor="@android:color/white"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:gravity="center_horizontal"
             android:textStyle="bold"
             android:ellipsize="end"
@@ -74,53 +74,230 @@
     </LinearLayout>
 
     <!-- Panel Settings nổi lên -->
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/pdfViewPager"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_margin="10dp"
         android:layout_weight="1"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         android:background="@drawable/bg_pdf_frame"
-        android:elevation="8dp" />
+        android:elevation="8dp">
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/pdfViewPager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <!-- Loading layout -->
+        <LinearLayout
+            android:id="@+id/loadingLayout"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:id="@+id/progressBarLoading"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:indeterminate="true" />
+
+            <TextView
+                android:id="@+id/txtLoading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Đang tải..."
+                android:textColor="@android:color/background_dark"
+                android:textSize="16sp"
+                android:layout_marginTop="8dp" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:paddingHorizontal="18dp"
+        android:paddingVertical="6dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="20dp"
+        android:orientation="horizontal"
+        android:background="@drawable/bg_page_indicator">
+
+        <TextView
+            android:id="@+id/txtname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Orumanga"
+            android:gravity="start"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/txtPageIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:layout_weight="1"
+            android:text="Trang 1/10"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+
 
     <FrameLayout
         android:id="@+id/settingsContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"
-        android:background="#AA000000"
-        android:padding="20dp">
+        android:background="#99000000"
+        android:padding="24dp">
 
-        <LinearLayout
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@android:color/white"
-            android:padding="16dp"
-            android:layout_gravity="center_vertical"
-            android:elevation="8dp">
+            android:fillViewport="true">
 
-            <TextView
-                android:text="Cài đặt hiển thị"
-                android:textSize="20sp"
-                android:textStyle="bold"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"/>
+                android:orientation="vertical"
+                android:background="@drawable/bg_settings_card"
+                android:padding="20dp"
+                android:elevation="12dp"
+                android:layout_gravity="center_vertical">
 
-            <Switch
-                android:id="@+id/switch_dark_mode"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Chế độ tối (Dark Mode)"
-                android:layout_marginTop="8dp"/>
+                <TextView
+                    android:text="Cài đặt"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="#222222"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:paddingBottom="12dp"/>
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnCloseSettings"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Đóng"/>
-        </LinearLayout>
+                <!-- Chiều đọc -->
+                <TextView
+                    android:text="Chiều đọc:"
+                    android:textStyle="bold"
+                    android:textColor="#333333"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <RadioGroup
+                    android:id="@+id/rgReadingDirection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="8dp"
+                    android:paddingTop="4dp">
+
+                    <RadioButton
+                        android:id="@+id/rbVertical"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Dọc"
+                        android:textColor="#444444"/>
+
+                    <RadioButton
+                        android:id="@+id/rbHorizontal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Ngang"
+                        android:textColor="#444444"/>
+                </RadioGroup>
+
+                <!-- Hiển thị trang -->
+                <TextView
+                    android:text="Hiển thị trang:"
+                    android:textStyle="bold"
+                    android:layout_marginTop="14dp"
+                    android:textColor="#333333"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <RadioGroup
+                    android:id="@+id/rgPageMode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="8dp"
+                    android:paddingTop="4dp">
+
+                    <RadioButton
+                        android:id="@+id/rbSinglePage"
+                        android:text="1 trang / lần"
+                        android:textColor="#444444"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                    <RadioButton
+                        android:id="@+id/rbDoublePage"
+                        android:text="2 trang / lần"
+                        android:textColor="#444444"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </RadioGroup>
+
+                <!-- Auto next -->
+                <Switch
+                    android:id="@+id/switchAutoNext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Tự động chuyển trang"
+                    android:textColor="#333333"
+                    android:layout_marginTop="14dp"/>
+
+                <LinearLayout
+                    android:id="@+id/layoutAutoTime"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="6dp">
+
+                    <TextView
+                        android:text="Thời gian:"
+                        android:textColor="#444444"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                    <SeekBar
+                        android:id="@+id/seekAutoTime"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:max="10"/>
+
+                    <TextView
+                        android:id="@+id/txtAutoTime"
+                        android:text="3s"
+                        android:textColor="#333333"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="8dp"/>
+                </LinearLayout>
+
+                <!-- Button -->
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btnCloseSettings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:text="Đóng"
+                    android:textAllCaps="false"
+                    android:backgroundTint="#3F51B5"
+                    android:textColor="@android:color/white" />
+
+            </LinearLayout>
+        </ScrollView>
     </FrameLayout>
 
 </LinearLayout>
