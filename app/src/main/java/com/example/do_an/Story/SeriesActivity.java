@@ -86,7 +86,7 @@ public class SeriesActivity extends AppCompatActivity {
     }
 
     private void loadSeries() {
-        db.collection("story")
+        db.collection("ic_story.svg")
                 .document(storyId)
                 .collection("Series")
                 .orderBy("name")

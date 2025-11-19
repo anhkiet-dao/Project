@@ -49,7 +49,7 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
         holder.txtTenTruyen.setText(story.getTenTruyen());
         holder.txtTacGia.setText("Tác giả: " + story.getTacGia());
         holder.txtNamPhatHanh.setText("Năm phát hành: " + story.getNamPhatHanh());
-//        holder.txtTheLoai.setText("Thể loại: " + story.getTheLoai());
+//        holder.txtTheLoai.setText("Thể loại: " + ic_story.svg.getTheLoai());
 
         String imageUrl = story.getAnhBia();
 

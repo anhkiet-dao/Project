@@ -10,8 +10,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.do_an.R;
-import com.example.do_an.Story.ListActivity;
-import com.example.do_an.UI.Account;
 import com.example.do_an.UI.MyList;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;

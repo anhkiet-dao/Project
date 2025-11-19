@@ -19,8 +19,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.do_an.R;
-import com.example.do_an.Story.FavoriteActivity;
-import com.example.do_an.application.HistoryActivity;
 import com.example.do_an.application.InforApp;
 import com.example.do_an.user.LoginActivity;
 import com.example.do_an.user.ProfileActivity;

@@ -13,7 +13,7 @@ import com.example.do_an.R;
 
 public class MyList extends AppCompatActivity {
 
-    private Button btnReadlist, btnHistory, btnFavorite;
+    private Button btnReadlist, btnHistory, btnFavorite, btnDownload;
     EditText edtSearch;
 
     @Override
@@ -24,6 +24,7 @@ public class MyList extends AppCompatActivity {
         btnReadlist = findViewById(R.id.btnReadlist);
         btnHistory = findViewById(R.id.btnHistory);
         btnFavorite = findViewById(R.id.btnFavorite);
+        btnDownload = findViewById(R.id.btnDownload);
         edtSearch = findViewById(R.id.edtSearch);
 
         btnReadlist.setOnClickListener(v -> {
@@ -37,6 +38,11 @@ public class MyList extends AppCompatActivity {
         btnFavorite.setOnClickListener(v -> {
             loadFragment(new FavoriteFragment());
             selectButton(btnFavorite);
+        });
+
+        btnDownload.setOnClickListener(v -> {
+            loadFragment(new DownloadFragment());
+            selectButton(btnDownload);
         });
 
         loadFragment(new ReadlistFragment());
@@ -61,11 +67,19 @@ public class MyList extends AppCompatActivity {
     }
 
     private void selectButton(Button selected) {
-        btnReadlist.setSelected(false);
-        btnHistory.setSelected(false);
-        btnFavorite.setSelected(false);
+        btnReadlist.setBackgroundResource(R.drawable.button_unselected);
+        btnHistory.setBackgroundResource(R.drawable.button_unselected);
+        btnFavorite.setBackgroundResource(R.drawable.button_unselected);
+        btnDownload.setBackgroundResource(R.drawable.button_unselected);
 
-        selected.setSelected(true);
+        btnReadlist.setTextColor(getResources().getColor(android.R.color.white));
+        btnHistory.setTextColor(getResources().getColor(android.R.color.white));
+        btnFavorite.setTextColor(getResources().getColor(android.R.color.white));
+        btnDownload.setTextColor(getResources().getColor(android.R.color.white));
+
+        // Giao diện cho nút đang được chọn
+        selected.setBackgroundResource(R.drawable.button_selected);
+        selected.setTextColor(getResources().getColor(android.R.color.holo_blue_bright));
     }
 
     private void loadFragment(Fragment fragment) {

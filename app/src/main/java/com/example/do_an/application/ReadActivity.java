@@ -1,7 +1,6 @@
 package com.example.do_an.application;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.os.Bundle;
@@ -13,12 +12,8 @@ import android.content.Intent;
 
 import com.example.do_an.R;
 import com.example.do_an.Story.FavoriteManager;
-import com.example.do_an.Story.ListActivity;
-import com.example.do_an.Story.SeriesActivity;
-import com.example.do_an.UI.MyList;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import android.content.SharedPreferences;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -29,8 +24,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import android.widget.ImageButton;
 import android.widget.Switch;
@@ -39,16 +32,11 @@ import androidx.appcompat.widget.AppCompatButton;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import org.json.JSONObject;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -67,11 +55,7 @@ public class ReadActivity extends AppCompatActivity {
     private PdfPageAdapter pdfPageAdapter;
     private boolean isFavorite = false;
     private String userEmail;
-    private ImageView btnPrevPage, btnNextPage, btnZoomIn, btnZoomOut;
     private ImageView btnSettings, btnDownLoad, btnLibrary;
-    private View bottomBar;
-    private ImageButton btnMenu;
-    private float currentZoom = 1.0f; // Mức zoom mặc định
     private int currentPage = 0;
     private String currentStoryId;
     private String currentTitle;
@@ -101,14 +85,7 @@ public class ReadActivity extends AppCompatActivity {
         txtTieuDe = findViewById(R.id.txtTieuDe);
         pdfViewPager = findViewById(R.id.pdfViewPager);
         btnFavorite = findViewById(R.id.btnFavorite);
-        btnPrevPage = findViewById(R.id.btnPrevPage);
-        btnNextPage = findViewById(R.id.btnNextPage);
-        btnZoomIn = findViewById(R.id.btnZoomIn);
-        btnZoomOut = findViewById(R.id.btnZoomOut);
-        bottomBar = findViewById(R.id.bottomBar);
         btnDownLoad = findViewById(R.id.btnDown);
-        btnMenu = findViewById(R.id.btnMenu);
-        btnLibrary = findViewById(R.id.btnLibrary);
         ImageView btnBack = findViewById(R.id.btnBack);
 
         btnBack.setOnClickListener(v -> finish());
@@ -116,8 +93,7 @@ public class ReadActivity extends AppCompatActivity {
         View settingsContainer = findViewById(R.id.settingsContainer);
         AppCompatButton btnCloseSettings = findViewById(R.id.btnCloseSettings);
         Switch switchDarkMode = findViewById(R.id.switch_dark_mode);
-        Switch switchShowBottomBar = findViewById(R.id.switch_show_bottom_bar);
-        ImageButton btnSettings = findViewById(R.id.btnSettings);
+        ImageView btnSettings = findViewById(R.id.btnSettings);
 
         db = FirebaseFirestore.getInstance();
         favoriteManager = new FavoriteManager();
@@ -131,11 +107,6 @@ public class ReadActivity extends AppCompatActivity {
             finish();
             return;
         }
-
-        btnLibrary.setOnClickListener(v -> {
-            Intent intent = new Intent(ReadActivity.this, DownloadedPdfActivity.class);
-            startActivity(intent);
-        });
 
         Intent intent = getIntent();
 
@@ -164,34 +135,16 @@ public class ReadActivity extends AppCompatActivity {
             finish();
             return;
         }
-
         txtTieuDe.setText(currentTitle);
 
         checkIfFavorite();
         btnFavorite.setOnClickListener(v -> toggleFavorite());
-
-
-        boolean showBottomBar = prefs.getBoolean("showBottomBar", true);
-        if (showBottomBar) {
-            bottomBar.setVisibility(View.VISIBLE);
-            btnMenu.setVisibility(View.GONE);
-        } else {
-            bottomBar.setVisibility(View.GONE);
-            btnMenu.setVisibility(View.VISIBLE);
-        }
-
-        btnMenu.setOnClickListener(v -> {
-            bottomBar.setVisibility(View.VISIBLE);
-            btnMenu.setVisibility(View.GONE);
-            prefs.edit().putBoolean("showBottomBar", true).apply();
-        });
 
         btnCloseSettings.setOnClickListener(v -> settingsContainer.setVisibility(View.GONE));
 
         btnSettings.setOnClickListener(v -> {
             settingsContainer.setVisibility(View.VISIBLE);
             switchDarkMode.setChecked(prefs.getBoolean("darkMode", false));
-            switchShowBottomBar.setChecked(prefs.getBoolean("showBottomBar", true));
         });
 
         switchDarkMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -203,63 +156,11 @@ public class ReadActivity extends AppCompatActivity {
             }
         });
 
-        switchShowBottomBar.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            prefs.edit().putBoolean("showBottomBar", isChecked).apply();
-            if (isChecked) {
-                bottomBar.setVisibility(View.VISIBLE);
-                btnMenu.setVisibility(View.GONE);
-            } else {
-                bottomBar.setVisibility(View.GONE);
-                btnMenu.setVisibility(View.VISIBLE);
-            }
-        });
-
-        btnPrevPage.setOnClickListener(v -> {
-            if (pdfPageAdapter == null) return;
-            if (currentPage > 0) {
-                currentPage--;
-                pdfViewPager.setCurrentItem(currentPage, true);
-            } else {
-                Toast.makeText(this, "Đây là trang đầu tiên!", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        btnNextPage.setOnClickListener(v -> {
-            if (pdfPageAdapter == null) return;
-            int totalPages = pdfPageAdapter.getItemCount();
-            if (currentPage < totalPages - 1) {
-                currentPage++;
-                pdfViewPager.setCurrentItem(currentPage, true);
-            } else {
-                Toast.makeText(this, "Đây là trang cuối cùng!", Toast.LENGTH_SHORT).show();
-            }
-        });
-
         pdfViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 currentPage = position;
-            }
-        });
-
-        btnZoomIn.setOnClickListener(v -> {
-            if (pdfViewPager.getScaleX() < 3.0f) {
-                currentZoom += 0.25f;
-                pdfViewPager.setScaleX(currentZoom);
-                pdfViewPager.setScaleY(currentZoom);
-            } else {
-                Toast.makeText(this, "Đã phóng to tối đa!", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        btnZoomOut.setOnClickListener(v -> {
-            if (pdfViewPager.getScaleX() > 0.5f) {
-                currentZoom -= 0.25f;
-                pdfViewPager.setScaleX(currentZoom);
-                pdfViewPager.setScaleY(currentZoom);
-            } else {
-                Toast.makeText(this, "Đã thu nhỏ tối đa!", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -276,7 +177,6 @@ public class ReadActivity extends AppCompatActivity {
             // === ƯU TIÊN 1: Tải "LINK MỚI" (Link tập) ===
             currentReadUrl = episodePdfLink; // Lưu link tập để tải/favorite
             downloadPdfToCache(currentReadUrl, "temp_episode.pdf");
-
         } else if (pdfPath != null) {
             // === ƯU TIÊN 2: Tải file LOCAL (từ DownloadedPdfActivity) ===
             File pdfFile = new File(pdfPath);
@@ -304,7 +204,6 @@ public class ReadActivity extends AppCompatActivity {
 
             downloadPdfWithOkHttp(currentReadUrl, fileName);
         });
-
     }
 
     private void downloadPdfWithOkHttp(String driveUrl, String fileName) {
@@ -435,23 +334,24 @@ public class ReadActivity extends AppCompatActivity {
         }
 
         if (!isFavorite) {
-            // ➕ Thêm truyện yêu thích với tên mới
+            // Thêm yêu thích
             favoriteManager.addFavorite(
                     userEmail,
                     currentStoryId,
-                    titleForFavorite, // ✨ Đã thay đổi ở đây: Lưu "Tên truyện - Tên tập"
+                    titleForFavorite,
                     currentAuthor,
                     currentCategory,
                     currentDescription,
                     currentImageUrl,
-                    currentReadUrl // Link PDF của tập đó
+                    currentReadUrl
             );
             btnFavorite.setImageResource(R.drawable.ic_favorite_filled);
             Toast.makeText(this, "Đã thêm: " + titleForFavorite + " vào yêu thích ❤️", Toast.LENGTH_SHORT).show();
             isFavorite = true;
         } else {
-            // ❌ Xóa truyện yêu thích
-            favoriteManager.removeFavorite(userEmail, currentStoryId);
+            // ❌ SỬA Ở ĐÂY: Truyền thêm titleForFavorite để xóa đúng cái tập đó
+            favoriteManager.removeFavorite(userEmail, currentStoryId, titleForFavorite);
+
             btnFavorite.setImageResource(R.drawable.ic_favorite_border);
             Toast.makeText(this, "Đã xóa khỏi yêu thích 💔", Toast.LENGTH_SHORT).show();
             isFavorite = false;
@@ -600,9 +500,7 @@ public class ReadActivity extends AppCompatActivity {
         super.onPause();
         saveEndReadingHistory(); // 🔹 Khi thoát hoặc đóng Activity thì lưu thời gian kết thúc
     }
-
     private String currentHistoryKey; // Biến toàn cục
-
     private void saveStartReadingHistory() {
         if (currentUser == null || currentStoryId == null) return;
 
@@ -659,14 +557,6 @@ public class ReadActivity extends AppCompatActivity {
         super.onResume();
         SharedPreferences prefs = getSharedPreferences("AppSettings", MODE_PRIVATE);
         boolean showBottomBar = prefs.getBoolean("showBottomBar", true);
-
-        if (showBottomBar) {
-            bottomBar.setVisibility(View.VISIBLE);
-            btnMenu.setVisibility(View.GONE);
-        } else {
-            bottomBar.setVisibility(View.GONE);
-            btnMenu.setVisibility(View.VISIBLE);
-        }
     }
 
     // Ham tai truyen ve

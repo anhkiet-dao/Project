@@ -12,7 +12,7 @@
     <LinearLayout
         android:id="@+id/topBar"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="54dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingHorizontal="12dp"
@@ -21,8 +21,8 @@
         <!-- Nút quay lại -->
         <ImageView
             android:id="@+id/btnBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:src="@drawable/img_2"/>
 
         <!-- Tiêu đề sách -->
@@ -49,8 +49,8 @@
 
             <ImageView
                 android:id="@+id/btnFavorite"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:layout_marginStart="8dp"
                 android:src="@drawable/img_3"
                 android:contentDescription="Yêu thích" />
@@ -62,128 +62,27 @@
                 android:layout_marginStart="12dp"
                 android:src="@drawable/img_4"
                 android:contentDescription="Tải xuống" />
+
+            <ImageView
+                android:id="@+id/btnSettings"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginStart="12dp"
+                android:src="@drawable/img_13"
+                android:contentDescription="Tải xuống" />
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Phần đọc nội dung -->
-
-
-    <!-- Thanh công cụ dưới cùng -->
+    <!-- Panel Settings nổi lên -->
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/pdfViewPager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="16dp"
+        android:layout_margin="10dp"
         android:layout_weight="1"
         android:background="@drawable/bg_pdf_frame"
         android:elevation="8dp" />
 
-    <LinearLayout
-        android:id="@+id/bottomBar"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:background="#33000000"
-        android:layout_marginBottom="10dp"
-        android:padding="3dp">
-
-        <!-- Trang trước -->
-        <ImageButton
-            android:id="@+id/btnPrevPage"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/rounded_button"
-            android:src="@drawable/img_5"
-            android:contentDescription="Trang trước"
-            android:padding="5dp"
-            android:scaleType="centerInside"
-            android:elevation="4dp"
-            android:layout_margin="8dp"/>
-
-        <!-- Trang sau -->
-        <ImageButton
-            android:id="@+id/btnNextPage"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/rounded_button"
-            android:src="@drawable/img_6"
-            android:contentDescription="Trang sau"
-            android:padding="5dp"
-            android:scaleType="centerInside"
-            android:elevation="4dp"
-            android:layout_margin="8dp"/>
-
-        <!-- Phóng to -->
-        <ImageButton
-            android:id="@+id/btnZoomIn"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/rounded_button"
-            android:src="@drawable/img_7"
-            android:contentDescription="Phóng to"
-            android:padding="5dp"
-            android:scaleType="centerInside"
-            android:elevation="4dp"
-            android:layout_margin="8dp"/>
-
-        <!-- Thu nhỏ -->
-        <ImageButton
-            android:id="@+id/btnZoomOut"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/rounded_button"
-            android:src="@drawable/img_8"
-            android:contentDescription="Thu nhỏ"
-            android:padding="5dp"
-            android:scaleType="centerInside"
-            android:elevation="4dp"
-            android:layout_margin="8dp"/>
-
-        <!-- Thư viện của tôi -->
-        <ImageButton
-            android:id="@+id/btnLibrary"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/rounded_button"
-            android:src="@drawable/img_10"
-            android:contentDescription="Thư viện của tôi"
-            android:padding="5dp"
-            android:scaleType="centerInside"
-            android:elevation="4dp"
-            android:layout_margin="8dp"/>
-
-        <!-- Cài đặt -->
-        <ImageButton
-            android:id="@+id/btnSettings"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/rounded_button"
-            android:src="@drawable/img_11"
-            android:contentDescription="Cài đặt"
-            android:padding="5dp"
-            android:scaleType="centerInside"
-            android:elevation="4dp"
-            android:layout_margin="8dp"/>
-    </LinearLayout>
-
-    <!-- Nút ba chấm khi ẩn bottom bar -->
-    <ImageButton
-        android:id="@+id/btnMenu"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:background="@drawable/rounded_button"
-        android:src="@drawable/img_12"
-        android:contentDescription="Menu"
-        android:padding="5dp"
-        android:scaleType="centerInside"
-        android:elevation="4dp"
-        android:visibility="gone"
-        android:layout_margin="16dp"/>
-
-    <!-- Panel Settings nổi lên -->
     <FrameLayout
         android:id="@+id/settingsContainer"
         android:layout_width="match_parent"
@@ -208,13 +107,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"/>
-
-            <Switch
-                android:id="@+id/switch_show_bottom_bar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Hiển thị thanh điều hướng"
-                android:layout_marginTop="12dp"/>
 
             <Switch
                 android:id="@+id/switch_dark_mode"
