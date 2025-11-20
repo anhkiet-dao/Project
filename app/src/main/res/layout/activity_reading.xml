@@ -57,17 +57,17 @@
 
             <ImageView
                 android:id="@+id/btnDown"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 android:layout_marginStart="12dp"
                 android:src="@drawable/img_4"
                 android:contentDescription="Tải xuống" />
 
             <ImageView
                 android:id="@+id/btnSettings"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_marginStart="12dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="10dp"
                 android:src="@drawable/img_13"
                 android:contentDescription="Tải xuống" />
         </LinearLayout>

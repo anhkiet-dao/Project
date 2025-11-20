@@ -102,8 +102,6 @@ public class DownloadManager {
 
     // --- Logic: Tải file PDF vào CACHE để đọc tạm thời (ĐÃ SỬA) ---
     private Call downloadPdfToCache(String pdfUrl, String fileName, PdfSetupCallback callback) {
-        ((ReadActivity)context).runOnUiThread(() ->
-                Toast.makeText(context, "Đang tải dữ liệu...", Toast.LENGTH_SHORT).show());
 
         if (loadingListener != null) {
             loadingListener.showLoading();

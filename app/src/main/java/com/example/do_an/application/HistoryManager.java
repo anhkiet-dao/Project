@@ -11,9 +11,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
 
-// Giả sử bạn có lớp Encryption
-// import com.example.do_an.utility.Encryption;
-
 public class HistoryManager {
     private static final String TAG = "HistoryManager";
     private String currentHistoryKey; // Key của lịch sử đọc hiện tại
@@ -41,17 +38,11 @@ public class HistoryManager {
 
         HashMap<String, Object> historyData = new HashMap<>();
         // Giả sử lớp Encryption có tồn tại
-        // historyData.put("title", Encryption.encrypt(titleForHistory));
-        // historyData.put("author", Encryption.encrypt(author));
-        // historyData.put("episodeTitle", Encryption.encrypt(currentEpisodeTitle));
-        // historyData.put("startTime", Encryption.encrypt(startTime));
-        // historyData.put("storyId", Encryption.encrypt(storyId));
-        // Tạm thời không mã hóa nếu Encryption chưa được cung cấp
-        historyData.put("title", titleForHistory);
-        historyData.put("author", author);
-        historyData.put("episodeTitle", currentEpisodeTitle);
-        historyData.put("startTime", startTime);
-        historyData.put("storyId", storyId);
+         historyData.put("title", Encryption.encrypt(titleForHistory));
+         historyData.put("author", Encryption.encrypt(author));
+         historyData.put("episodeTitle", Encryption.encrypt(currentEpisodeTitle));
+         historyData.put("startTime", Encryption.encrypt(startTime));
+         historyData.put("storyId", Encryption.encrypt(storyId));
 
 
         DatabaseReference dbRef = FirebaseDatabase.getInstance()
@@ -74,8 +65,7 @@ public class HistoryManager {
         sdf.setTimeZone(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
         String endTime = sdf.format(new Date());
 
-        // String encryptedEndTime = Encryption.encrypt(endTime); // Nếu dùng Encryption
-        String encryptedEndTime = endTime; // Tạm thời không mã hóa
+         String encryptedEndTime = Encryption.encrypt(endTime); // Nếu dùng Encryption
 
         DatabaseReference dbRef = FirebaseDatabase.getInstance()
                 .getReference("History")
