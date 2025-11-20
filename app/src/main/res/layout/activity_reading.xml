@@ -118,6 +118,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="35dp"
+        android:orientation="horizontal"
         android:paddingHorizontal="18dp"
         android:paddingVertical="6dp"
         android:layout_marginTop="1dp"
@@ -125,30 +126,40 @@
         android:layout_marginLeft="10dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="20dp"
-        android:orientation="horizontal"
         android:background="@drawable/bg_page_indicator">
 
         <TextView
             android:id="@+id/txtname"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="Orumanga"
             android:gravity="start"
             android:textColor="@android:color/white"
             android:textSize="16sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
+
+        <ProgressBar
+            android:id="@+id/progressDownload"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/txtPageIndicator"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:gravity="end"
             android:layout_weight="1"
-            android:text="Trang 1/10"
+            android:gravity="end"
+            android:text=""
             android:textColor="@android:color/white"
             android:textSize="16sp"
             android:textStyle="bold"/>
     </LinearLayout>
+
 
 
 
@@ -274,11 +285,11 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:max="10"/>
+                        android:max="30"/>
 
                     <TextView
                         android:id="@+id/txtAutoTime"
-                        android:text="3s"
+                        android:text="5s"
                         android:textColor="#333333"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

@@ -8,7 +8,6 @@
     android:background="@drawable/ic_background"
     android:gravity="center_vertical">
 
-
     <!-- Tên PDF -->
     <TextView
         android:id="@+id/txtPdfName"
@@ -21,4 +20,20 @@
         android:textColor="#333333"
         android:maxLines="1"
         android:ellipsize="end"/>
+
+    <!-- Nút Xóa -->
+    <TextView
+        android:id="@+id/btnDelete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="6dp"
+        android:text="Xóa"
+        android:textSize="14sp"
+        android:textColor="@android:color/white"
+        android:background="@drawable/bg_button"
+        android:gravity="center"
+        android:clickable="true"
+        android:focusable="true"/>
+
 </LinearLayout>

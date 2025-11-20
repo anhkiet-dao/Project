@@ -2,8 +2,10 @@ package com.example.do_an.application;
 
 import android.content.Context;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
+import com.example.do_an.R;
 import com.example.do_an.application.ReadActivity;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -22,8 +24,6 @@ public class DownloadManager {
     private final Context context;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private boolean isActivityDestroyed = false;
-
-    // Interface để gọi lại hàm setup PdfRenderer trong Controller
     public interface PdfSetupCallback { void setup(File pdfFile); }
     public interface StringConsumer { void set(String value); } // Dùng để cập nhật currentReadUrl
 
@@ -32,7 +32,6 @@ public class DownloadManager {
         void hideLoading();
     }
 
-    // 2. KHAI BÁO BIẾN LISTENER
     private LoadingListener loadingListener;
 
     public DownloadManager(Context context) {
@@ -49,7 +48,7 @@ public class DownloadManager {
 
     // --- Logic: Tải file PDF dùng OkHttp để lưu trữ VĨNH VIỄN (Không cần sửa) ---
     public void downloadPdfWithOkHttp(String driveUrl, String fileName) {
-        Toast.makeText(context, "Bắt đầu tải dữ liệu ...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "Bắt đầu tải xuống ...", Toast.LENGTH_SHORT).show();
         new Thread(() -> {
             try {
                 // Lấy fileId và tạo downloadUrl
@@ -89,13 +88,17 @@ public class DownloadManager {
                 fos.close();
                 is.close();
 
-                ((ReadActivity)context).runOnUiThread(() ->
-                        Toast.makeText(context, "Tải dữ liệu thành công!", Toast.LENGTH_SHORT).show());
+                ((ReadActivity)context).runOnUiThread(() -> {
+                    Toast.makeText(context, "Tải xuống thành công!", Toast.LENGTH_SHORT).show();
+                    ((ReadActivity)context).findViewById(R.id.progressDownload).setVisibility(View.GONE);
+                });
 
             } catch (Exception e) {
                 e.printStackTrace();
-                ((ReadActivity)context).runOnUiThread(() ->
-                        Toast.makeText(context, "Lỗi tải PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                ((ReadActivity)context).runOnUiThread(() -> {
+                    Toast.makeText(context, "Lỗi tải PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    ((ReadActivity)context).findViewById(R.id.progressDownload).setVisibility(View.GONE);
+                });
             }
         }).start();
     }

@@ -58,6 +58,7 @@ public class ReadActivity extends AppCompatActivity implements DownloadManager.L
     // Getter cho các lớp khác (chủ yếu cho PdfViewerController)
     public String getCurrentTitle() { return currentTitle; }
     public String getMainStoryTitle() { return mainStoryTitle; }
+    private ProgressBar progressDownload;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,14 +71,13 @@ public class ReadActivity extends AppCompatActivity implements DownloadManager.L
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reading);
 
-        // 1. Khởi tạo Views
         txtTieuDe = findViewById(R.id.txtTieuDe);
         pdfViewPager = findViewById(R.id.pdfViewPager);
         btnFavorite = findViewById(R.id.btnFavorite);
         txtPageIndicator = findViewById(R.id.txtPageIndicator);
         loadingLayout = findViewById(R.id.loadingLayout);
+        progressDownload = findViewById(R.id.progressDownload);
 
-        // 2. Lấy User và Dữ liệu Intent
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             userEmail = currentUser.getEmail();
@@ -96,7 +96,6 @@ public class ReadActivity extends AppCompatActivity implements DownloadManager.L
 
         txtTieuDe.setText(currentTitle);
 
-        // 3. Khởi tạo Managers và Controller
         settingsManager = new SettingsManager(this);
         historyManager = new HistoryManager(this);
         downloadManager = new DownloadManager(this);
@@ -104,7 +103,6 @@ public class ReadActivity extends AppCompatActivity implements DownloadManager.L
 
         downloadManager.setLoadingListener(this);
 
-        // 🚨 Cần định nghĩa Interface StringConsumer và StringSupplier nếu muốn tối ưu
         pdfViewerController = new PdfViewerController(
                 this, pdfViewPager, txtTieuDe, settingsManager,
                 txtPageIndicator,
@@ -112,14 +110,10 @@ public class ReadActivity extends AppCompatActivity implements DownloadManager.L
                 (url) -> currentReadUrl = url
         );
 
-
-        // 4. Thiết lập Actions (Listeners)
         setupViewsAndListeners();
 
-        // 5. Bắt đầu tải PDF
         loadPdfContent();
 
-        // 6. Lịch sử đọc (Bắt đầu)
         historyManager.saveStartReadingHistory(
                 userEmail, currentStoryId, mainStoryTitle, currentTitle, currentAuthor
         );
@@ -128,19 +122,14 @@ public class ReadActivity extends AppCompatActivity implements DownloadManager.L
     @Override
     public void showLoading() {
         runOnUiThread(() -> {
-            // Chỉ hiện loadingLayout
             loadingLayout.setVisibility(View.VISIBLE);
-            // Tùy chọn: Ẩn các nội dung chính nếu cần
-            // pdfViewPager.setVisibility(View.GONE);
         });
     }
 
     @Override
     public void hideLoading() {
         runOnUiThread(() -> {
-            // Ẩn loadingLayout
             loadingLayout.setVisibility(View.GONE);
-
         });
     }
 
@@ -193,6 +182,7 @@ public class ReadActivity extends AppCompatActivity implements DownloadManager.L
                 Toast.makeText(this, "Không tìm thấy link PDF!", Toast.LENGTH_SHORT).show();
                 return;
             }
+            progressDownload.setVisibility(View.VISIBLE);
             // Gọi DownloadManager
             downloadManager.downloadPdfWithOkHttp(currentReadUrl, currentTitle + ".pdf");
         });
