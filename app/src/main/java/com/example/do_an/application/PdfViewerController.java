@@ -86,6 +86,14 @@ public class PdfViewerController {
         }
     }
 
+    public int getCurrentPage() {
+        if (pdfViewPager != null && pdfPageAdapter != null) {
+            // ViewPager2.getCurrentItem() trả về vị trí index (0-based)
+            return pdfViewPager.getCurrentItem();
+        }
+        return 0;
+    }
+
     private void updatePageIndicator(int currentPosition, int totalCount) {
         if (txtPageIndicator != null) {
             // Vì ViewPager2 là 0-indexed, ta cộng thêm 1 để hiển thị trang 1/N

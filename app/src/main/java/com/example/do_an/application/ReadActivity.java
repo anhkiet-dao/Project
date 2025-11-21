@@ -3,6 +3,7 @@ package com.example.do_an.application;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -30,7 +31,7 @@ public class ReadActivity extends AppCompatActivity implements DownloadManager.L
     private static final String TAG = "ReadActivity";
     private TextView txtTieuDe;
     private ViewPager2 pdfViewPager;
-    private ImageView btnFavorite;
+    private ImageView btnFavorite, btnNote;
 
     // Biến dữ liệu chính
     private String userEmail;
@@ -60,6 +61,7 @@ public class ReadActivity extends AppCompatActivity implements DownloadManager.L
     public String getMainStoryTitle() { return mainStoryTitle; }
     private ProgressBar progressDownload;
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Áp dụng Dark Mode
@@ -77,6 +79,7 @@ public class ReadActivity extends AppCompatActivity implements DownloadManager.L
         txtPageIndicator = findViewById(R.id.txtPageIndicator);
         loadingLayout = findViewById(R.id.loadingLayout);
         progressDownload = findViewById(R.id.progressDownload);
+        btnNote = findViewById(R.id.btnNote);
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
@@ -187,6 +190,22 @@ public class ReadActivity extends AppCompatActivity implements DownloadManager.L
             downloadManager.downloadPdfWithOkHttp(currentReadUrl, currentTitle + ".pdf");
         });
 
+        // Nút mở ghi chú
+        btnNote.setOnClickListener(v -> {
+            int currentPage = pdfViewerController.getCurrentPage() + 1;
+
+            String noteContextId = currentStoryId + "_" + currentTitle;
+
+            Intent intent = new Intent(ReadActivity.this, NoteActivity.class);
+
+            intent.putExtra("NOTE_CONTEXT_ID", noteContextId);
+            intent.putExtra("PAGE_NUMBER", currentPage);
+
+            intent.putExtra("STORY_TITLE_DISPLAY", currentTitle);
+
+            startActivity(intent);
+        });
+
         // Settings (Gọi Controller để xử lý View Settings)
         pdfViewerController.setupSettingsView(
                 findViewById(R.id.settingsContainer),
@@ -213,7 +232,7 @@ public class ReadActivity extends AppCompatActivity implements DownloadManager.L
     @Override
     protected void onPause() {
         super.onPause();
-        historyManager.saveEndReadingHistory(userEmail); // Lưu key đã có từ start
+        historyManager.saveEndReadingHistory(userEmail);
     }
 
     @Override

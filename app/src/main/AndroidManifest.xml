@@ -41,6 +41,9 @@
         <activity android:name=".user.UserInfoActivity"
             android:exported="false" />
 
+        <activity android:name=".application.NoteActivity"
+            android:exported="false" />
+
         <activity android:name=".user.ProfileActivity"
             android:exported="false" />
 

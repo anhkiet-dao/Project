@@ -5,14 +5,14 @@
     android:background="@drawable/bg_gradient"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="28dp"
+    android:paddingTop="25dp"
     tools:context=".application.ReadActivity">
 
     <!-- Thanh công cụ trên cùng -->
     <LinearLayout
         android:id="@+id/topBar"
         android:layout_width="match_parent"
-        android:layout_height="54dp"
+        android:layout_height="50dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingHorizontal="12dp"
@@ -87,6 +87,14 @@
             android:id="@+id/pdfViewPager"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
+        <ImageView
+            android:id="@+id/btnNote"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:src="@drawable/ic_note"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="12dp"/>
 
         <!-- Loading layout -->
         <LinearLayout
