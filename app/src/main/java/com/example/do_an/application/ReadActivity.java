@@ -221,14 +221,12 @@ public class ReadActivity extends AppCompatActivity implements DownloadManager.L
         String episodePdfLink = getIntent().getStringExtra("PDF_LINK");
         String pdfPath = getIntent().getStringExtra("PDF_PATH");
 
-        // Gọi DownloadManager để xác định nguồn tải và xử lý
         currentDownloadCall = downloadManager.loadAndSetupPdf(
                 episodePdfLink, pdfPath, mainStoryTitle, pdfViewerController::setupPdfRenderer,
-                (url) -> currentReadUrl = url // Cập nhật URL tìm được từ Firestore
+                (url) -> currentReadUrl = url
         );
     }
 
-    // --- Vòng đời Activity ---
     @Override
     protected void onPause() {
         super.onPause();

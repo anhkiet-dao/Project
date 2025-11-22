@@ -5,16 +5,19 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import com.example.do_an.R;
-import com.example.do_an.application.ReadActivity;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -24,9 +27,12 @@ public class DownloadManager {
     private final Context context;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private boolean isActivityDestroyed = false;
-    public interface PdfSetupCallback { void setup(File pdfFile); }
-    public interface StringConsumer { void set(String value); } // Dùng để cập nhật currentReadUrl
 
+    // Khai báo Buffer Size tối ưu hóa
+    private final int OPTIMIZED_BUFFER_SIZE = 256 * 1024; // 256 KB
+
+    public interface PdfSetupCallback { void setup(File pdfFile); }
+    public interface StringConsumer { void set(String value); }
     public interface LoadingListener {
         void showLoading();
         void hideLoading();
@@ -46,64 +52,105 @@ public class DownloadManager {
         this.loadingListener = listener;
     }
 
-    // --- Logic: Tải file PDF dùng OkHttp để lưu trữ VĨNH VIỄN (Không cần sửa) ---
+    // Hàm hỗ trợ để thực thi trên UI thread
+    private void runOnUiThread(Runnable action) {
+        if (context instanceof ReadActivity) {
+            ((ReadActivity) context).runOnUiThread(action);
+        }
+    }
+
+    // Hàm hỗ trợ ẩn loading
+    private void hideLoadingOnUi() {
+        if (loadingListener != null) {
+            runOnUiThread(() -> loadingListener.hideLoading());
+        }
+    }
+
+    private String convertDriveUrl(String pdfUrl) {
+        if (pdfUrl.contains("drive.google.com/file/d/")) {
+            String[] parts = pdfUrl.split("/d/");
+            if (parts.length > 1) {
+                String fileId = parts[1].split("/")[0];
+                return "https://drive.google.com/uc?export=download&id=" + fileId;
+            }
+        }
+        return pdfUrl;
+    }
+
+
+    // --- Logic: Tải file PDF dùng OkHttp để lưu trữ VĨNH VIỄN (Sử dụng OkHttp Callback) ---
     public void downloadPdfWithOkHttp(String driveUrl, String fileName) {
-        Toast.makeText(context, "Bắt đầu tải xuống ...", Toast.LENGTH_SHORT).show();
-        new Thread(() -> {
-            try {
-                // Lấy fileId và tạo downloadUrl
-                String fileId = driveUrl.split("/d/")[1].split("/")[0];
-                String downloadUrl = "https://drive.google.com/uc?export=download&id=" + fileId;
+        runOnUiThread(() -> Toast.makeText(context, "Bắt đầu tải xuống ...", Toast.LENGTH_SHORT).show());
 
-                OkHttpClient client = new OkHttpClient.Builder()
-                        .retryOnConnectionFailure(true)
-                        .connectTimeout(60, TimeUnit.SECONDS)
-                        .readTimeout(60, TimeUnit.SECONDS)
-                        .writeTimeout(60, TimeUnit.SECONDS)
-                        .build();
+        final String downloadUrl = convertDriveUrl(driveUrl);
 
-                Request request = new Request.Builder().url(downloadUrl).build();
-                Response response = client.newCall(request).execute();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .retryOnConnectionFailure(true)
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
+                .build();
 
-                if (!response.isSuccessful()) {
-                    ((ReadActivity)context).runOnUiThread(() -> Toast.makeText(context, "Không tải được PDF!", Toast.LENGTH_SHORT).show());
-                    return;
-                }
-
-                InputStream is = response.body().byteStream();
-
-                // Lưu file vào thư mục /Android/data/.../files/PDF
-                File pdfDir = new File(context.getExternalFilesDir(null), "PDF");
-                if (!pdfDir.exists()) pdfDir.mkdirs();
-                File pdfFile = new File(pdfDir, fileName);
-
-                FileOutputStream fos = new FileOutputStream(pdfFile);
-                byte[] buffer = new byte[65536]; // 64 KB
-                int len;
-                while ((len = is.read(buffer)) != -1) {
-                    fos.write(buffer, 0, len);
-                }
-
-                fos.flush();
-                fos.close();
-                is.close();
-
-                ((ReadActivity)context).runOnUiThread(() -> {
-                    Toast.makeText(context, "Tải xuống thành công!", Toast.LENGTH_SHORT).show();
-                    ((ReadActivity)context).findViewById(R.id.progressDownload).setVisibility(View.GONE);
-                });
-
-            } catch (Exception e) {
+        Request request = new Request.Builder().url(downloadUrl).build();
+        client.newCall(request).enqueue(new Callback() { // SỬ DỤNG enqueue()
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();
-                ((ReadActivity)context).runOnUiThread(() -> {
+                runOnUiThread(() -> {
                     Toast.makeText(context, "Lỗi tải PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     ((ReadActivity)context).findViewById(R.id.progressDownload).setVisibility(View.GONE);
                 });
             }
-        }).start();
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                InputStream is = null;
+                FileOutputStream fos = null;
+                try {
+                    if (!response.isSuccessful() || response.body() == null) {
+                        runOnUiThread(() -> Toast.makeText(context, "Không tải được PDF!", Toast.LENGTH_SHORT).show());
+                        return;
+                    }
+
+                    is = response.body().byteStream();
+
+                    File pdfDir = new File(context.getExternalFilesDir(null), "PDF");
+                    if (!pdfDir.exists()) pdfDir.mkdirs();
+                    File pdfFile = new File(pdfDir, fileName);
+
+                    fos = new FileOutputStream(pdfFile);
+                    // DÙNG BUFFER TỐI ƯU
+                    byte[] buffer = new byte[OPTIMIZED_BUFFER_SIZE];
+                    int len;
+                    while ((len = is.read(buffer)) != -1) {
+                        fos.write(buffer, 0, len);
+                    }
+
+                    fos.flush();
+
+                    runOnUiThread(() -> {
+                        Toast.makeText(context, "Tải xuống thành công!", Toast.LENGTH_SHORT).show();
+                        ((ReadActivity)context).findViewById(R.id.progressDownload).setVisibility(View.GONE);
+                    });
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    runOnUiThread(() -> {
+                        Toast.makeText(context, "Lỗi tải PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        ((ReadActivity)context).findViewById(R.id.progressDownload).setVisibility(View.GONE);
+                    });
+                } finally {
+                    try {
+                        if (fos != null) fos.close();
+                        if (is != null) is.close();
+                        if (response != null) response.close();
+                    } catch (IOException ignored) {}
+                }
+            }
+        });
     }
 
-    // --- Logic: Tải file PDF vào CACHE để đọc tạm thời (ĐÃ SỬA) ---
+    // --- Logic: Tải file PDF vào CACHE để đọc tạm thời (SỬ DỤNG OkHttp.enqueue ĐỂ TỐI ƯU LUỒNG) ---
     private Call downloadPdfToCache(String pdfUrl, String fileName, PdfSetupCallback callback) {
 
         if (loadingListener != null) {
@@ -114,62 +161,87 @@ public class DownloadManager {
                 .connectTimeout(60, TimeUnit.SECONDS)
                 .build();
 
-        // 1. Tạo Request và Call trên luồng chính
         final String downloadUrl = convertDriveUrl(pdfUrl);
         Request request = new Request.Builder().url(downloadUrl).build();
-        final Call downloadCall = client.newCall(request); // <<< downloadCall hiện là effectively final
+        final Call downloadCall = client.newCall(request);
 
-        new Thread(() -> {
-            try {
-                // 2. Thực thi Call bên trong luồng nền
-                Response response = downloadCall.execute();
-                if (!response.isSuccessful()) {
-                    ((ReadActivity)context).runOnUiThread(() -> Toast.makeText(context, "Không tải thành công dữ liệu!", Toast.LENGTH_SHORT).show());
-                    return;
-                }
+        // SỬ DỤNG enqueue() thay vì new Thread().execute()
+        downloadCall.enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                handleDownloadError(e, call);
+                hideLoadingOnUi();
+            }
 
-                InputStream is = response.body().byteStream();
-                File cacheDir = new File(context.getCacheDir(), "PDF");
-                if (!cacheDir.exists()) cacheDir.mkdirs();
-                File pdfFile = new File(cacheDir, fileName);
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                InputStream is = null;
+                FileOutputStream fos = null;
+                File pdfFile = null;
 
-                FileOutputStream fos = new FileOutputStream(pdfFile);
-                byte[] buffer = new byte[64 * 1024];
-                int len;
-                while ((len = is.read(buffer)) != -1) {
-                    // 3. Sử dụng downloadCall (effectively final) để kiểm tra trạng thái hủy
-                    if (isActivityDestroyed || downloadCall.isCanceled()) {
-                        is.close(); fos.close(); pdfFile.delete();
-                        Log.d(TAG, "Đã hủy tải do thoát màn hình");
+                try {
+                    if (!response.isSuccessful() || response.body() == null) {
+                        runOnUiThread(() -> Toast.makeText(context, "Không tải thành công dữ liệu!", Toast.LENGTH_SHORT).show());
                         return;
                     }
-                    fos.write(buffer, 0, len);
-                }
 
-                fos.flush(); fos.close(); is.close(); response.close();
+                    is = response.body().byteStream();
+                    File cacheDir = new File(context.getCacheDir(), "PDF");
+                    if (!cacheDir.exists()) cacheDir.mkdirs();
+                    pdfFile = new File(cacheDir, fileName);
 
-                ((ReadActivity)context).runOnUiThread(() -> callback.setup(pdfFile));
+                    fos = new FileOutputStream(pdfFile);
 
-            } catch (Exception e) {
-                if (!isActivityDestroyed && !"Canceled".equals(e.getMessage())) {
-                    e.printStackTrace();
-                    ((ReadActivity)context).runOnUiThread(() -> Toast.makeText(context, "Lỗi tải PDF!", Toast.LENGTH_SHORT).show());
+                    // SỬ DỤNG BUFFER TỐI ƯU
+                    byte[] buffer = new byte[OPTIMIZED_BUFFER_SIZE];
+                    int len;
+
+                    while ((len = is.read(buffer)) != -1) {
+                        // Kiểm tra trạng thái hủy
+                        if (isActivityDestroyed || call.isCanceled()) {
+                            Log.d(TAG, "Đã hủy tải do thoát màn hình hoặc bị hủy thủ công");
+                            return;
+                        }
+                        fos.write(buffer, 0, len);
+                    }
+
+                    fos.flush();
+                    final File finalPdfFile = pdfFile; // Khắc phục lỗi effectively final
+                    runOnUiThread(() -> callback.setup(finalPdfFile));
+
+                } catch (Exception e) {
+                    handleDownloadError(e, call);
+                } finally {
+                    try {
+                        if (is != null) is.close();
+                        if (fos != null) fos.close();
+                        if (response != null) response.close();
+                    } catch (IOException ignored) {}
+
+                    if (call.isCanceled() && pdfFile != null) {
+                        pdfFile.delete();
+                    }
+
+                    hideLoadingOnUi();
                 }
             }
-            finally {
-                // 2. ẨN BIỂU TƯỢNG ĐANG TẢI (DÙ THÀNH CÔNG, THẤT BẠI HAY BỊ HỦY)
-                if (loadingListener != null) {
-                    // Sử dụng runOnUiThread vì DownloadManager không chắc chắn ở luồng chính
-                    ((ReadActivity)context).runOnUiThread(() -> loadingListener.hideLoading());
-                }
-            }
-        }).start();
+        });
 
-        // 4. Trả về Call ngay lập tức
+        // Trả về Call ngay lập tức để người gọi có thể hủy nó
         return downloadCall;
     }
 
-    // === Hàm tìm URL PDF từ Firestore (dùng cho tải lại/link cũ) (Không cần sửa) ===
+    // Hàm hỗ trợ xử lý lỗi
+    private void handleDownloadError(Exception e, Call call) {
+        // Chỉ hiển thị lỗi nếu Activity chưa bị hủy và Call chưa bị hủy
+        if (!isActivityDestroyed && !call.isCanceled()) {
+            e.printStackTrace();
+            runOnUiThread(() -> Toast.makeText(context, "Lỗi tải PDF!", Toast.LENGTH_SHORT).show());
+        }
+    }
+
+
+    // === Hàm tìm URL PDF từ Firestore (Không thay đổi) ===
     private void loadPdfFromFirestore(String storyDocumentId, PdfSetupCallback callback, StringConsumer urlConsumer) {
         db.collection("Truyentranh").document(storyDocumentId)
                 .get()
@@ -177,7 +249,7 @@ public class DownloadManager {
                     if (doc.exists()) {
                         String pdfUrl = doc.getString("pdfUrl");
                         if (pdfUrl != null && !pdfUrl.isEmpty()) {
-                            urlConsumer.set(pdfUrl); // Cập nhật URL chính
+                            urlConsumer.set(pdfUrl);
                             downloadPdfToCache(pdfUrl, "temp_story.pdf", callback);
                         } else {
                             Toast.makeText(context, "Truyện này không có file PDF!", Toast.LENGTH_SHORT).show();
@@ -190,20 +262,17 @@ public class DownloadManager {
                         Toast.makeText(context, "Lỗi tải Firestore: " + e.getMessage(), Toast.LENGTH_LONG).show());
     }
 
-    // === Hàm gọi chính để xác định nguồn tải (Không cần sửa) ===
+    // === Hàm gọi chính để xác định nguồn tải (Không thay đổi) ===
     public Call loadAndSetupPdf(String episodePdfLink, String pdfPath, String mainStoryTitle,
                                 PdfSetupCallback callback, StringConsumer urlConsumer) {
         if (episodePdfLink != null && !episodePdfLink.isEmpty()) {
-            urlConsumer.set(episodePdfLink); // Link tập là link đọc chính
+            urlConsumer.set(episodePdfLink);
             return downloadPdfToCache(episodePdfLink, "temp_episode.pdf", callback);
         } else if (pdfPath != null) {
-            // Đọc file local
             File pdfFile = new File(pdfPath);
             if (pdfFile.exists()) {
                 callback.setup(pdfFile);
-                // Tìm link PDF gốc (không cần download, chỉ để gán vào currentReadUrl)
                 if (loadingListener != null) {
-                    // Đảm bảo ẩn trên UI Thread
                     ((ReadActivity)context).runOnUiThread(() -> loadingListener.hideLoading());
                 }
                 findAndSetCurrentReadUrl(mainStoryTitle, urlConsumer);
@@ -213,7 +282,6 @@ public class DownloadManager {
             }
         }
         else {
-            // Tải link của truyện chính
             loadPdfFromFirestore(mainStoryTitle, callback, urlConsumer);
         }
         return null;
@@ -230,14 +298,5 @@ public class DownloadManager {
                         }
                     }
                 });
-    }
-
-    private String convertDriveUrl(String pdfUrl) {
-        if (pdfUrl.contains("drive.google.com/file/d/")) {
-            String fileId = pdfUrl.split("/d/")[1].split("/")[0];
-            return "https://drive.google.com/uc?export=download&id=" + fileId;
-        } else {
-            return pdfUrl;
-        }
     }
 }
