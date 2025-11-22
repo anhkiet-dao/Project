@@ -1,8 +1,10 @@
 package com.example.do_an.application;
 
+import android.content.Context; // <<< THÊM: Dùng cho InputMethodManager
 import android.os.Bundle;
-import android.util.Log; // <<< THÊM: Dùng để debug
+import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager; // <<< THÊM: Dùng để ẩn bàn phím
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -11,17 +13,14 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.do_an.R;
-import com.example.do_an.application.NoteModel; // <<< THÊM: Import Model
-import com.google.firebase.auth.FirebaseAuth; // <<< THÊM: Dùng để lấy email
-import com.google.firebase.auth.FirebaseUser; // <<< THÊM
-import com.google.firebase.database.DataSnapshot; // <<< THÊM: Dùng cho Firebase Listener
-import com.google.firebase.database.DatabaseError; // <<< THÊM
-import com.google.firebase.database.DatabaseReference; // <<< THÊM
-import com.google.firebase.database.FirebaseDatabase; // <<< THÊM
-import com.google.firebase.database.ValueEventListener; // <<< THÊM
-
-// Imports bị loại bỏ:
-// import android.content.SharedPreferences;
+import com.example.do_an.application.NoteModel;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class NoteActivity extends AppCompatActivity {
 
@@ -29,13 +28,9 @@ public class NoteActivity extends AppCompatActivity {
     private ImageView btnClose;
     private TextView btnAdd, btnUpdate, btnDelete, txtTitleNote;
 
-    // Các biến SharedPreferences bị loại bỏ:
-    // private SharedPreferences pref;
-    // private static final String PREF_NAME = "MY_NOTE_PER_PAGE";
-
-    private String userEmail; // <<< THÊM: Lưu email người dùng
-    private DatabaseReference notesRef; // <<< THÊM: Tham chiếu Firebase
-    private static final String TAG = "NoteActivity"; // <<< THÊM
+    private String userEmail;
+    private DatabaseReference notesRef;
+    private static final String TAG = "NoteActivity";
 
     private String uniqueNoteKey;
     private int pageNumber;
@@ -51,7 +46,7 @@ public class NoteActivity extends AppCompatActivity {
         btnUpdate = findViewById(R.id.btnUpdateNote);
         btnDelete = findViewById(R.id.btnDeleteNote);
         btnClose = findViewById(R.id.btnClose);
-        txtTitleNote = findViewById(R.id.txtTitle); // Giả định ID này có trong popup_note
+        txtTitleNote = findViewById(R.id.txtTitle);
 
         String noteContextId = getIntent().getStringExtra("NOTE_CONTEXT_ID");
         pageNumber = getIntent().getIntExtra("PAGE_NUMBER", 0);
@@ -77,25 +72,15 @@ public class NoteActivity extends AppCompatActivity {
         }
 
         // --- Bắt đầu Logic Firebase ---
-        // 1. Chuẩn bị Key Firebase an toàn
-        // Thay thế ký tự không hợp lệ trong email để tạo khóa an toàn
         String firebaseUserKey = userEmail.replace('.', '_').replace('@', '_');
 
-        // 2. Thiết lập tham chiếu Firebase: users/{email_key}/notes/{uniqueNoteKey}
         notesRef = FirebaseDatabase.getInstance().getReference("users")
                 .child(firebaseUserKey)
                 .child("notes")
                 .child(uniqueNoteKey);
 
-        // 3. Tải ghi chú hiện có từ Firebase
         loadNoteFromFirebase();
         // --- Kết thúc Logic Firebase ---
-
-        // Logic SharedPreferences bị loại bỏ:
-        // pref = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
-        // String savedNote = pref.getString(uniqueNoteKey, "");
-        // edtNote.setText(savedNote);
-        // updateButtonStates(savedNote.isEmpty());
 
         // Cập nhật Listener để gọi hàm Firebase
         btnAdd.setOnClickListener(v -> saveNoteToFirebase(edtNote.getText().toString().trim()));
@@ -153,6 +138,8 @@ public class NoteActivity extends AppCompatActivity {
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(NoteActivity.this, "Đã lưu ghi chú ở trang " + pageNumber + "!", Toast.LENGTH_SHORT).show();
                     updateButtonStates(false);
+                    // ✅ THÊM: Thu hồi focus và ẩn bàn phím sau khi lưu thành công
+                    hideKeyboardAndClearFocus();
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(NoteActivity.this, "Lưu ghi chú thất bại: " + e.getMessage(), Toast.LENGTH_LONG).show();
@@ -167,6 +154,8 @@ public class NoteActivity extends AppCompatActivity {
                     edtNote.setText("");
                     Toast.makeText(NoteActivity.this, "Đã xóa ghi chú ở trang " + pageNumber + "!", Toast.LENGTH_SHORT).show();
                     updateButtonStates(true);
+                    // ✅ THÊM: Thu hồi focus và ẩn bàn phím sau khi xóa thành công
+                    hideKeyboardAndClearFocus();
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(NoteActivity.this, "Xóa ghi chú thất bại.", Toast.LENGTH_SHORT).show();
@@ -184,6 +173,19 @@ public class NoteActivity extends AppCompatActivity {
             btnAdd.setVisibility(View.GONE);
             btnUpdate.setVisibility(View.VISIBLE);
             btnDelete.setVisibility(View.VISIBLE);
+        }
+    }
+
+    // --- PHƯƠNG THỨC MỚI: Ẩn bàn phím và bỏ focus ---
+    private void hideKeyboardAndClearFocus() {
+        // 1. Bỏ focus khỏi EditText (để dấu nháy biến mất)
+        edtNote.clearFocus();
+
+        // 2. Ẩn bàn phím ảo
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 }
