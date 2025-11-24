@@ -53,8 +53,6 @@
         <activity android:name=".UI.Account"
             android:exported="false" />
 
-        <activity android:name=".application.HistoryActivity"/>
-
         <activity android:name=".API.AIReadingAssistant" android:exported="false" />
         <activity android:name=".API.AISummarizer" android:exported="false" />
         <activity android:name=".API.AIVoiceReader" />
@@ -67,19 +65,7 @@
         <activity android:name=".application.ReadActivity"
             android:exported="false"/>
 
-        <activity android:name=".Story.FavoriteActivity"
-            android:exported="false"/>
-
-        <activity android:name=".Story.ListActivity"
-            android:exported="false"/>
-
-        <activity android:name=".application.DownloadedPdfActivity"
-            android:exported="false"/>
-
         <activity android:name=".UI.MyList"
-            android:exported="false"/>
-
-        <activity android:name=".Story.SeriesActivity"
             android:exported="false"/>
 
         <activity
