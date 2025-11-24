@@ -81,7 +81,7 @@ public class FavoriteFragment extends Fragment {
         // Chỉ load dữ liệu 1 lần, không lắng nghe liên tục
         String emailKey = email.replace(".", "_");
         favRef = FirebaseDatabase
-                .getInstance("https://nt118-dd4f7-default-rtdb.asia-southeast1.firebasedatabase.app/")
+                .getInstance("https://nt118q14-default-rtdb.asia-southeast1.firebasedatabase.app/")
                 .getReference("Favorites")
                 .child(emailKey);
 

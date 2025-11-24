@@ -25,7 +25,7 @@ public class FavoriteManager {
     }
 
     public FavoriteManager() {
-        database = FirebaseDatabase.getInstance("https://nt118-dd4f7-default-rtdb.asia-southeast1.firebasedatabase.app/")
+        database = FirebaseDatabase.getInstance("https://nt118q14-default-rtdb.asia-southeast1.firebasedatabase.app/")
                 .getReference("Favorites");
     }
 

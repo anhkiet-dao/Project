@@ -1,14 +1,14 @@
 {
   "project_info": {
-    "project_number": "844640062905",
-    "firebase_url": "https://nt118-dd4f7-default-rtdb.asia-southeast1.firebasedatabase.app",
-    "project_id": "nt118-dd4f7",
-    "storage_bucket": "nt118-dd4f7.firebasestorage.app"
+    "project_number": "269812972060",
+    "firebase_url": "https://nt118q14-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "nt118q14",
+    "storage_bucket": "nt118q14.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:844640062905:android:0f5b54ff6b138bfb49fa68",
+        "mobilesdk_app_id": "1:269812972060:android:f0d53e34966e94e87abdd9",
         "android_client_info": {
           "package_name": "com.example.do_an"
         }
@@ -16,7 +16,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAaLfBrKSIHMy7E4fUcogsF03p2JjRjnQ4"
+          "current_key": "AIzaSyDcbSBZeygi6yLXQeRaU2kjme7e2waZqXY"
         }
       ],
       "services": {

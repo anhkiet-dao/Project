@@ -241,7 +241,7 @@ public class DownloadManager {
     }
 
 
-    // === Hàm tìm URL PDF từ Firestore (Không thay đổi) ===
+    // === Hàm tìm URL PDF từ Firestore (Không thay đổi) === vo hai khong co dung
     private void loadPdfFromFirestore(String storyDocumentId, PdfSetupCallback callback, StringConsumer urlConsumer) {
         db.collection("Truyentranh").document(storyDocumentId)
                 .get()

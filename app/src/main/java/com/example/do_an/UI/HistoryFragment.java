@@ -65,7 +65,7 @@ public class HistoryFragment extends Fragment {
 
         String emailKey = currentUser.getEmail().replace(".", "_");
         DatabaseReference ref = FirebaseDatabase.getInstance(
-                        "https://nt118-dd4f7-default-rtdb.asia-southeast1.firebasedatabase.app/")
+                        "https://nt118q14-default-rtdb.asia-southeast1.firebasedatabase.app/")
                 .getReference("History").child(emailKey);
 
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
