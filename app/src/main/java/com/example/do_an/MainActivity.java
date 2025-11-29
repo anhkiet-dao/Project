@@ -1,122 +1,132 @@
 package com.example.do_an;
 
 import android.os.Bundle;
-import android.view.View;
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import com.example.do_an.API.AIReadingAssistant;
-import android.os.Bundle;
-import android.os.StrictMode;
-import android.widget.TextView;
-import android.widget.EditText;
-import android.widget.Button;
-import android.speech.tts.TextToSpeech;
-import java.util.Locale;
-import com.example.do_an.UI.Account;
-import android.content.Intent;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction; // Thêm import này
+import com.example.do_an.UI.AccountFragment;
+import com.example.do_an.UI.MyListFragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import android.util.Log;
 
 public class MainActivity extends AppCompatActivity {
 
-    EditText edtQuestion;
-    Button btnAsk;
-    TextView tvResult;
-    TextToSpeech tts;
+    private BottomNavigationView bottomNav;
+
+    private Fragment activeFragment;
+    private Fragment readFragment;
+    private Fragment profileFragment;
+
+    private FragmentManager fm = getSupportFragmentManager();
+
+    private static final int FRAGMENT_CONTAINER_ID = R.id.fragment_container;
+
+    // --- Khai báo Interface Reset Chung ---
+    public interface ResettableFragment {
+        void resetState();
+    }
+    // ------------------------------------
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        Intent intent = new Intent(MainActivity.this, Account.class);
-//        startActivity(intent);
-//
-//        // Kết thúc MainActivity để không quay lại
-//        finish();
-
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        View rootView = findViewById(android.R.id.content);
-        ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
-            // Lấy Insets thật (thanh trạng thái + thanh điều hướng)
-            androidx.core.graphics.Insets systemBarsInsets =
-                    insets.getInsets(WindowInsetsCompat.Type.systemBars());
+        bottomNav = findViewById(R.id.bottomNav);
 
-            // Áp padding cho view để không bị che
-            v.setPadding(
-                    systemBarsInsets.left,
-                    systemBarsInsets.top,
-                    systemBarsInsets.right,
-                    systemBarsInsets.bottom
-            );
-            return WindowInsetsCompat.CONSUMED;
+        if (savedInstanceState == null) {
+            readFragment = new MyListFragment();
+            profileFragment = new AccountFragment();
+
+            fm.beginTransaction()
+                    .add(FRAGMENT_CONTAINER_ID, profileFragment, "nav_profile")
+                    .hide(profileFragment)
+                    .add(FRAGMENT_CONTAINER_ID, readFragment, "nav_read")
+                    .commit();
+
+            activeFragment = readFragment;
+
+        } else {
+            readFragment = fm.findFragmentByTag("nav_read");
+            profileFragment = fm.findFragmentByTag("nav_profile");
+
+            if (readFragment != null && !readFragment.isHidden()) {
+                activeFragment = readFragment;
+            } else if (profileFragment != null && !profileFragment.isHidden()) {
+                activeFragment = profileFragment;
+            } else {
+                activeFragment = readFragment;
+            }
+        }
+
+        bottomNav.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            Fragment targetFragment = null;
+
+            if (itemId == R.id.nav_read) {
+                targetFragment = readFragment;
+            } else if (itemId == R.id.nav_profile) {
+                targetFragment = profileFragment;
+            }
+
+            if (targetFragment != null) {
+
+                // --- LOGIC XỬ LÝ BACK STACK KHI CHUYỂN TAB ---
+                if (activeFragment != targetFragment) {
+                    // Nếu Fragment hiện tại là AccountFragment VÀ nó có Fragment con đang hiển thị
+                    // thì phải xóa Back Stack của Activity trước khi chuyển tab
+                    if (activeFragment instanceof AccountFragment) {
+                        // Xóa tất cả các Fragment con đang có trong Back Stack của Activity
+                        // Điều này sẽ khiến giao diện trở về AccountFragment gốc trước khi bị ẩn
+                        getSupportFragmentManager().popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    }
+                }
+                // -----------------------------------------------
+
+                // --- Logic Xử lý Nhấp Lại (Clicking on the active tab) ---
+                if (activeFragment == targetFragment) {
+                    if (targetFragment instanceof AccountFragment) {
+                        ((AccountFragment) targetFragment).resetToMainScreen();
+                    } else if (targetFragment instanceof ResettableFragment) {
+                        ((ResettableFragment) targetFragment).resetState();
+                    }
+                    return true;
+                }
+                // -----------------------------------------------------------
+
+                // Nếu là Fragment mới, chuyển Fragment như bình thường
+                showFragment(targetFragment);
+                return true;
+            }
+            return false;
         });
+
+        // Đảm bảo mục trên BottomNav được chọn đúng với activeFragment
+        if (activeFragment == profileFragment) {
+            bottomNav.setSelectedItemId(R.id.nav_profile);
+        } else {
+            bottomNav.setSelectedItemId(R.id.nav_read);
+        }
     }
 
+    private void showFragment(Fragment fragmentToShow) {
+        if (activeFragment == null) {
+            fm.beginTransaction().add(FRAGMENT_CONTAINER_ID, fragmentToShow).commit();
+            activeFragment = fragmentToShow;
+            return;
+        }
 
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main);
-//
-//        // ⚙️ Cho phép gọi API trực tiếp (chỉ nên dùng khi test)
-//        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-//                .permitAll()
-//                .build();
-//        StrictMode.setThreadPolicy(policy);
-//
-//        // 🔗 Ánh xạ các View
-//        edtQuestion = findViewById(R.id.edtQuestion);
-//        btnAsk = findViewById(R.id.btnAsk);
-//        tvResult = findViewById(R.id.tvResult);
-//
-//        tts = new TextToSpeech(this, status -> {
-//            if (status == TextToSpeech.SUCCESS) {
-//                int langResult = tts.setLanguage(new Locale("vi", "VN"));
-//                if (langResult == TextToSpeech.LANG_MISSING_DATA || langResult == TextToSpeech.LANG_NOT_SUPPORTED) {
-//                    tvResult.setText("⚠️ Không hỗ trợ tiếng Việt trên thiết bị này.");
-//                }
-//            }
-//        });
-//
-//        // 🧠 Xử lý khi bấm nút "Hỏi AI"
-//        btnAsk.setOnClickListener(v -> {
-//            String question = edtQuestion.getText().toString().trim();
-//
-//            if (question.isEmpty()) {
-//                tvResult.setText("⚠️ Vui lòng nhập câu hỏi trước.");
-//                return;
-//            }
-//
-//            tvResult.setText("⏳ Đang hỏi AI, vui lòng chờ...");
-//
-//            // ✅ Dùng luồng riêng để không bị "NetworkOnMainThreadException"
-//            new Thread(() -> {
-//                try {
-//                    // Gọi API Gemini qua lớp trợ lý
-//                    String result = AIReadingAssistant.askAboutBook(question, "Cuốn Theo Chiều Gió");
-//
-//                    // Cập nhật UI phải làm trên luồng chính
-//                    runOnUiThread(() -> tvResult.setText("📖 Trả lời của AI:\n" + result));
-//
-//                    if (tts != null) {
-//                        tts.speak(result, TextToSpeech.QUEUE_FLUSH, null, null);
-//                    }
-//
-//                } catch (Exception e) {
-//                    runOnUiThread(() -> tvResult.setText("❌ Lỗi khi gọi AI: " + e.getMessage()));
-//                }
-//            }).start();
-//        });
-//    }
-//
-//    @Override
-//    protected void onDestroy() {
-//        // 🧹 Giải phóng tài nguyên TTS khi thoát app
-//        if (tts != null) {
-//            tts.stop();
-//            tts.shutdown();
-//        }
-//        super.onDestroy();
-//    }
+        if (activeFragment != fragmentToShow) {
+            // Khai báo rõ ràng FragmentTransaction
+            FragmentTransaction transaction = fm.beginTransaction(); // Đã sửa lỗi FragmentTransaction
 
+            transaction.hide(activeFragment);
+            transaction.show(fragmentToShow);
+
+            transaction.commit();
+
+            activeFragment = fragmentToShow;
+        }
+    }
 }

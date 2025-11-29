@@ -68,6 +68,9 @@
         <activity android:name=".UI.MyList"
             android:exported="false"/>
 
+        <activity android:name=".Story.StatisticActivity"
+            android:exported="false"/>
+
         <activity
             android:name=".user.LoginActivity"
             android:exported="true">

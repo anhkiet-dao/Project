@@ -1,31 +1,38 @@
 package com.example.do_an.UI;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
 import com.example.do_an.R;
 
-public class MyList extends AppCompatActivity {
+public class MyListFragment extends Fragment {
 
     private Button btnReadlist, btnHistory, btnFavorite, btnDownload;
     EditText edtSearch;
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_mylist);
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
 
-        btnReadlist = findViewById(R.id.btnReadlist);
-        btnHistory = findViewById(R.id.btnHistory);
-        btnFavorite = findViewById(R.id.btnFavorite);
-        btnDownload = findViewById(R.id.btnDownload);
-        edtSearch = findViewById(R.id.edtSearch);
+        View view = inflater.inflate(R.layout.activity_mylist, container, false);
+
+        btnReadlist = view.findViewById(R.id.btnReadlist);
+        btnHistory = view.findViewById(R.id.btnHistory);
+        btnFavorite = view.findViewById(R.id.btnFavorite);
+        btnDownload = view.findViewById(R.id.btnDownload);
+        edtSearch = view.findViewById(R.id.edtSearch);
 
         btnReadlist.setOnClickListener(v -> {
             loadFragment(new ReadlistFragment());
@@ -39,12 +46,12 @@ public class MyList extends AppCompatActivity {
             loadFragment(new FavoriteFragment());
             selectButton(btnFavorite);
         });
-
         btnDownload.setOnClickListener(v -> {
             loadFragment(new DownloadFragment());
             selectButton(btnDownload);
         });
 
+        // Fragment mặc định
         loadFragment(new ReadlistFragment());
         selectButton(btnReadlist);
 
@@ -54,16 +61,17 @@ public class MyList extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.containerContent);
-
-                if (fragment instanceof ReadlistFragment) {
-                    ((ReadlistFragment) fragment).onSearch(s.toString());
+                Fragment child = getChildFragmentManager().findFragmentById(R.id.containerContent);
+                if (child instanceof ReadlistFragment) {
+                    ((ReadlistFragment) child).onSearch(s.toString());
                 }
             }
 
             @Override
             public void afterTextChanged(Editable s) {}
         });
+
+        return view;
     }
 
     private void selectButton(Button selected) {
@@ -77,13 +85,12 @@ public class MyList extends AppCompatActivity {
         btnFavorite.setTextColor(getResources().getColor(android.R.color.white));
         btnDownload.setTextColor(getResources().getColor(android.R.color.white));
 
-        // Giao diện cho nút đang được chọn
         selected.setBackgroundResource(R.drawable.button_selected);
         selected.setTextColor(getResources().getColor(android.R.color.holo_blue_bright));
     }
 
     private void loadFragment(Fragment fragment) {
-        getSupportFragmentManager()
+        getChildFragmentManager()
                 .beginTransaction()
                 .replace(R.id.containerContent, fragment)
                 .commit();

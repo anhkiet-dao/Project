@@ -37,6 +37,7 @@ public class SeriesFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        // Đảm bảo View gốc của layout này có màu nền cố định để không bị xuyên thấu
         return inflater.inflate(R.layout.activity_series, container, false);
     }
 
@@ -73,10 +74,14 @@ public class SeriesFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.recyclerSeries);
         int numberOfColumns = 3;
+
+        // Kiểm tra an toàn cho Context trước khi sử dụng
         if (getContext() != null) {
             recyclerView.setLayoutManager(new GridLayoutManager(getContext(), numberOfColumns));
 
             adapter = new SeriesAdapter(seriesList, series -> {
+                if (getContext() == null) return;
+
                 Intent intent = new Intent(getContext(), ReadActivity.class);
 
                 intent.putExtra("STORY_ID", storyId);
@@ -99,7 +104,7 @@ public class SeriesFragment extends Fragment {
     }
 
     private void loadSeries() {
-        if (storyId == null) return;
+        if (storyId == null || db == null) return; // Kiểm tra an toàn
 
         db.collection("story")
                 .document(storyId)
@@ -107,7 +112,8 @@ public class SeriesFragment extends Fragment {
                 .orderBy("name")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (!isAdded() || getContext() == null) return;
+                    // Kiểm tra Context và Fragment có được gắn chưa
+                    if (getContext() == null || !isAdded()) return;
 
                     seriesList.clear();
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
@@ -125,7 +131,7 @@ public class SeriesFragment extends Fragment {
                     }
                 })
                 .addOnFailureListener(e -> {
-                    if (isAdded() && getContext() != null) {
+                    if (getContext() != null && isAdded()) {
                         Toast.makeText(getContext(), "Lỗi tải dữ liệu!", Toast.LENGTH_SHORT).show();
                     }
                 });

@@ -9,8 +9,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.do_an.MainActivity;
 import com.example.do_an.R;
-import com.example.do_an.UI.MyList;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -28,7 +28,7 @@ public class LoginActivity extends AppCompatActivity {
         // 🔥 AUTO LOGIN (nếu đã đăng nhập rồi → vào thẳng app)
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
-            Intent intent = new Intent(this, MyList.class);
+            Intent intent = new Intent(this, MainActivity.class);
             intent.putExtra("userEmail", user.getEmail());
             startActivity(intent);
             finish();
@@ -74,7 +74,7 @@ public class LoginActivity extends AppCompatActivity {
                                 Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
 
                                 // Chuyển sang ProfileActivity
-                                Intent intent = new Intent(this, MyList.class); // sau này sửa lại
+                                Intent intent = new Intent(this, MainActivity.class); // sau này sửa lại
                                 intent.putExtra("userEmail", user.getEmail()); // Gửi email qua
                                 startActivity(intent);
                                 finish();
