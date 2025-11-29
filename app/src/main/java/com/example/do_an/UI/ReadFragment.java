@@ -21,12 +21,11 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.do_an.R;
-import com.example.do_an.application.NoteActivity;
-import com.example.do_an.application.SettingsManager; // Ví dụ
-import com.example.do_an.application.DownloadManager; // Ví dụ
-import com.example.do_an.application.FavoriteHandler; // Ví dụ
-import com.example.do_an.application.HistoryManager; // Ví dụ
-import com.example.do_an.application.PdfViewerController; // Ví dụ
+import com.example.do_an.application.SettingsManager;
+import com.example.do_an.application.DownloadManager;
+import com.example.do_an.application.FavoriteHandler;
+import com.example.do_an.application.HistoryManager;
+import com.example.do_an.application.PdfViewerController;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -35,16 +34,12 @@ import okhttp3.Call;
 
 import java.io.File;
 
-// CHÚ Ý: Cần đảm bảo các lớp DownloadManager, PdfViewerController, SettingsManager,
-// FavoriteHandler, HistoryManager vẫn hoạt động tốt khi nhận Context từ Fragment (getContext() hoặc getActivity()).
 public class ReadFragment extends Fragment implements DownloadManager.LoadingListener {
 
     private static final String TAG = "ReadFragment";
     private TextView txtTieuDe;
     private ViewPager2 pdfViewPager;
     private ImageView btnFavorite, btnNote;
-
-    // Biến dữ liệu chính
     private String userEmail;
     private String currentStoryId;
     private String currentTitle;
@@ -53,11 +48,8 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
     private String currentImageUrl;
     private String currentDescription;
     private String mainStoryTitle;
-    private String currentReadUrl = ""; // Link PDF đang đọc
-
-    private Call currentDownloadCall; // Dùng để cancel tác vụ tải xuống
-
-    // Khai báo các Manager/Controller
+    private String currentReadUrl = "";
+    private Call currentDownloadCall;
     private SettingsManager settingsManager;
     private PdfViewerController pdfViewerController;
     private DownloadManager downloadManager;
@@ -66,13 +58,9 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
     private TextView txtPageIndicator;
     private ProgressBar progressBarLoading;
     private LinearLayout loadingLayout;
-
-    // Getter cho các lớp khác (chủ yếu cho PdfViewerController)
     public String getCurrentTitle() { return currentTitle; }
     public String getMainStoryTitle() { return mainStoryTitle; }
     private ProgressBar progressDownload;
-
-    // Phương thức tĩnh để tạo instance của Fragment và truyền Bundle (thay cho Intent)
     public static ReadFragment newInstance(Bundle storyData) {
         ReadFragment fragment = new ReadFragment();
         fragment.setArguments(storyData);
@@ -82,11 +70,9 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Áp dụng Dark Mode (nên làm trong Activity chứa Fragment, nhưng vẫn có thể làm ở đây)
         Context context = requireContext();
         SharedPreferences prefs = context.getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
         boolean darkMode = prefs.getBoolean("darkMode", false);
-        // Lưu ý: Việc thay đổi theme toàn cục nên đặt ở Activity
         AppCompatDelegate.setDefaultNightMode(darkMode ?
                 AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
 
@@ -94,7 +80,6 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
         if (currentUser != null) {
             userEmail = currentUser.getEmail();
         } else {
-            // Hiển thị Toast và thoát Fragment (hoặc Activity)
             Toast.makeText(context, "Bạn chưa đăng nhập!", Toast.LENGTH_SHORT).show();
             // Yêu cầu Activity chứa nó thoát (hoặc dùng FragmentManager để loại bỏ Fragment)
             if (getActivity() != null) getActivity().finish();
@@ -111,7 +96,6 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Gán layout Fragment
         return inflater.inflate(R.layout.activity_reading, container, false);
     }
 
@@ -119,7 +103,6 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Khởi tạo Views
         txtTieuDe = view.findViewById(R.id.txtTieuDe);
         pdfViewPager = view.findViewById(R.id.pdfViewPager);
         btnFavorite = view.findViewById(R.id.btnFavorite);
@@ -128,12 +111,10 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
         progressDownload = view.findViewById(R.id.progressDownload);
         btnNote = view.findViewById(R.id.btnNote);
 
-        // Thiết lập tiêu đề
         if (currentTitle != null) {
             txtTieuDe.setText(currentTitle);
         }
 
-        // Khởi tạo Managers
         Context context = requireContext();
         settingsManager = new SettingsManager(context);
         historyManager = new HistoryManager(context);
@@ -142,7 +123,6 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
 
         downloadManager.setLoadingListener(this);
 
-        // Khởi tạo Controller
         pdfViewerController = new PdfViewerController(
                 context, pdfViewPager, txtTieuDe, settingsManager,
                 txtPageIndicator,
@@ -183,7 +163,6 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
         }
     }
 
-    // === PHƯƠNG THỨC MỚI CẦN THÊM VÀO ĐỂ KHẮC PHỤC LỖI THIẾU ===
     @Override
     public void hideDownloadProgress() {
         if (progressDownload != null) {
@@ -194,13 +173,11 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
             }
         }
     }
-    // ==========================================================
 
     public boolean isTablet() {
         return getResources().getConfiguration().smallestScreenWidthDp >= 600;
     }
 
-    // Nhận Bundle thay vì Intent
     private void setupIntentData(Bundle args) {
         if (args == null) return;
 
@@ -225,8 +202,6 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
 
         if (mainStoryTitle == null) mainStoryTitle = currentTitle;
     }
-
-    // Dùng View root để tìm kiếm View
     private void setupViewsAndListeners(View root) {
         // Back Button
         root.findViewById(R.id.btnBack).setOnClickListener(v -> {
@@ -236,7 +211,6 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
             }
         });
 
-        // Favorite Button
         favoriteHandler.checkIfFavorite(currentStoryId, mainStoryTitle, currentTitle, userEmail, btnFavorite);
         btnFavorite.setOnClickListener(v -> favoriteHandler.toggleFavorite(
                 userEmail, currentStoryId, mainStoryTitle, currentTitle,
@@ -244,7 +218,6 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
                 btnFavorite
         ));
 
-        // Download Button
         ImageView btnDownLoad = root.findViewById(R.id.btnDown);
         btnDownLoad.setOnClickListener(v -> {
             if (currentReadUrl == null || currentReadUrl.isEmpty()) {
@@ -255,20 +228,29 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
             downloadManager.downloadPdfWithOkHttp(currentReadUrl, currentTitle + ".pdf");
         });
 
-        // Nút mở ghi chú
         btnNote.setOnClickListener(v -> {
+            if (getParentFragmentManager() == null) {
+                Toast.makeText(getContext(), "Lỗi: Không tìm thấy Fragment Manager.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             int currentPage = pdfViewerController.getCurrentPage() + 1;
 
-            String noteContextId = currentStoryId + "_" + currentTitle;
+            String displayTitle = currentTitle != null ? currentTitle : mainStoryTitle;
+            if (displayTitle == null) displayTitle = "Truyện";
 
-            Intent intent = new Intent(getContext(), NoteActivity.class);
+            String noteContextId = currentStoryId + "_" + displayTitle;
 
-            intent.putExtra("NOTE_CONTEXT_ID", noteContextId);
-            intent.putExtra("PAGE_NUMBER", currentPage);
+            NoteFragment noteFragment = NoteFragment.newInstance(
+                    noteContextId,
+                    currentPage,
+                    displayTitle
+            );
 
-            intent.putExtra("STORY_TITLE_DISPLAY", currentTitle);
-
-            startActivity(intent);
+            getParentFragmentManager().beginTransaction()
+                    .add(R.id.fragment_container, noteFragment)
+                    .addToBackStack(null)
+                    .commit();
         });
 
         // Settings
@@ -305,6 +287,22 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
         }
     }
 
+//    @Override
+//    public void onDestroyView() {
+//        super.onDestroyView();
+//        // Hủy các tác vụ và giải phóng tài nguyên
+//        if (currentDownloadCall != null && !currentDownloadCall.isCanceled()) {
+//            currentDownloadCall.cancel();
+//        }
+//        if (pdfViewerController != null) {
+//            pdfViewerController.closeRenderer();
+//            pdfViewerController.stopAutoNext();
+//        }
+//        if (downloadManager != null) {
+//            downloadManager.setIsActivityDestroyed(true);
+//        }
+//    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -313,11 +311,20 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
             currentDownloadCall.cancel();
         }
         if (pdfViewerController != null) {
-            pdfViewerController.closeRenderer();
             pdfViewerController.stopAutoNext();
+
+            pdfViewerController.closeRenderer();
         }
         if (downloadManager != null) {
             downloadManager.setIsActivityDestroyed(true);
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (pdfViewerController != null) {
+            pdfViewerController.closeRenderer();
         }
     }
 }

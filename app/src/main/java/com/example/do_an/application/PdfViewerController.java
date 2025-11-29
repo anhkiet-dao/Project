@@ -1,6 +1,8 @@
 package com.example.do_an.application;
 
-import android.content.Context; // <<< Thêm import Context
+import static android.content.ContentValues.TAG;
+
+import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
@@ -18,13 +20,17 @@ import com.example.do_an.R;
 import java.io.File;
 
 public class PdfViewerController {
-    // Thay đổi kiểu từ ReadActivity sang Context
-    private final Context context; // <<< SỬA: Dùng Context
-    private final ViewPager2 pdfViewPager;
-    private final TextView txtTieuDe;
+
+    private final Context context;
+    // <<< THAY ĐỔI: Không dùng final cho ViewPager2 và TextView nữa
+    private ViewPager2 pdfViewPager;
+    private TextView txtTieuDe;
+    private TextView txtPageIndicator;
+    // >>>
+
     private final SettingsManager settingsManager;
     private PdfPageAdapter pdfPageAdapter;
-    private final TextView txtPageIndicator;
+    private File pdfFile; // <<< THÊM: Lưu trữ File PDF
 
     private final StringSupplier titleSupplier;
     private final StringConsumer urlConsumer;
@@ -33,27 +39,33 @@ public class PdfViewerController {
     private Runnable autoRunnable;
     public interface StringSupplier { String get(); }
     public interface StringConsumer { void set(String value); }
-
-    // SỬA CONSTRUCTOR: Thay ReadActivity bằng Context
     public PdfViewerController(Context context, ViewPager2 viewPager, TextView tieuDe,
                                SettingsManager settingsManager, TextView pageIndicator,
                                StringSupplier titleSupplier, StringConsumer urlConsumer) {
-        this.context = context; // <<< SỬA: Lưu Context
-        this.pdfViewPager = viewPager;
+        this.context = context;
+        this.pdfViewPager = viewPager; // Lần khởi tạo đầu tiên
         this.txtTieuDe = tieuDe;
         this.settingsManager = settingsManager;
         this.txtPageIndicator = pageIndicator;
         this.titleSupplier = titleSupplier;
         this.urlConsumer = urlConsumer;
     }
-
-    // --- Core Logic: Setup và Apply Settings ---
     public void setupPdfRenderer(File pdfFile) {
-        try {
-            // Dùng context thay vì activity
-            pdfPageAdapter = new PdfPageAdapter(context, pdfFile);
+        this.pdfFile = pdfFile; // <<< LƯU FILE PDF
 
-            // --- Bổ sung Logic Tự động chọn PageMode ---
+        if (pdfPageAdapter != null) {
+            // Trường hợp 1: Fragment View bị hủy và tạo lại (tái sử dụng Adapter và Renderer)
+
+            // Cần gán lại Adapter cho ViewPager2 mới
+            pdfViewPager.setAdapter(pdfPageAdapter);
+
+            applySettingsToReader(); // Áp dụng lại cài đặt và vị trí trang
+
+            Log.d(TAG, "Renderer đã tồn tại, tái sử dụng Adapter.");
+            return;
+        }
+        try {
+            pdfPageAdapter = new PdfPageAdapter(context, pdfFile);
 
             final int DEFAULT_PAGE_MODE = 0;
             final int SINGLE_PAGE_MODE = 1;
@@ -62,16 +74,12 @@ public class PdfViewerController {
             int savedPageMode = settingsManager.getPageMode();
 
             if (savedPageMode == DEFAULT_PAGE_MODE) {
-                // SỬA: Cần một hàm isTablet() chung, nhưng vì đây là Controller,
-                // ta sẽ dùng Context để lấy tài nguyên (Resources)
-                if (isTablet(context)) { // <<< Dùng hàm isTablet đã được chỉnh sửa
+                if (isTablet(context)) {
                     settingsManager.setPageMode(DOUBLE_PAGE_MODE);
                 } else {
                     settingsManager.setPageMode(SINGLE_PAGE_MODE);
                 }
             }
-
-            // --- Kết thúc Logic Tự động chọn PageMode ---
 
             pdfPageAdapter.setPageMode(settingsManager.getPageMode());
             pdfViewPager.setAdapter(pdfPageAdapter);
@@ -79,7 +87,7 @@ public class PdfViewerController {
             applySettingsToReader();
 
             txtTieuDe.setText(titleSupplier.get() + " (" + pdfPageAdapter.getItemCount() + " trang)");
-            Toast.makeText(context, "Tải xong, bắt đầu đọc!", Toast.LENGTH_SHORT).show(); // <<< Dùng context
+            Toast.makeText(context, "Tải xong, bắt đầu đọc!", Toast.LENGTH_SHORT).show();
 
             updatePageIndicator(pdfViewPager.getCurrentItem(), pdfPageAdapter.getItemCount());
 
@@ -87,17 +95,26 @@ public class PdfViewerController {
 
         } catch (Exception e) {
             Log.e("PdfController", "Lỗi setup PdfRenderer", e);
-            Toast.makeText(context, "Không thể mở file PDF đã tải.", Toast.LENGTH_LONG).show(); // <<< Dùng context
+            Toast.makeText(context, "Không thể mở file PDF đã tải.", Toast.LENGTH_LONG).show();
         }
     }
 
-    // Hàm isTablet đã được đưa vào ReadFragment. Ta cần tạo một phiên bản tĩnh
-    // hoặc truy cập qua context. Phiên bản này an toàn hơn.
+    public void setViews(ViewPager2 viewPager, TextView tieuDe, TextView pageIndicator) {
+        this.pdfViewPager = viewPager;
+        this.txtTieuDe = tieuDe;
+        this.txtPageIndicator = pageIndicator;
+
+        if (pdfPageAdapter != null) {
+            setupPdfRenderer(this.pdfFile);
+        }
+    }
+
     private boolean isTablet(Context ctx) {
         return ctx.getResources().getConfiguration().smallestScreenWidthDp >= 600;
     }
 
     public int getCurrentPage() {
+        // Kiểm tra null cho ViewPager2 (vì nó có thể đã bị clear)
         if (pdfViewPager != null && pdfPageAdapter != null) {
             return pdfViewPager.getCurrentItem();
         }
@@ -110,35 +127,23 @@ public class PdfViewerController {
         }
     }
 
-    // Các phương thức khác (applySettingsToReader, setupSettingsView, startAutoNext, stopAutoNext,
-    // getPageChangeCallback, closeRenderer) KHÔNG CẦN CHỈNH SỬA vì chúng chỉ dùng các biến
-    // thành viên đã được định nghĩa lại.
-
-    // ... (Giữ nguyên code từ applySettingsToReader xuống dưới) ...
-
     public void applySettingsToReader() {
-        if (pdfPageAdapter == null) return;
+        if (pdfPageAdapter == null || pdfViewPager == null) return;
 
-        // 1. LƯU VỊ TRÍ HIỆN TẠI VÀ CHẾ ĐỘ TRANG CŨ
         final int currentPageIndex = pdfViewPager.getCurrentItem();
         final int oldPageMode = pdfPageAdapter.pageMode;
 
-        // 2. Cập nhật orientation
         int newDir = settingsManager.getDirection();
         pdfViewPager.setOrientation(newDir == 0 ?
                 ViewPager2.ORIENTATION_VERTICAL : ViewPager2.ORIENTATION_HORIZONTAL);
 
-        // 3. Cập nhật pageMode
         final int newPageMode = settingsManager.getPageMode();
         pdfPageAdapter.setPageMode(newPageMode);
 
-        // 4. BUỘC ADAPTER CẬP NHẬT LẠI DỮ LIỆU
         pdfPageAdapter.notifyDataSetChanged();
 
-        // 5. TRÌ HOÃN (POST) việc đặt lại trang
         pdfViewPager.post(() -> {
 
-            // --- LOGIC TÍNH TOÁN VỊ TRÍ MỚI (Dùng lại logic cũ) ---
             int finalPosition = currentPageIndex;
 
             if (oldPageMode != newPageMode) {
@@ -147,56 +152,39 @@ public class PdfViewerController {
                 finalPosition = (newPageMode == 1) ? currentPdfPage : currentPdfPage / 2;
             }
 
-            // Đảm bảo vị trí không vượt quá giới hạn
             int maxPosition = pdfPageAdapter.getItemCount() - 1;
             if (finalPosition > maxPosition) finalPosition = maxPosition;
             if (finalPosition < 0) finalPosition = 0;
 
-            // 6. Set CurrentItem
             pdfViewPager.setCurrentItem(finalPosition, false);
 
-            // Cập nhật lại chỉ số trang
             updatePageIndicator(finalPosition, pdfPageAdapter.getItemCount());
         });
     }
 
-    // --- Logic: Settings View ---
     public void setupSettingsView(View settingsContainer, AppCompatButton btnCloseSettings, View btnSettings) {
-        // 1. Lấy tham chiếu đến các Views
-
-        // Controls chung
         RadioGroup rgDirection = settingsContainer.findViewById(R.id.rgReadingDirection);
         RadioGroup rgPageMode = settingsContainer.findViewById(R.id.rgPageMode);
         Switch switchAutoNext = settingsContainer.findViewById(R.id.switchAutoNext);
 
-        // Controls Tự động chuyển trang
-        // Lưu ý: layoutAutoTime là LinearLayout cha chứa SeekBar và TextView thời gian.
-        View layoutAutoTime = settingsContainer.findViewById(R.id.layoutAutoTime); // <<< THÊM: Lấy View Layout cha
+        View layoutAutoTime = settingsContainer.findViewById(R.id.layoutAutoTime);
         SeekBar seekAutoTime = settingsContainer.findViewById(R.id.seekAutoTime);
         TextView txtAutoTime = settingsContainer.findViewById(R.id.txtAutoTime);
 
-
-        // 2. Load trạng thái ban đầu từ SettingsManager
-
-        // Cài đặt hướng đọc và chế độ trang
         if (settingsManager.getDirection() == 0) rgDirection.check(R.id.rbVertical);
         else rgDirection.check(R.id.rbHorizontal);
         if (settingsManager.getPageMode() == 1) rgPageMode.check(R.id.rbSinglePage);
         else rgPageMode.check(R.id.rbDoublePage);
 
-        // Cài đặt Tự động chuyển trang
         boolean isAutoNextEnabled = settingsManager.isAutoNext();
         switchAutoNext.setChecked(isAutoNextEnabled);
         seekAutoTime.setProgress(settingsManager.getAutoTime());
         txtAutoTime.setText(settingsManager.getAutoTime() + "s");
 
-        // <<< QUAN TRỌNG: Thiết lập visibility ban đầu cho SeekBar
         if (layoutAutoTime != null) {
             layoutAutoTime.setVisibility(isAutoNextEnabled ? View.VISIBLE : View.GONE);
         }
 
-
-        // 3. Thiết lập Listeners
         rgDirection.setOnCheckedChangeListener((group, checkedId) -> {
             settingsManager.setDirection((checkedId == R.id.rbVertical) ? 0 : 1);
             applySettingsToReader();
@@ -206,21 +194,17 @@ public class PdfViewerController {
             applySettingsToReader();
         });
 
-        // Listener cho Switch Tự động chuyển trang
         switchAutoNext.setOnCheckedChangeListener((buttonView, isChecked) -> {
             settingsManager.setAutoNext(isChecked);
 
-            // Cập nhật hiển thị Layout Auto Time
             if (layoutAutoTime != null) {
                 layoutAutoTime.setVisibility(isChecked ? View.VISIBLE : View.GONE);
             }
 
-            // Bắt đầu hoặc Dừng chức năng tự động chuyển trang
             if (isChecked) startAutoNext();
             else stopAutoNext();
         });
 
-        // Listener cho SeekBar điều chỉnh thời gian
         seekAutoTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (progress < 1) progress = 1; // Đảm bảo thời gian tối thiểu là 1s
@@ -232,12 +216,10 @@ public class PdfViewerController {
                 if (p < 1) p = 1;
                 settingsManager.setAutoTime(p); // Lưu giá trị mới
 
-                // Khởi động lại Auto Next nếu đang chạy để áp dụng tốc độ mới
                 if (settingsManager.isAutoNext()) { stopAutoNext(); startAutoNext(); }
             }
         });
 
-        // 4. Toggle View (Hiển thị/Ẩn Container Cài đặt)
         btnSettings.setOnClickListener(v -> {
             settingsContainer.setVisibility(View.VISIBLE);
             txtPageIndicator.setVisibility(View.GONE); // ẨN khi mở Cài đặt
@@ -249,16 +231,17 @@ public class PdfViewerController {
         });
     }
 
-    // --- Logic: Auto Next ---
     public void startAutoNext() {
         stopAutoNext();
+        if (pdfViewPager == null) return; // Thêm kiểm tra
+
         int delaySec = settingsManager.getAutoTime();
         final long delayMs = (delaySec < 1 ? 3 : delaySec) * 1000L;
 
         autoRunnable = new Runnable() {
             @Override
             public void run() {
-                if (pdfPageAdapter == null) return;
+                if (pdfPageAdapter == null || pdfViewPager == null) return; // Thêm kiểm tra
                 int current = pdfViewPager.getCurrentItem();
                 int total = pdfPageAdapter.getItemCount();
 
@@ -280,7 +263,6 @@ public class PdfViewerController {
         }
     }
 
-    // --- Logic: ViewPager2 Callback ---
     public ViewPager2.OnPageChangeCallback getPageChangeCallback() {
         return new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -294,10 +276,19 @@ public class PdfViewerController {
         };
     }
 
-    // --- Logic: Cleanup ---
+    public void clearView() {
+        // Xóa tham chiếu tới View để tránh rò rỉ bộ nhớ
+        this.pdfViewPager = null;
+        this.txtTieuDe = null;
+        this.txtPageIndicator = null;
+        stopAutoNext(); // Đảm bảo dừng tác vụ tự động chuyển trang
+        Log.d("PdfController", "Đã xóa tham chiếu View.");
+    }
     public void closeRenderer() {
         if (pdfPageAdapter != null) {
             pdfPageAdapter.close();
+            pdfPageAdapter = null; // Thiết lập Adapter về null
+            this.pdfFile = null; // Xóa tham chiếu File
             Log.d("PdfController", "Đã đóng PdfRenderer.");
         }
     }

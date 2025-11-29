@@ -1,103 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:padding="20dp"
-    android:layout_margin="20dp"
-    android:background="@drawable/bg_settings_card"
-    android:gravity="center_horizontal"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dimBackground"
     android:layout_width="match_parent"
-    android:layout_gravity="center"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent"
+    android:background="#90000000"
+    android:clickable="true"
+    android:focusable="true">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp">
-
-        <!-- Title -->
-        <TextView
-            android:id="@+id/txtTitle"
-            android:text="Ghi chú"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:textColor="#222222"
-            android:gravity="center_vertical"
-            android:layout_centerHorizontal="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <!-- Close Icon -->
-        <ImageView
-            android:id="@+id/btnClose"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:src="@drawable/cross"
-            android:background="?selectableItemBackgroundBorderless"
-            android:contentDescription="Close"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true" />
-
-    </RelativeLayout>
-
-
-
-    <EditText
-        android:id="@+id/edtNoteContent"
-        android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:layout_marginTop="10dp"
-        android:padding="10dp"
-        android:background="@drawable/bg_dialog"
-        android:textColor="#222222"
-        android:textSize="16sp"
-        android:gravity="top"
-        android:hint="Nhập ghi chú..." />
-
+    <!-- Card Note -->
     <LinearLayout
+        android:id="@+id/noteContainer"
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:layout_margin="20dp"
+        android:background="@drawable/bg_settings_card"
+        android:gravity="center_horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginTop="10dp">
+        android:layout_gravity="center">
 
-        <TextView
-            android:id="@+id/btnAddNote"
-            android:text="Thêm"
-            android:textSize="16sp"
-            android:layout_marginEnd="8dp"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:gravity="center"
-            android:textStyle="bold"
-            android:layout_weight="1"
-            android:background="@drawable/bg_button_primary"
-            android:textColor="#FFFFFF"/>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp">
 
-        <TextView
-            android:id="@+id/btnUpdateNote"
-            android:text="Lưu"
-            android:textSize="16sp"
-            android:layout_marginEnd="8dp"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_weight="1"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:background="@drawable/bg_button_warning"
-            android:textColor="#FFFFFF" />
+            <!-- Title -->
+            <TextView
+                android:id="@+id/txtTitle"
+                android:text="Ghi chú"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="#222222"
+                android:gravity="center_vertical"
+                android:layout_centerHorizontal="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/btnDeleteNote"
-            android:text="Xóa"
+            <!-- Close Icon -->
+            <ImageView
+                android:id="@+id/btnClose"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@drawable/cross"
+                android:background="?selectableItemBackgroundBorderless"
+                android:contentDescription="Close"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true" />
+
+        </RelativeLayout>
+
+        <EditText
+            android:id="@+id/edtNoteContent"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_marginTop="10dp"
+            android:padding="10dp"
+            android:background="@drawable/bg_dialog"
+            android:textColor="#222222"
             android:textSize="16sp"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:textStyle="bold"
-            android:layout_weight="1"
+            android:gravity="top"
+            android:hint="Nhập ghi chú..." />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
             android:gravity="center"
-            android:background="@drawable/bg_button_danger"
-            android:textColor="#FFFFFF" />
+            android:layout_marginTop="10dp">
+
+            <TextView
+                android:id="@+id/btnAddNote"
+                android:text="Thêm"
+                android:textSize="16sp"
+                android:layout_marginEnd="8dp"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:layout_weight="1"
+                android:background="@drawable/bg_button_primary"
+                android:textColor="#FFFFFF"/>
+
+            <TextView
+                android:id="@+id/btnUpdateNote"
+                android:text="Lưu"
+                android:textSize="16sp"
+                android:layout_marginEnd="8dp"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:background="@drawable/bg_button_warning"
+                android:textColor="#FFFFFF" />
+
+            <TextView
+                android:id="@+id/btnDeleteNote"
+                android:text="Xóa"
+                android:textSize="16sp"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:textStyle="bold"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:background="@drawable/bg_button_danger"
+                android:textColor="#FFFFFF" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
-</LinearLayout>
+</FrameLayout>

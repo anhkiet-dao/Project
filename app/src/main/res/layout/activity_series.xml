@@ -4,7 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@android:color/white"> <com.google.android.material.appbar.MaterialToolbar
+    android:background="@android:color/white"
+    android:padding="5dp">
+
+    <com.google.android.material.appbar.MaterialToolbar
     android:id="@+id/toolbar"
     android:layout_width="match_parent"
     android:layout_height="40dp"
