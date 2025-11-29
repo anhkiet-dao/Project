@@ -2,8 +2,8 @@ package com.example.do_an.application;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle; // Cần import Bundle
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.app.AppCompatActivity; // Cần AppCompatActivity để dùng getSupportFragmentManager
 
 import java.io.File;
 import java.io.FileReader;
@@ -18,31 +19,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.do_an.R;
+// Cần import ReadFragment
+import com.example.do_an.UI.ReadFragment; // <<< Import ReadFragment
 
 import org.json.JSONObject;
 
 public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdapter.PdfViewHolder> {
 
-    // ĐÃ SỬA VÀ DUY TRÌ: Thay Context bằng Activity
+    // Giữ nguyên Activity, nhưng chúng ta sẽ coi nó là AppCompatActivity
     private Activity activity;
-    // GIỮ NGUYÊN kiểu List<File> ở đây để tương thích, nhưng đảm bảo nó là ArrayList
     private List<File> pdfFiles;
 
-    // ĐÃ SỬA: Cập nhật constructor nhận Activity và tạo bản sao ArrayList
     public DownloadedPdfAdapter(Activity activity, List<File> pdfFiles) {
         this.activity = activity;
-
-        // ********* ĐIỂM SỬA QUAN TRỌNG NHẤT *********
-        // Nếu danh sách được truyền vào không phải là ArrayList,
-        // nó có thể là danh sách cố định (Immutable List).
-        // Chúng ta tạo bản sao sang ArrayList để hỗ trợ thao tác .remove()
         this.pdfFiles = new ArrayList<>(pdfFiles);
-        // ********************************************
     }
 
     @Override
     public PdfViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        // Nên dùng parent.getContext() để lấy Context chính xác cho LayoutInflater
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_pdf, parent, false);
         return new PdfViewHolder(view);
     }
@@ -54,8 +48,10 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
         holder.txtPdfName.setText(pdf.getName());
 
         holder.itemView.setOnClickListener(v -> {
-            // Dùng activity thay vì context
-            Intent intent = new Intent(activity, ReadActivity.class);
+            // === LOGIC CHUYỂN TỪ ACTIVITY SANG FRAGMENT ===
+
+            // 1. Chuẩn bị dữ liệu Bundle
+            Bundle readArgs = new Bundle();
 
             String title = pdf.getName().replace(".pdf", "");
             String storyId = title + "_id";
@@ -85,16 +81,35 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
                 }
             }
 
-            intent.putExtra("STORY_ID", storyId);
-            intent.putExtra("STORY_TITLE", title);
-            intent.putExtra("STORY_AUTHOR", author);
-            intent.putExtra("STORY_CATEGORY", category);
-            intent.putExtra("STORY_IMAGE_URL", imageUrl);
-            intent.putExtra("STORY_DESCRIPTION", description);
-            intent.putExtra("PDF_PATH", pdf.getAbsolutePath());
+            // Đặt dữ liệu vào Bundle
+            readArgs.putString("STORY_ID", storyId);
+            readArgs.putString("STORY_TITLE", title);
+            readArgs.putString("STORY_AUTHOR", author);
+            readArgs.putString("STORY_CATEGORY", category);
+            readArgs.putString("STORY_IMAGE_URL", imageUrl);
+            readArgs.putString("STORY_DESCRIPTION", description);
+            // KEY QUAN TRỌNG: Đường dẫn file cục bộ
+            readArgs.putString("PDF_PATH", pdf.getAbsolutePath());
+            // TAP (Episode title) sẽ là title
 
-            // Dùng activity thay vì context
-            activity.startActivity(intent);
+            // 2. Kiểm tra Activity và thực hiện Fragment Transaction
+            if (activity instanceof AppCompatActivity) {
+                AppCompatActivity appCompatActivity = (AppCompatActivity) activity;
+
+                // Tạo instance của ReadFragment
+                ReadFragment readFragment = ReadFragment.newInstance(readArgs);
+                // Hoặc ReadFragment readFragment = new ReadFragment(); readFragment.setArguments(readArgs);
+
+                appCompatActivity.getSupportFragmentManager()
+                        .beginTransaction()
+                        // !!! QUAN TRỌNG: Thay R.id.fragment_container bằng ID container thực tế
+                        .replace(R.id.fragment_container, readFragment)
+                        .addToBackStack(null) // Cho phép nhấn nút back để quay lại màn hình danh sách đã tải
+                        .commit();
+            } else {
+                Toast.makeText(activity, "Lỗi: Không thể mở màn hình đọc (Activity không tương thích)", Toast.LENGTH_SHORT).show();
+            }
+            // === KẾT THÚC LOGIC CHUYỂN ĐỔI ===
         });
 
         holder.btnDelete.setOnClickListener(v -> {
@@ -113,7 +128,6 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
 
     private void showDeleteDialog(File fileToDelete, int adapterPos, PdfViewHolder holder) {
 
-        // Dùng activity đã lưu, không cần kiểm tra lại
         Dialog dialog = new Dialog(this.activity);
         dialog.setContentView(R.layout.item_confirm_delete);
         dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
@@ -132,13 +146,10 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
             if (jsonFile.exists()) jsonFile.delete();
 
             if (deleted) {
-                // Thao tác xóa .remove() giờ đã hoạt động an toàn
                 pdfFiles.remove(adapterPos);
                 notifyItemRemoved(adapterPos);
-                // Dùng activity để hiển thị Toast
                 Toast.makeText(this.activity, "Đã xóa " + fileToDelete.getName(), Toast.LENGTH_SHORT).show();
             } else {
-                // Dùng activity để hiển thị Toast
                 Toast.makeText(this.activity, "Không thể xóa " + fileToDelete.getName(), Toast.LENGTH_SHORT).show();
             }
 

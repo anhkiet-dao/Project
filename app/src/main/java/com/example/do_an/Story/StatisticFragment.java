@@ -71,7 +71,6 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Inflate layout và trả về View
         return inflater.inflate(R.layout.activity_statistics, container, false);
     }
 
@@ -79,7 +78,6 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Ánh xạ View (sử dụng view đã inflate)
         tvTotalBooks = view.findViewById(R.id.tvTotalBooks);
         tvTotalHours = view.findViewById(R.id.tvTotalHours);
         lineChart = view.findViewById(R.id.lineChart);
@@ -101,12 +99,10 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
                 drawChartWeekly(histories);
             }
         });
-
         if (rbDaily.isChecked()) {
             scrollDates.setVisibility(android.view.View.VISIBLE);
             showLast5Days();
         }
-
         fetchHistoryFromFirebase();
     }
 
@@ -119,7 +115,6 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
             Date date = cal.getTime();
             String dateStr = sdf.format(date);
 
-            // Thay thế 'this' bằng 'getContext()'
             final Button dayButton = new Button(getContext());
             dayButton.setText(dateStr);
             dayButton.setTag(dateStr);
@@ -158,7 +153,7 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
     }
 
     private void updateStatisticsByDate(List<History> histories, String dateStr) {
-        Set<String> uniqueStories = new HashSet<>();
+        int totalReads = 0;
         long totalMillis = 0;
         SimpleDateFormat sdfFull = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.getDefault());
         SimpleDateFormat sdfDayMonth = new SimpleDateFormat("dd/MM", Locale.getDefault());
@@ -167,8 +162,8 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
             try {
                 String startStr = Encryption.decrypt(h.getStartTime());
                 String endStr = Encryption.decrypt(h.getEndTime());
-                String title = Encryption.decrypt(h.getTitle());
-                if (startStr == null || endStr == null || title == null) continue;
+                String title = Encryption.decrypt(h.getTitle()); // Giữ lại title để tránh lỗi, nhưng không dùng để đếm
+                if (startStr == null || endStr == null) continue;
 
                 Date startDate = sdfFull.parse(startStr);
                 Date endDate = sdfFull.parse(endStr);
@@ -178,7 +173,7 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
                 String endDay = sdfDayMonth.format(endDate);
 
                 if (startDay.equals(dateStr) || endDay.equals(dateStr)) {
-                    uniqueStories.add(title);
+                    totalReads++; // Tăng biến đếm số tập/lần đọc
                     totalMillis += (endDate.getTime() - startDate.getTime());
                 }
 
@@ -187,7 +182,7 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
             }
         }
 
-        tvTotalBooks.setText(String.valueOf(uniqueStories.size()));
+        tvTotalBooks.setText(String.valueOf(totalReads)); // Sử dụng biến đếm số tập
         long totalMinutes = totalMillis / 60000;
         if (totalMinutes < 60) {
             tvTotalHours.setText(totalMinutes + " phút");
@@ -223,8 +218,7 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
                         updateStatistics(histories, "weekly");
                         drawChartWeekly(histories);
                     }
-                    // GỌI HÀM VẼ BIỂU ĐỒ CỘT VÀ BIỂU ĐỒ TRÒN
-                    drawBarChart(histories);
+                    drawBarChart(histories); // GỌI HÀM VẼ BIỂU ĐỒ CỘT
                     drawPieChart(histories); // GỌI HÀM VẼ BIỂU ĐỒ TRÒN
                 }
 
@@ -241,7 +235,7 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
     }
 
     private void updateStatistics(List<History> histories, String timeFrame) {
-        Set<String> uniqueStories = new HashSet<>();
+        int totalReads = 0; // Thay thế Set<String> bằng biến đếm
         long totalMillis = 0;
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.getDefault());
 
@@ -249,12 +243,12 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
             try {
                 String startStr = Encryption.decrypt(h.getStartTime());
                 String endStr = Encryption.decrypt(h.getEndTime());
-                String title = Encryption.decrypt(h.getTitle());
-                uniqueStories.add(title);
+                // String title = Encryption.decrypt(h.getTitle()); // Không cần dùng title
 
                 Date startDate = sdf.parse(startStr);
                 Date endDate = sdf.parse(endStr);
                 if (startDate != null && endDate != null) {
+                    totalReads++; // Tăng biến đếm số tập/lần đọc
                     totalMillis += (endDate.getTime() - startDate.getTime());
                 }
 
@@ -263,7 +257,7 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
             }
         }
 
-        tvTotalBooks.setText(String.valueOf(uniqueStories.size()));
+        tvTotalBooks.setText(String.valueOf(totalReads)); // Sử dụng biến đếm số tập
         long totalMinutes = totalMillis / 60000;
         if (totalMinutes < 60) {
             tvTotalHours.setText(totalMinutes + " phút");
@@ -371,9 +365,9 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
         leftAxis.enableGridDashedLine(10f, 10f, 0f);
         leftAxis.setTextColor(Color.BLACK);
         leftAxis.setTextSize(10f);
-        leftAxis.setLabelCount(5, true); // Đặt số lượng nhãn trục Y
+        leftAxis.setLabelCount(5, true);
 
-        lineChart.getAxisRight().setEnabled(false); // Tắt trục Y phải
+        lineChart.getAxisRight().setEnabled(false);
 
         lineChart.getLegend().setEnabled(true);
         lineChart.getLegend().setTextColor(Color.BLACK);
@@ -381,13 +375,14 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
         lineChart.getLegend().setHorizontalAlignment(com.github.mikephil.charting.components.Legend.LegendHorizontalAlignment.LEFT);
         lineChart.getLegend().setVerticalAlignment(com.github.mikephil.charting.components.Legend.LegendVerticalAlignment.TOP);
         lineChart.getLegend().setForm(com.github.mikephil.charting.components.Legend.LegendForm.CIRCLE); // Hình dạng chú thích là hình tròn
-        lineChart.getLegend().setXOffset(10f); // Dịch chú thích sang phải một chút
-        lineChart.getLegend().setYOffset(5f); // Dịch chú thích xuống dưới một chút
-        lineChart.getDescription().setEnabled(false); // Tắt mô tả
-        lineChart.setDrawBorders(false); // Tắt viền xung quanh biểu đồ
-        lineChart.animateXY(1000, 1000); // Hoạt ảnh 1 giây cho cả X và Y
+        lineChart.getLegend().setXOffset(10f);
+        lineChart.getLegend().setYOffset(5f);
+        lineChart.getDescription().setEnabled(false);
+        lineChart.setDrawBorders(false);
+        lineChart.setExtraOffsets(15f, 15f, 15f, 15f);
+        lineChart.animateXY(1000, 1000);
 
-        lineChart.invalidate(); // Cập nhật biểu đồ
+        lineChart.invalidate();
     }
 
     private void drawChartWeekly(List<History> histories) {
@@ -456,7 +451,6 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
         dataSet.setCircleHoleColor(Color.WHITE);
 
         dataSet.setDrawFilled(true);
-        // Thay thế 'this' bằng 'requireContext()'
         Drawable drawable = ContextCompat.getDrawable(requireContext(), R.drawable.fade_green);
         dataSet.setFillDrawable(drawable);
 
@@ -511,12 +505,12 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
         lineChart.getLegend().setYOffset(5f);
 
         lineChart.setDrawBorders(false);
-
+        lineChart.setExtraOffsets(15f, 15f, 15f, 15f);
         lineChart.animateXY(1000, 1000);
 
         lineChart.invalidate();
     }
-
+    // Bieu do cot
     private void drawBarChart(List<History> histories) {
         barChart.clear();
 
@@ -524,9 +518,22 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
         for (History h : histories) {
             try {
                 String title = Encryption.decrypt(h.getTitle());
-                if (title != null && !title.isEmpty()) {
-                    readCounts.put(title, readCounts.getOrDefault(title, 0) + 1);
+                String episodeTitle = Encryption.decrypt(h.getEpisodeTitle());
+
+                String combinedKey;
+
+                if (title == null || title.isEmpty()) continue;
+
+                if (episodeTitle == null || episodeTitle.isEmpty() || episodeTitle.equals(title)) {
+                    // Giữ nguyên tên truyện chung nếu không có tên tập cụ thể
+                    combinedKey = title;
+                } else {
+                    // TẠO KHÓA KẾT HỢP: "Tên Truyện - Tên Tập"
+                    combinedKey = title + " - " + episodeTitle;
                 }
+
+                readCounts.put(combinedKey, readCounts.getOrDefault(combinedKey, 0) + 1);
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -536,6 +543,7 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
         final List<String> labels = new ArrayList<>();
         int index = 0;
 
+        // Sắp xếp và lấy Top 5
         List<Map.Entry<String, Integer>> sortedEntries = new ArrayList<>(readCounts.entrySet());
         Collections.sort(sortedEntries, (e1, e2) -> e2.getValue().compareTo(e1.getValue()));
 
@@ -553,18 +561,17 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
 
         BarDataSet dataSet = new BarDataSet(entries, "Số lần đọc");
 
+        // ... (Cài đặt màu sắc) ...
         ArrayList<Integer> colors = new ArrayList<>();
-        colors.add(Color.parseColor("#42A5F5")); // Blue
-        colors.add(Color.parseColor("#66BB6A")); // Green
-        colors.add(Color.parseColor("#FFA726")); // Orange
-        colors.add(Color.parseColor("#EF5350")); // Red
-        colors.add(Color.parseColor("#AB47BC")); // Purple
+        colors.add(Color.parseColor("#42A5F5"));
+        colors.add(Color.parseColor("#66BB6A"));
+        colors.add(Color.parseColor("#FFA726"));
+        colors.add(Color.parseColor("#EF5350"));
+        colors.add(Color.parseColor("#AB47BC"));
 
         dataSet.setColors(colors);
-
-        dataSet.setValueTextSize(14f); // Tăng kích thước chữ giá trị
+        dataSet.setValueTextSize(14f);
         dataSet.setValueTextColor(Color.BLACK);
-
         dataSet.setValueFormatter(new ValueFormatter() {
             private final DecimalFormat mFormat = new DecimalFormat("0");
             @Override
@@ -572,24 +579,22 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
                 return mFormat.format(value);
             }
         });
-
         dataSet.setDrawValues(true);
 
         BarData barData = new BarData(dataSet);
-        barData.setBarWidth(0.7f); // Tăng chiều rộng cột một chút
+        barData.setBarWidth(0.7f);
 
         barChart.setData(barData);
-        barChart.setDrawValueAboveBar(true); // Đảm bảo giá trị luôn nằm trên cột
+        barChart.setDrawValueAboveBar(true);
 
         XAxis xAxis = barChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setDrawGridLines(false);
         xAxis.setGranularity(1f);
         xAxis.setLabelCount(labels.size());
-        xAxis.setTextColor(Color.DKGRAY); // Màu chữ xám đậm
-        xAxis.setTextSize(11f); // Tăng kích thước chữ label X
-        xAxis.setAxisLineColor(Color.LTGRAY); // Màu đường trục X
-
+        xAxis.setTextColor(Color.DKGRAY);
+        xAxis.setTextSize(11f);
+        xAxis.setAxisLineColor(Color.LTGRAY);
         xAxis.setLabelRotationAngle(-45);
 
         xAxis.setValueFormatter(new ValueFormatter() {
@@ -597,10 +602,7 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
             public String getFormattedValue(float value) {
                 int idx = Math.round(value);
                 if (idx >= 0 && idx < labels.size()) {
-                    // Rút gọn label nếu quá dài
-                    String label = labels.get(idx);
-                    // Hiển thị 15 ký tự đầu tiên + ...
-                    return label.length() > 15 ? label.substring(0, 15) + "..." : label;
+                    return labels.get(idx);
                 }
                 return "";
             }
@@ -610,29 +612,28 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
         leftAxis.setAxisMinimum(0f);
         leftAxis.setGranularity(1f);
         leftAxis.setDrawAxisLine(false);
-        leftAxis.setGridColor(Color.parseColor("#E0E0E0")); // Màu lưới sáng hơn
+        leftAxis.setGridColor(Color.parseColor("#E0E0E0"));
         leftAxis.enableGridDashedLine(10f, 10f, 0f);
         leftAxis.setTextColor(Color.DKGRAY);
 
         barChart.getAxisRight().setEnabled(false);
         barChart.getDescription().setEnabled(false);
-        barChart.getLegend().setHorizontalAlignment(com.github.mikephil.charting.components.Legend.LegendHorizontalAlignment.CENTER); // Đặt chú thích ở giữa
-        barChart.getLegend().setForm(com.github.mikephil.charting.components.Legend.LegendForm.SQUARE);
-        barChart.getLegend().setTextColor(Color.BLACK);
-        barChart.getLegend().setTextSize(12f);
+
+        // TẮT CHÚ THÍCH (LEGEND)
+        barChart.getLegend().setEnabled(false);
 
         barChart.setFitBars(true);
-        barChart.setDrawBorders(false); // Tắt viền biểu đồ
-        barChart.setDrawGridBackground(false); // Tắt nền lưới
+        barChart.setDrawBorders(false);
+        barChart.setDrawGridBackground(false);
         barChart.animateY(1200);
-        barChart.setExtraOffsets(10f, 10f, 10f, 30f);
-
+        barChart.setExtraOffsets(10f, 10f, 10f, 80f);
         barChart.invalidate();
     }
+
+    // Bieu do tron
     private void drawPieChart(List<History> histories) {
         pieChart.clear();
 
-        // 1. Khởi tạo biến tính tổng thời gian cho 3 buổi (milliseconds)
         long morningTime = 0;   // 0:00 - 11:59
         long afternoonTime = 0; // 12:00 - 17:59
         long eveningTime = 0;   // 18:00 - 23:59
@@ -654,11 +655,11 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
                     cal.setTime(startDate);
                     int hour = cal.get(Calendar.HOUR_OF_DAY);
 
-                    if (hour >= 0 && hour < 12) { // Sáng
+                    if (hour >= 0 && hour < 12) {
                         morningTime += duration;
-                    } else if (hour >= 12 && hour < 18) { // Chiều
+                    } else if (hour >= 12 && hour < 18) {
                         afternoonTime += duration;
-                    } else { // Tối
+                    } else {
                         eveningTime += duration;
                     }
                 }
@@ -683,9 +684,9 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
         PieDataSet dataSet = new PieDataSet(pieEntries, "");
 
         ArrayList<Integer> colors = new ArrayList<>();
-        colors.add(Color.parseColor("#8BC34A")); // Light Green
-        colors.add(Color.parseColor("#FFD54F")); // Amber
-        colors.add(Color.parseColor("#42A5F5")); // Light Blue
+        colors.add(Color.parseColor("#8BC34A"));
+        colors.add(Color.parseColor("#FFD54F"));
+        colors.add(Color.parseColor("#42A5F5"));
 
         dataSet.setColors(colors);
         dataSet.setDrawValues(true);
@@ -701,7 +702,6 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
         dataSet.setValueFormatter(new ValueFormatter() {
             @Override
             public String getFormattedValue(float value) {
-                // Tính toán phần trăm dựa trên giá trị (value) và tổng thời gian (totalTime)
                 float percentage = (value / totalTime) * 100;
                 return String.format(Locale.getDefault(), "%.1f%%", percentage);
             }
@@ -710,7 +710,7 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
         pieChart.setData(pieData);
 
         pieChart.getDescription().setEnabled(false);
-        pieChart.setExtraOffsets(5, 5, 5, 5);
+        pieChart.setExtraOffsets(10f, 10f, 10f, 10f);
 
         pieChart.setDrawHoleEnabled(true);
         pieChart.setHoleColor(Color.WHITE);
@@ -723,15 +723,16 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
 
         pieChart.setDrawEntryLabels(false);
 
+        pieChart.setRotationEnabled(false);
         pieChart.getLegend().setWordWrapEnabled(true);
         pieChart.getLegend().setVerticalAlignment(com.github.mikephil.charting.components.Legend.LegendVerticalAlignment.BOTTOM);
         pieChart.getLegend().setHorizontalAlignment(com.github.mikephil.charting.components.Legend.LegendHorizontalAlignment.CENTER);
         pieChart.getLegend().setOrientation(com.github.mikephil.charting.components.Legend.LegendOrientation.HORIZONTAL);
         pieChart.getLegend().setDrawInside(false);
         pieChart.getLegend().setTextSize(13f);
-        pieChart.getLegend().setYEntrySpace(7f);
+        pieChart.getLegend().setYEntrySpace(5f);
         pieChart.getLegend().setXEntrySpace(20f);
-        pieChart.animateY(1500);
+        pieChart.animateY(1000);
         pieChart.invalidate();
     }
 }

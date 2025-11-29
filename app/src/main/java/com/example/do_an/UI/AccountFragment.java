@@ -26,6 +26,7 @@ import androidx.fragment.app.FragmentManager;
 
 import com.example.do_an.R;
 import com.example.do_an.Story.StatisticFragment;
+import com.example.do_an.application.Encryption;
 import com.example.do_an.application.InforAppFragment;
 import com.example.do_an.user.LoginActivity;
 import com.example.do_an.user.ProfileFragment;
@@ -35,7 +36,7 @@ import com.google.firebase.database.*;
 
 public class AccountFragment extends Fragment {
 
-    private TextView tvProfile, tvSettings, tvAnalytics, tvInformation;
+    private TextView tvProfile, tvSettings, tvAnalytics, tvInformation, tvUsername;
     private Button btnLogout;
     private ImageView imgAvatar;
 
@@ -60,6 +61,7 @@ public class AccountFragment extends Fragment {
         tvAnalytics = view.findViewById(R.id.tvAnalytics);
         tvInformation = view.findViewById(R.id.tvInformation);
         btnLogout = view.findViewById(R.id.btnLogout);
+        tvUsername = view.findViewById(R.id.tvUsername);
 
         fragmentContainer = view.findViewById(R.id.fragment_container);
 
@@ -85,8 +87,8 @@ public class AccountFragment extends Fragment {
                 .child(uid);
 
         loadAvatar();
+        loadUsername();
 
-        // CHUYỂN FRAGMENT BÊN TRONG ACCOUNT
         tvProfile.setOnClickListener(v -> openChildFragment(new ProfileFragment()));
         tvInformation.setOnClickListener(v -> openChildFragment(new InforAppFragment()));
         tvAnalytics.setOnClickListener(v -> openChildFragment(new StatisticFragment()));
@@ -97,7 +99,6 @@ public class AccountFragment extends Fragment {
             if (getActivity() != null) getActivity().finish();
         });
 
-        // Lắng nghe backstack của Activity để ẩn fragmentContainer khi quay về
         requireActivity().getSupportFragmentManager().addOnBackStackChangedListener(() -> {
             if (fragmentContainer != null) {
                 // Chỉ ẩn container khi Back Stack của Activity rỗng (tức là quay về màn hình AccountFragment gốc)
@@ -108,7 +109,26 @@ public class AccountFragment extends Fragment {
         });
     }
 
-    // PHƯƠNG THỨC CÔNG KHAI ĐỂ RESET GIAO DIỆN KHI NHẤP LẠI TAB
+    private void loadUsername() {
+        userRef.child("fullName").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String username = snapshot.getValue(String.class);
+                if (username != null && !username.isEmpty()) {
+                    tvUsername.setText(Encryption.decrypt(username));
+                } else {
+                    tvUsername.setText("Người dùng");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                tvUsername.setText("Người dùng");
+                Toast.makeText(getContext(), "Không thể tải tên: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     public void resetToMainScreen() {
         if (fragmentContainer != null) {
             FragmentManager fm = requireActivity().getSupportFragmentManager();

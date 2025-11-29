@@ -1,6 +1,9 @@
 package com.example.do_an.application;
 
+import android.app.Activity; // Dùng Activity chung
 import android.content.Context;
+import android.os.Handler; // Dùng Handler để chạy trên UI thread nếu Context không phải Activity
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -28,10 +31,17 @@ public class DownloadManager {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private boolean isActivityDestroyed = false;
     private final int OPTIMIZED_BUFFER_SIZE = 256 * 1024; // 256 KB
+    // Khởi tạo Handler để đảm bảo các tiến trình Toast chạy trên UI thread
+    private final Handler uiHandler = new Handler(Looper.getMainLooper());
 
     public interface PdfSetupCallback { void setup(File pdfFile); }
     public interface StringConsumer { void set(String value); }
-    public interface LoadingListener { void showLoading(); void hideLoading(); }
+    // Khuyến nghị thêm callback cho việc ẩn ProgressBar tải xuống vĩnh viễn
+    public interface LoadingListener {
+        void showLoading();
+        void hideLoading();
+        void hideDownloadProgress(); // <<< THÊM: Callback ẩn ProgressBar (dùng cho downloadPdfWithOkHttp)
+    }
 
     private LoadingListener loadingListener;
 
@@ -43,16 +53,21 @@ public class DownloadManager {
 
     public void setLoadingListener(LoadingListener listener) { this.loadingListener = listener; }
 
+    // SỬA: Thay thế việc ép kiểu ReadActivity bằng cách dùng Handler hoặc Activity chung
     private void runOnUiThread(Runnable action) {
-        if (context instanceof ReadActivity) ((ReadActivity) context).runOnUiThread(action);
+        if (context instanceof Activity) {
+            ((Activity) context).runOnUiThread(action);
+        } else {
+            // Trường hợp Context không phải Activity (rất hiếm trong trường hợp này)
+            uiHandler.post(action);
+        }
     }
 
     private void hideLoadingOnUi() {
         if (loadingListener != null) runOnUiThread(() -> loadingListener.hideLoading());
     }
 
-    // --- Chỉ dùng URL trực tiếp, bỏ convertDriveUrl ---
-// download PDF lưu vĩnh viễn
+    // download PDF lưu vĩnh viễn (SỬA: Loại bỏ truy cập View trực tiếp)
     public void downloadPdfWithOkHttp(String pdfUrl, String fileName) {
         runOnUiThread(() -> Toast.makeText(context, "Bắt đầu tải xuống ...", Toast.LENGTH_SHORT).show());
 
@@ -72,7 +87,8 @@ public class DownloadManager {
                 e.printStackTrace();
                 runOnUiThread(() -> {
                     Toast.makeText(context, "Lỗi tải PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    ((ReadActivity)context).findViewById(R.id.progressDownload).setVisibility(View.GONE);
+                    // SỬA: Thay thế truy cập View bằng callback
+                    if (loadingListener != null) loadingListener.hideDownloadProgress();
                 });
             }
 
@@ -99,14 +115,16 @@ public class DownloadManager {
 
                     runOnUiThread(() -> {
                         Toast.makeText(context, "Tải xuống thành công!", Toast.LENGTH_SHORT).show();
-                        ((ReadActivity)context).findViewById(R.id.progressDownload).setVisibility(View.GONE);
+                        // SỬA: Thay thế truy cập View bằng callback
+                        if (loadingListener != null) loadingListener.hideDownloadProgress();
                     });
 
                 } catch (Exception e) {
                     e.printStackTrace();
                     runOnUiThread(() -> {
                         Toast.makeText(context, "Lỗi tải PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        ((ReadActivity)context).findViewById(R.id.progressDownload).setVisibility(View.GONE);
+                        // SỬA: Thay thế truy cập View bằng callback
+                        if (loadingListener != null) loadingListener.hideDownloadProgress();
                     });
                 } finally {
                     try { if (fos != null) fos.close(); if (is != null) is.close(); if (response != null) response.close(); }
@@ -132,7 +150,7 @@ public class DownloadManager {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 handleDownloadError(e, call);
-                hideLoadingOnUi();
+                hideLoadingOnUi(); // Luôn gọi ẩn loading sau khi thất bại
             }
 
             @Override
@@ -144,6 +162,7 @@ public class DownloadManager {
                 try {
                     if (!response.isSuccessful() || response.body() == null) {
                         runOnUiThread(() -> Toast.makeText(context, "Không tải thành công dữ liệu!", Toast.LENGTH_SHORT).show());
+                        hideLoadingOnUi(); // Ẩn loading nếu phản hồi không thành công
                         return;
                     }
 
@@ -159,20 +178,28 @@ public class DownloadManager {
                     while ((len = is.read(buffer)) != -1) {
                         if (isActivityDestroyed || call.isCanceled()) {
                             Log.d(TAG, "Đã hủy tải do thoát màn hình hoặc bị hủy thủ công");
+                            // Không gọi hideLoadingOnUi() vì nó đã bị hủy một cách chủ động
                             return;
                         }
                         fos.write(buffer, 0, len);
                     }
                     fos.flush();
                     final File finalPdfFile = pdfFile;
-                    runOnUiThread(() -> callback.setup(finalPdfFile));
 
-                } catch (Exception e) { handleDownloadError(e, call); }
+                    // SỬA: Gọi callback setup và sau đó *Controller* sẽ tự gọi hideLoading sau khi render xong
+                    // HOẶC: Nếu setupPdfRenderer không ném exception, gọi hideLoading ở đây.
+                    // Để đơn giản, ta sẽ gọi hideLoading ngay sau khi setup
+                    runOnUiThread(() -> {
+                        callback.setup(finalPdfFile);
+                        hideLoadingOnUi();
+                    });
+
+                } catch (Exception e) { handleDownloadError(e, call); hideLoadingOnUi(); } // Ẩn loading khi có Exception
                 finally {
                     try { if (is != null) is.close(); if (fos != null) fos.close(); if (response != null) response.close(); }
                     catch (IOException ignored) {}
                     if (call.isCanceled() && pdfFile != null) pdfFile.delete();
-                    hideLoadingOnUi();
+                    // hideLoadingOnUi() đã được gọi trong catch/failure/success
                 }
             }
         });
@@ -189,6 +216,7 @@ public class DownloadManager {
 
     // === Các hàm Firestore giữ nguyên nếu cần
     private void loadPdfFromFirestore(String storyDocumentId, PdfSetupCallback callback, StringConsumer urlConsumer) {
+        // Cần gọi hideLoadingOnUi() ở đây nếu Firestore thất bại hoặc không có link PDF
         db.collection("Truyentranh").document(storyDocumentId)
                 .get()
                 .addOnSuccessListener(doc -> {
@@ -198,18 +226,29 @@ public class DownloadManager {
                             urlConsumer.set(pdfUrl);
                             downloadPdfToCache(pdfUrl, "temp_story.pdf", callback);
                         } else {
-                            Toast.makeText(context, "Truyện này không có file PDF!", Toast.LENGTH_SHORT).show();
+                            runOnUiThread(() -> {
+                                Toast.makeText(context, "Truyện này không có file PDF!", Toast.LENGTH_SHORT).show();
+                                hideLoadingOnUi(); // Ẩn loading nếu không có link PDF
+                            });
                         }
                     } else {
-                        Toast.makeText(context, "Không tìm thấy dữ liệu PDF cho truyện '" + storyDocumentId + "'!", Toast.LENGTH_SHORT).show();
+                        runOnUiThread(() -> {
+                            Toast.makeText(context, "Không tìm thấy dữ liệu PDF cho truyện '" + storyDocumentId + "'!", Toast.LENGTH_SHORT).show();
+                            hideLoadingOnUi(); // Ẩn loading nếu không tìm thấy document
+                        });
                     }
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(context, "Lỗi tải Firestore: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                        runOnUiThread(() -> {
+                            Toast.makeText(context, "Lỗi tải Firestore: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                            hideLoadingOnUi(); // Ẩn loading khi lỗi Firestore
+                        }));
     }
 
     public Call loadAndSetupPdf(String episodePdfLink, String pdfPath, String mainStoryTitle,
                                 PdfSetupCallback callback, StringConsumer urlConsumer) {
+        if (loadingListener != null && episodePdfLink == null && pdfPath == null) loadingListener.showLoading(); // Đảm bảo showLoading nếu cần gọi Firestore
+
         if (episodePdfLink != null && !episodePdfLink.isEmpty()) {
             urlConsumer.set(episodePdfLink);
             return downloadPdfToCache(episodePdfLink, "temp_episode.pdf", callback);
@@ -217,13 +256,15 @@ public class DownloadManager {
             File pdfFile = new File(pdfPath);
             if (pdfFile.exists()) {
                 callback.setup(pdfFile);
-                if (loadingListener != null) runOnUiThread(() -> loadingListener.hideLoading());
+                if (loadingListener != null) runOnUiThread(() -> loadingListener.hideLoading()); // Ẩn loading khi đọc file local thành công
                 findAndSetCurrentReadUrl(mainStoryTitle, urlConsumer);
             } else {
                 Toast.makeText(context, "File PDF không tồn tại, tải lại...", Toast.LENGTH_SHORT).show();
+                // Load từ Firestore sẽ gọi showLoading() trong loadPdfFromFirestore
                 loadPdfFromFirestore(mainStoryTitle, callback, urlConsumer);
             }
         } else {
+            // Load từ Firestore sẽ gọi showLoading() trong loadPdfFromFirestore
             loadPdfFromFirestore(mainStoryTitle, callback, urlConsumer);
         }
         return null;

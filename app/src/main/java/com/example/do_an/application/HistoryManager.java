@@ -13,31 +13,22 @@ import java.util.TimeZone;
 
 public class HistoryManager {
     private static final String TAG = "HistoryManager";
-    private String currentHistoryKey; // Key của lịch sử đọc hiện tại
-
-    // Constructor (không cần Context nếu không dùng Toast/UI)
+    private String currentHistoryKey;
     public HistoryManager(Object context) {
-        // Context có thể dùng để log hoặc dùng chung nếu cần
     }
 
-    /**
-     * Xác định và tạo một node lịch sử mới trên Firebase Realtime Database.
-     */
     public void saveStartReadingHistory(String userEmail, String storyId, String mainStoryTitle,
                                         String currentTitle, String author) {
         if (userEmail == null || storyId == null) return;
 
-        // Xác định tên tập/tên truyện chính
         String currentEpisodeTitle = (currentTitle.equals(mainStoryTitle)) ? "" : currentTitle;
         String titleForHistory = (mainStoryTitle != null) ? mainStoryTitle : currentTitle;
 
-        // Định dạng thời gian
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.getDefault());
         sdf.setTimeZone(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
         String startTime = sdf.format(new Date());
 
         HashMap<String, Object> historyData = new HashMap<>();
-        // Giả sử lớp Encryption có tồn tại
          historyData.put("title", Encryption.encrypt(titleForHistory));
          historyData.put("author", Encryption.encrypt(author));
          historyData.put("episodeTitle", Encryption.encrypt(currentEpisodeTitle));
@@ -55,9 +46,6 @@ public class HistoryManager {
                 .addOnFailureListener(e -> Log.e(TAG, "❌ Lỗi lưu thời gian bắt đầu", e));
     }
 
-    /**
-     * Cập nhật thời gian kết thúc vào node lịch sử đã tạo.
-     */
     public void saveEndReadingHistory(String userEmail) {
         if (userEmail == null || currentHistoryKey == null) return;
 
@@ -65,7 +53,7 @@ public class HistoryManager {
         sdf.setTimeZone(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
         String endTime = sdf.format(new Date());
 
-         String encryptedEndTime = Encryption.encrypt(endTime); // Nếu dùng Encryption
+         String encryptedEndTime = Encryption.encrypt(endTime);
 
         DatabaseReference dbRef = FirebaseDatabase.getInstance()
                 .getReference("History")

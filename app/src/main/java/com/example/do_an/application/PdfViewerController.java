@@ -1,5 +1,6 @@
 package com.example.do_an.application;
 
+import android.content.Context; // <<< Thêm import Context
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
@@ -17,7 +18,8 @@ import com.example.do_an.R;
 import java.io.File;
 
 public class PdfViewerController {
-    private final ReadActivity activity;
+    // Thay đổi kiểu từ ReadActivity sang Context
+    private final Context context; // <<< SỬA: Dùng Context
     private final ViewPager2 pdfViewPager;
     private final TextView txtTieuDe;
     private final SettingsManager settingsManager;
@@ -32,10 +34,11 @@ public class PdfViewerController {
     public interface StringSupplier { String get(); }
     public interface StringConsumer { void set(String value); }
 
-    public PdfViewerController(ReadActivity activity, ViewPager2 viewPager, TextView tieuDe,
-                               SettingsManager settingsManager, TextView pageIndicator, // <<< TextView pageIndicator là tham số thứ 5
-                               StringSupplier titleSupplier, StringConsumer urlConsumer) { // <<< StringSupplier là thứ 6
-        this.activity = activity;
+    // SỬA CONSTRUCTOR: Thay ReadActivity bằng Context
+    public PdfViewerController(Context context, ViewPager2 viewPager, TextView tieuDe,
+                               SettingsManager settingsManager, TextView pageIndicator,
+                               StringSupplier titleSupplier, StringConsumer urlConsumer) {
+        this.context = context; // <<< SỬA: Lưu Context
         this.pdfViewPager = viewPager;
         this.txtTieuDe = tieuDe;
         this.settingsManager = settingsManager;
@@ -47,11 +50,11 @@ public class PdfViewerController {
     // --- Core Logic: Setup và Apply Settings ---
     public void setupPdfRenderer(File pdfFile) {
         try {
-            pdfPageAdapter = new PdfPageAdapter(activity, pdfFile);
+            // Dùng context thay vì activity
+            pdfPageAdapter = new PdfPageAdapter(context, pdfFile);
 
             // --- Bổ sung Logic Tự động chọn PageMode ---
 
-            // Giả sử: 0 là giá trị mặc định ban đầu (chưa được cài đặt)
             final int DEFAULT_PAGE_MODE = 0;
             final int SINGLE_PAGE_MODE = 1;
             final int DOUBLE_PAGE_MODE = 2;
@@ -59,7 +62,9 @@ public class PdfViewerController {
             int savedPageMode = settingsManager.getPageMode();
 
             if (savedPageMode == DEFAULT_PAGE_MODE) {
-                if (activity.isTablet()) {
+                // SỬA: Cần một hàm isTablet() chung, nhưng vì đây là Controller,
+                // ta sẽ dùng Context để lấy tài nguyên (Resources)
+                if (isTablet(context)) { // <<< Dùng hàm isTablet đã được chỉnh sửa
                     settingsManager.setPageMode(DOUBLE_PAGE_MODE);
                 } else {
                     settingsManager.setPageMode(SINGLE_PAGE_MODE);
@@ -71,10 +76,10 @@ public class PdfViewerController {
             pdfPageAdapter.setPageMode(settingsManager.getPageMode());
             pdfViewPager.setAdapter(pdfPageAdapter);
 
-            applySettingsToReader(); // Áp dụng direction, page mode, và set Item
+            applySettingsToReader();
 
             txtTieuDe.setText(titleSupplier.get() + " (" + pdfPageAdapter.getItemCount() + " trang)");
-            Toast.makeText(activity, "Tải xong, bắt đầu đọc!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Tải xong, bắt đầu đọc!", Toast.LENGTH_SHORT).show(); // <<< Dùng context
 
             updatePageIndicator(pdfViewPager.getCurrentItem(), pdfPageAdapter.getItemCount());
 
@@ -82,13 +87,18 @@ public class PdfViewerController {
 
         } catch (Exception e) {
             Log.e("PdfController", "Lỗi setup PdfRenderer", e);
-            Toast.makeText(activity, "Không thể mở file PDF đã tải.", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Không thể mở file PDF đã tải.", Toast.LENGTH_LONG).show(); // <<< Dùng context
         }
+    }
+
+    // Hàm isTablet đã được đưa vào ReadFragment. Ta cần tạo một phiên bản tĩnh
+    // hoặc truy cập qua context. Phiên bản này an toàn hơn.
+    private boolean isTablet(Context ctx) {
+        return ctx.getResources().getConfiguration().smallestScreenWidthDp >= 600;
     }
 
     public int getCurrentPage() {
         if (pdfViewPager != null && pdfPageAdapter != null) {
-            // ViewPager2.getCurrentItem() trả về vị trí index (0-based)
             return pdfViewPager.getCurrentItem();
         }
         return 0;
@@ -96,12 +106,16 @@ public class PdfViewerController {
 
     private void updatePageIndicator(int currentPosition, int totalCount) {
         if (txtPageIndicator != null) {
-            // Vì ViewPager2 là 0-indexed, ta cộng thêm 1 để hiển thị trang 1/N
             txtPageIndicator.setText((currentPosition + 1) + "/" + totalCount);
         }
     }
 
-    // Trong PdfViewerController.java
+    // Các phương thức khác (applySettingsToReader, setupSettingsView, startAutoNext, stopAutoNext,
+    // getPageChangeCallback, closeRenderer) KHÔNG CẦN CHỈNH SỬA vì chúng chỉ dùng các biến
+    // thành viên đã được định nghĩa lại.
+
+    // ... (Giữ nguyên code từ applySettingsToReader xuống dưới) ...
+
     public void applySettingsToReader() {
         if (pdfPageAdapter == null) return;
 

@@ -1,6 +1,5 @@
 package com.example.do_an.UI;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +13,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.do_an.R;
-import com.example.do_an.application.ReadActivity;
+
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -37,7 +36,6 @@ public class SeriesFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Đảm bảo View gốc của layout này có màu nền cố định để không bị xuyên thấu
         return inflater.inflate(R.layout.activity_series, container, false);
     }
 
@@ -80,21 +78,33 @@ public class SeriesFragment extends Fragment {
             recyclerView.setLayoutManager(new GridLayoutManager(getContext(), numberOfColumns));
 
             adapter = new SeriesAdapter(seriesList, series -> {
-                if (getContext() == null) return;
+                if (getContext() == null || getActivity() == null) return;
 
-                Intent intent = new Intent(getContext(), ReadActivity.class);
+                // 1. Chuẩn bị Bundle để truyền dữ liệu cho ReadFragment
+                Bundle readArgs = new Bundle();
 
-                intent.putExtra("STORY_ID", storyId);
-                intent.putExtra("STORY_TITLE", storyName);
-                intent.putExtra("STORY_AUTHOR", storyAuthor);
-                intent.putExtra("STORY_CATEGORY", storyCategory);
-                intent.putExtra("STORY_DESCRIPTION", storyDescription);
-                intent.putExtra("STORY_IMAGE_URL", storyImageUrl);
+                readArgs.putString("STORY_ID", storyId);
+                readArgs.putString("STORY_TITLE", storyName); // Tên truyện chính
+                readArgs.putString("STORY_AUTHOR", storyAuthor);
+                readArgs.putString("STORY_CATEGORY", storyCategory);
+                readArgs.putString("STORY_DESCRIPTION", storyDescription);
+                readArgs.putString("STORY_IMAGE_URL", storyImageUrl);
 
-                intent.putExtra("PDF_LINK", series.getLink());
-                intent.putExtra("TAP", series.getName());
+                readArgs.putString("PDF_LINK", series.getLink());
+                readArgs.putString("TAP", series.getName()); // Tên tập để hiển thị
 
-                startActivity(intent);
+                // 2. Tạo instance của ReadFragment
+                ReadFragment readFragment = new ReadFragment();
+                readFragment.setArguments(readArgs); // Gán Bundle
+
+                // 3. Thực hiện Fragment Transaction để chuyển Fragment
+                getActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        // !!! QUAN TRỌNG: Thay R.id.fragment_container bằng ID của View Container thực tế
+                        // (Ví dụ: FrameLayout) trong Activity chứa Fragment này.
+                        .replace(R.id.fragment_container, readFragment)
+                        .addToBackStack(null) // Thêm vào Back Stack để có thể quay lại SeriesFragment
+                        .commit();
             });
             recyclerView.setAdapter(adapter);
         }
@@ -104,7 +114,7 @@ public class SeriesFragment extends Fragment {
     }
 
     private void loadSeries() {
-        if (storyId == null || db == null) return; // Kiểm tra an toàn
+        if (storyId == null || db == null) return;
 
         db.collection("story")
                 .document(storyId)

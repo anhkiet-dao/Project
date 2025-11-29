@@ -5,8 +5,7 @@
     android:background="@drawable/bg_gradient"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="25dp"
-    tools:context=".application.ReadActivity">
+    android:paddingTop="25dp">
 
     <!-- Thanh công cụ trên cùng -->
     <LinearLayout
@@ -133,7 +132,6 @@
         android:layout_marginRight="10dp"
         android:layout_marginLeft="10dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="20dp"
         android:background="@drawable/bg_page_indicator">
 
         <TextView
