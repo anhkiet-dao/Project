@@ -287,22 +287,6 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
         }
     }
 
-//    @Override
-//    public void onDestroyView() {
-//        super.onDestroyView();
-//        // Hủy các tác vụ và giải phóng tài nguyên
-//        if (currentDownloadCall != null && !currentDownloadCall.isCanceled()) {
-//            currentDownloadCall.cancel();
-//        }
-//        if (pdfViewerController != null) {
-//            pdfViewerController.closeRenderer();
-//            pdfViewerController.stopAutoNext();
-//        }
-//        if (downloadManager != null) {
-//            downloadManager.setIsActivityDestroyed(true);
-//        }
-//    }
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
