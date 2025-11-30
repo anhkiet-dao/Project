@@ -6,6 +6,7 @@ import android.os.Handler; // Dùng Handler để chạy trên UI thread nếu C
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -33,6 +34,7 @@ public class DownloadManager {
     private final int OPTIMIZED_BUFFER_SIZE = 256 * 1024; // 256 KB
     // Khởi tạo Handler để đảm bảo các tiến trình Toast chạy trên UI thread
     private final Handler uiHandler = new Handler(Looper.getMainLooper());
+    private TextView txtPageIndicator;
 
     public interface PdfSetupCallback { void setup(File pdfFile); }
     public interface StringConsumer { void set(String value); }
@@ -42,7 +44,7 @@ public class DownloadManager {
         void hideLoading();
         void hideDownloadProgress(); // <<< THÊM: Callback ẩn ProgressBar (dùng cho downloadPdfWithOkHttp)
     }
-
+    public void setTxtPageIndicator(TextView textView) { this.txtPageIndicator = textView; }
     private LoadingListener loadingListener;
 
     public DownloadManager(Context context) {
@@ -186,11 +188,11 @@ public class DownloadManager {
                     fos.flush();
                     final File finalPdfFile = pdfFile;
 
-                    // SỬA: Gọi callback setup và sau đó *Controller* sẽ tự gọi hideLoading sau khi render xong
-                    // HOẶC: Nếu setupPdfRenderer không ném exception, gọi hideLoading ở đây.
-                    // Để đơn giản, ta sẽ gọi hideLoading ngay sau khi setup
                     runOnUiThread(() -> {
                         callback.setup(finalPdfFile);
+                        if (txtPageIndicator != null) {
+                            txtPageIndicator.setVisibility(View.VISIBLE);
+                        }
                         hideLoadingOnUi();
                     });
 

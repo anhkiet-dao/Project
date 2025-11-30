@@ -4,32 +4,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Khu vực hiển thị nội dung của từng trang -->
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/bottomNav"/>
+        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        android:paddingBottom="35dp"/>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
-
-        android:layout_height="wrap_content"
+        android:layout_height="78dp"
+        style="@style/BottomNavNoExtraPaddingStyle"
 
         android:background="@drawable/bg_bottom_nav"
 
         app:itemIconTint="@color/bottom_nav_selector"
         app:itemTextColor="@color/bottom_nav_selector"
 
-        app:itemBackground="@null"
-        app:itemRippleColor="@null"
+        app:itemBackground="@drawable/bg_bottom_nav_item_indicator"  app:itemRippleColor="@null"
 
-        app:itemIconSize="30dp"
-
+        app:itemIconSize="25dp"
         app:labelVisibilityMode="labeled"
-
         app:menu="@drawable/bottom_nav_menu"
 
         android:elevation="12dp"

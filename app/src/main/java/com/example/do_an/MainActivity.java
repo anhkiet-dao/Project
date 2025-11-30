@@ -26,7 +26,6 @@ public class MainActivity extends AppCompatActivity {
     public interface ResettableFragment {
         void resetState();
     }
-    // ------------------------------------
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,20 +70,12 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (targetFragment != null) {
-
-                // --- LOGIC XỬ LÝ BACK STACK KHI CHUYỂN TAB ---
                 if (activeFragment != targetFragment) {
-                    // Nếu Fragment hiện tại là AccountFragment VÀ nó có Fragment con đang hiển thị
-                    // thì phải xóa Back Stack của Activity trước khi chuyển tab
                     if (activeFragment instanceof AccountFragment) {
-                        // Xóa tất cả các Fragment con đang có trong Back Stack của Activity
-                        // Điều này sẽ khiến giao diện trở về AccountFragment gốc trước khi bị ẩn
                         getSupportFragmentManager().popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                     }
                 }
-                // -----------------------------------------------
 
-                // --- Logic Xử lý Nhấp Lại (Clicking on the active tab) ---
                 if (activeFragment == targetFragment) {
                     if (targetFragment instanceof AccountFragment) {
                         ((AccountFragment) targetFragment).resetToMainScreen();
@@ -93,16 +84,13 @@ public class MainActivity extends AppCompatActivity {
                     }
                     return true;
                 }
-                // -----------------------------------------------------------
 
-                // Nếu là Fragment mới, chuyển Fragment như bình thường
                 showFragment(targetFragment);
                 return true;
             }
             return false;
         });
 
-        // Đảm bảo mục trên BottomNav được chọn đúng với activeFragment
         if (activeFragment == profileFragment) {
             bottomNav.setSelectedItemId(R.id.nav_profile);
         } else {
@@ -118,8 +106,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (activeFragment != fragmentToShow) {
-            // Khai báo rõ ràng FragmentTransaction
-            FragmentTransaction transaction = fm.beginTransaction(); // Đã sửa lỗi FragmentTransaction
+            FragmentTransaction transaction = fm.beginTransaction();
 
             transaction.hide(activeFragment);
             transaction.show(fragmentToShow);

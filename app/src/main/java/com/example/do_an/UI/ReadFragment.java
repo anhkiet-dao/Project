@@ -122,6 +122,7 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
         favoriteHandler = new FavoriteHandler(context);
 
         downloadManager.setLoadingListener(this);
+        downloadManager.setTxtPageIndicator(txtPageIndicator);
 
         pdfViewerController = new PdfViewerController(
                 context, pdfViewPager, txtTieuDe, settingsManager,
@@ -290,7 +291,6 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // Hủy các tác vụ và giải phóng tài nguyên
         if (currentDownloadCall != null && !currentDownloadCall.isCanceled()) {
             currentDownloadCall.cancel();
         }
