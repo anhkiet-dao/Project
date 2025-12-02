@@ -43,7 +43,7 @@ public class HistoryFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Nạp giao diện cho Fragment
-        View view = inflater.inflate(R.layout.activity_history, container, false);
+        View view = inflater.inflate(R.layout.history_activity_history, container, false);
 
         recyclerView = view.findViewById(R.id.recyclerHistory);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -171,7 +171,7 @@ public class HistoryFragment extends Fragment {
         @Override
         public GroupViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_history_group, parent, false);
+                    .inflate(R.layout.history_item_history_group, parent, false);
             return new GroupViewHolder(view);
         }
 
@@ -209,7 +209,7 @@ public class HistoryFragment extends Fragment {
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_history, parent, false);
+                    .inflate(R.layout.history_item_history, parent, false);
             return new ViewHolder(view);
         }
 

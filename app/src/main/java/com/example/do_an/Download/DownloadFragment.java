@@ -32,7 +32,7 @@ public class DownloadFragment extends Fragment{
                              Bundle savedInstanceState) {
 
         // Gắn layout (giống Activity nhưng dùng inflater)
-        View view = inflater.inflate(R.layout.activity_downloaded_list, container, false);
+        View view = inflater.inflate(R.layout.download_activity_downloaded_list, container, false);
 
         rvDownloadedPdfs = view.findViewById(R.id.rvDownloadedPdfs);
         rvDownloadedPdfs.setLayoutManager(new LinearLayoutManager(getContext()));

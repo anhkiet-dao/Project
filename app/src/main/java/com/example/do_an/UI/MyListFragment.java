@@ -29,7 +29,7 @@ public class MyListFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.activity_mylist, container, false);
+        View view = inflater.inflate(R.layout.ui_activity_mylist, container, false);
 
         btnReadlist = view.findViewById(R.id.btnReadlist);
         btnHistory = view.findViewById(R.id.btnHistory);

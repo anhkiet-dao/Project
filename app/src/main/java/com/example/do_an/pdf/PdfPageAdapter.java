@@ -44,7 +44,7 @@ public class PdfPageAdapter extends RecyclerView.Adapter<PdfPageAdapter.PdfPageV
     @NonNull
     @Override
     public PdfPageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.list_item_pdf_page, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.pdf_list_item_pdf_page, parent, false);
         return new PdfPageViewHolder(view);
     }
 

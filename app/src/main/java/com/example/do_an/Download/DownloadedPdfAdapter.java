@@ -36,7 +36,7 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
 
     @Override
     public PdfViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_pdf, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.pdf_item_pdf, parent, false);
         return new PdfViewHolder(view);
     }
 
@@ -128,7 +128,7 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
     private void showDeleteDialog(File fileToDelete, int adapterPos, PdfViewHolder holder) {
 
         Dialog dialog = new Dialog(this.activity);
-        dialog.setContentView(R.layout.item_confirm_delete);
+        dialog.setContentView(R.layout.note_item_confirm_delete);
         dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
         TextView btnYes = dialog.findViewById(R.id.btnYes);

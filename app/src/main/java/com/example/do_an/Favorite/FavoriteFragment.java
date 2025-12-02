@@ -38,7 +38,7 @@ public class FavoriteFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.activity_favorites, container, false); // ⚠️ Đảm bảo bạn có file XML fragment_favorite.xml
+        View view = inflater.inflate(R.layout.favorite_activity_favorites, container, false); // ⚠️ Đảm bảo bạn có file XML fragment_favorite.xml
 
         recyclerFavorites = view.findViewById(R.id.recyclerFavorites);
         recyclerFavorites.setLayoutManager(new LinearLayoutManager(getContext()));

@@ -26,7 +26,7 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_series, parent, false);
+                .inflate(R.layout.series_item_series, parent, false);
         return new ViewHolder(view);
     }
 

@@ -40,7 +40,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.FavVie
     @NonNull
     @Override
     public FavViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_favorite, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.favorite_item_favorite, parent, false);
         return new FavViewHolder(view);
     }
 

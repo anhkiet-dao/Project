@@ -39,7 +39,7 @@ public class ReadlistFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.activity_list, container, false);
+        View view = inflater.inflate(R.layout.ui_activity_list, container, false);
 
         recyclerView = view.findViewById(R.id.recyclerViewStories);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

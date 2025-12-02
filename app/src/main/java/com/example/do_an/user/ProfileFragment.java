@@ -40,7 +40,7 @@ public class ProfileFragment extends Fragment { // Đã chuyển thành Fragment
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.activity_profile, container, false);
+        return inflater.inflate(R.layout.user_activity_profile, container, false);
     }
 
     // 2. Ánh xạ view và thực hiện logic trong onViewCreated

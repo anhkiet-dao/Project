@@ -42,7 +42,7 @@ public class NoteFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.popup_note, container, false);
+        View view = inflater.inflate(R.layout.note_popup_note, container, false);
         View dim = view.findViewById(R.id.dimBackground);
         dim.setOnClickListener(v -> {
             if (getParentFragmentManager() != null) {

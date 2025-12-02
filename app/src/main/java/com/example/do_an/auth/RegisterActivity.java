@@ -25,7 +25,7 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register);
+        setContentView(R.layout.auth_activity_register);
 
         // Ánh xạ view
         emailInput = findViewById(R.id.emailEditText);

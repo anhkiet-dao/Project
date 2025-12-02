@@ -96,7 +96,7 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.activity_reading, container, false);
+        return inflater.inflate(R.layout.ui_activity_reading, container, false);
     }
 
     @Override
