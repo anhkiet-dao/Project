@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/ic_background"
+    android:layout_marginBottom="4dp">
+
+    <TextView
+        android:id="@+id/tvTitleAuthor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tên truyện - Tác giả"
+        android:textStyle="bold"
+        android:textSize="18sp"/>
+
+    <TextView
+        android:id="@+id/tvTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Bắt đầu: 10:00 | Kết thúc: 10:30"
+        android:textSize="16sp"/>
+</LinearLayout>

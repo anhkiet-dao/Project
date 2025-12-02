@@ -24,11 +24,16 @@ public class PdfPageAdapter extends RecyclerView.Adapter<PdfPageAdapter.PdfPageV
     private Context context;
     private PdfRenderer pdfRenderer;
     private ParcelFileDescriptor fileDescriptor;
-
+    private Bitmap[] bitmapCache;
+    public int pageMode = 1; // 1 = single, 2 = double
+    public void setPageMode(int mode) {
+        if (mode < 1) mode = 1;
+        this.pageMode = mode;
+//        notifyDataSetChanged();
+    }
     public PdfPageAdapter(Context context, File pdfFile) {
         this.context = context;
         try {
-            // PdfRenderer yêu cầu một ParcelFileDescriptor
             fileDescriptor = ParcelFileDescriptor.open(pdfFile, ParcelFileDescriptor.MODE_READ_ONLY);
             pdfRenderer = new PdfRenderer(fileDescriptor);
         } catch (IOException e) {
@@ -39,45 +44,120 @@ public class PdfPageAdapter extends RecyclerView.Adapter<PdfPageAdapter.PdfPageV
     @NonNull
     @Override
     public PdfPageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Sử dụng cái "khuôn" list_item_pdf_page.xml
         View view = LayoutInflater.from(context).inflate(R.layout.list_item_pdf_page, parent, false);
         return new PdfPageViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull PdfPageViewHolder holder, int position) {
-        if (pdfRenderer == null) {
+        if (pdfRenderer == null) return;
+
+        // --- Khởi tạo cache nếu chưa có ---
+        if (bitmapCache == null) bitmapCache = new Bitmap[getItemCount()];
+
+        // --- Nếu bitmap đã cache thì dùng luôn ---
+        if (bitmapCache[position] != null) {
+            holder.pageImageView.setImageBitmap(bitmapCache[position]);
             return;
         }
 
-        PdfRenderer.Page currentPage = null;
-        try {
-            // 1. Mở đúng trang
-            currentPage = pdfRenderer.openPage(position);
+        Bitmap bitmap = null;
 
-            // 2. Tạo Bitmap rỗng
-            Bitmap bitmap = Bitmap.createBitmap(currentPage.getWidth(), currentPage.getHeight(), Bitmap.Config.ARGB_8888);
+        if (pageMode == 1) {
+            bitmap = renderSinglePage(position);
+        } else {
+            bitmap = renderDoublePage(position);
+        }
 
-            // 3. Vẽ trang PDF lên Bitmap
-            currentPage.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
-
-            // 4. Đặt Bitmap cho ImageView
+        if (bitmap != null) {
             holder.pageImageView.setImageBitmap(bitmap);
+            bitmapCache[position] = bitmap; // lưu vào cache
+        }
+    }
+
+    private Bitmap renderSinglePage(int pageIndex) {
+        PdfRenderer.Page page = null;
+        try {
+            page = pdfRenderer.openPage(pageIndex);
+            Bitmap bitmap = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_8888);
+            page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+            return bitmap;
+        } catch (Exception e) {
+            Log.e(TAG, "Lỗi render trang " + pageIndex, e);
+            return null;
+        } finally {
+            if (page != null) page.close();
+        }
+    }
+
+    private Bitmap renderDoublePage(int position) {
+        int total = pdfRenderer.getPageCount();
+        int leftIndex = position * 2;
+        int rightIndex = leftIndex + 1;
+
+        PdfRenderer.Page leftPage = null;
+        PdfRenderer.Page rightPage = null;
+
+        try {
+            leftPage = pdfRenderer.openPage(leftIndex);
+            int width = leftPage.getWidth();
+            int height = leftPage.getHeight();
+
+            if (rightIndex < total) {
+                rightPage = pdfRenderer.openPage(rightIndex);
+                width += rightPage.getWidth();
+                height = Math.max(height, rightPage.getHeight());
+            }
+
+            Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+
+            Bitmap leftBitmap = Bitmap.createBitmap(leftPage.getWidth(), leftPage.getHeight(), Bitmap.Config.ARGB_8888);
+            leftPage.render(leftBitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+            android.graphics.Canvas canvas = new android.graphics.Canvas(bitmap);
+            canvas.drawBitmap(leftBitmap, 0, 0, null);
+            leftBitmap.recycle();
+
+            if (rightPage != null) {
+                Bitmap rightBitmap = Bitmap.createBitmap(rightPage.getWidth(), rightPage.getHeight(), Bitmap.Config.ARGB_8888);
+                rightPage.render(rightBitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+                canvas.drawBitmap(rightBitmap, leftPage.getWidth(), 0, null);
+                rightBitmap.recycle();
+            }
+
+            return bitmap;
 
         } catch (Exception e) {
-            Log.e(TAG, "Lỗi render trang " + position, e);
+            Log.e(TAG, "Lỗi render trang đôi", e);
+            return null;
         } finally {
-            // 5. Luôn đóng trang lại để giải phóng bộ nhớ
-            if (currentPage != null) {
-                currentPage.close();
-            }
+            if (leftPage != null) leftPage.close();
+            if (rightPage != null) rightPage.close();
+        }
+    }
+
+
+
+    private void renderPage(ImageView imageView, int pageIndex) {
+        PdfRenderer.Page page = null;
+        try {
+            page = pdfRenderer.openPage(pageIndex);
+            Bitmap bitmap = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_8888);
+            page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+            imageView.setImageBitmap(bitmap);
+        } catch (Exception e) {
+            Log.e(TAG, "Lỗi render trang " + pageIndex, e);
+        } finally {
+            if (page != null) page.close();
         }
     }
 
     @Override
     public int getItemCount() {
-        // Trả về tổng số trang
-        return (pdfRenderer != null) ? pdfRenderer.getPageCount() : 0;
+        if (pdfRenderer == null) return 0;
+        int total = pdfRenderer.getPageCount();
+        if (pageMode == 1) return total;
+        // mỗi item hiển thị 2 trang
+        return (total + 1) / 2; // ceil(total / 2)
     }
 
     // Rất quan trọng: Dọn dẹp
@@ -94,7 +174,6 @@ public class PdfPageAdapter extends RecyclerView.Adapter<PdfPageAdapter.PdfPageV
         }
     }
 
-    // ViewHolder để giữ ImageView
     static class PdfPageViewHolder extends RecyclerView.ViewHolder {
         ImageView pageImageView;
 
@@ -103,4 +182,5 @@ public class PdfPageAdapter extends RecyclerView.Adapter<PdfPageAdapter.PdfPageV
             pageImageView = itemView.findViewById(R.id.pageImageView);
         }
     }
+
 }

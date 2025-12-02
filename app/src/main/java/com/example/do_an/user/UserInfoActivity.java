@@ -68,7 +68,7 @@ public class UserInfoActivity extends AppCompatActivity {
 
         // Firebase Database
         databaseRef = FirebaseDatabase.getInstance(
-                        "https://nt118-dd4f7-default-rtdb.asia-southeast1.firebasedatabase.app/")
+                        "https://nt118q14-default-rtdb.asia-southeast1.firebasedatabase.app/")
                 .getReference("Users");
 
         // Xin quyền đọc ảnh

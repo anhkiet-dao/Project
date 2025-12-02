@@ -2,23 +2,31 @@ package com.example.do_an.application;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
-public class InforApp extends AppCompatActivity {
+// Đã chuyển đổi từ AppCompatActivity sang Fragment
+public class InforAppFragment extends Fragment {
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        // Tạo layout theo cách lập trình (giống như trong Activity cũ)
 
-        // Tạo layout
-        LinearLayout layout = new LinearLayout(this);
+        // 1. Tạo Layout chính (LinearLayout)
+        LinearLayout layout = new LinearLayout(getContext());
         layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(50, 120, 50, 50);
+        // Chuyển đổi padding DP sang PX nếu cần, nhưng tạm thời giữ nguyên giá trị
+        layout.setPadding(50, 50, 50, 50); // Giảm bớt padding top để hợp lý hơn trong Fragment
 
-        // Tạo TextView giới thiệu app
-        TextView txtInfo = new TextView(this);
+        // 2. Tạo TextView giới thiệu app
+        TextView txtInfo = new TextView(getContext());
         txtInfo.setText(
                 "📚 Chào mừng các độc giả đến với ứng dụng đọc Orumanga!\n\n" +
                         "Orumanga là ứng dụng giúp bạn đọc truyện tranh, manga một cách dễ dàng và tiện lợi.\n\n" +
@@ -32,10 +40,10 @@ public class InforApp extends AppCompatActivity {
         txtInfo.setTextSize(18);
         txtInfo.setTextColor(Color.BLACK);
 
-        // Thêm TextView vào layout
+        // 3. Thêm TextView vào layout
         layout.addView(txtInfo);
 
-        // Hiển thị layout
-        setContentView(layout);
+        // Trả về layout đã tạo
+        return layout;
     }
 }

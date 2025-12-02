@@ -1,14 +1,19 @@
 package com.example.do_an.user;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import android.content.Intent;
 import android.graphics.*;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.*;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.example.do_an.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -18,7 +23,7 @@ import com.example.do_an.application.Encryption;
 
 import java.io.ByteArrayOutputStream;
 
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileFragment extends Fragment { // Đã chuyển thành Fragment
 
     private TextView tvFullName, tvGender, tvBirthDate, tvPhone, tvEmail, tvInterest;
     private ImageView imgAvatar;
@@ -30,27 +35,37 @@ public class ProfileActivity extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 1;
     private Uri imageUri;
 
+    // 1. Inflate layout trong onCreateView
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.activity_profile, container, false);
+    }
 
-        // Ánh xạ view
-        imgAvatar = findViewById(R.id.imgAvatar);
-        tvFullName = findViewById(R.id.tvFullName);
-        tvGender = findViewById(R.id.tvGender);
-        tvBirthDate = findViewById(R.id.tvBirthDate);
-        tvPhone = findViewById(R.id.tvPhone);
-        tvEmail = findViewById(R.id.tvEmail);
-        tvInterest = findViewById(R.id.tvInterest);
-        btnLogout = findViewById(R.id.btnLogout);
+    // 2. Ánh xạ view và thực hiện logic trong onViewCreated
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Ánh xạ view (sử dụng view đã inflate)
+        imgAvatar = view.findViewById(R.id.imgAvatar);
+        tvFullName = view.findViewById(R.id.tvFullName);
+        tvGender = view.findViewById(R.id.tvGender);
+        tvBirthDate = view.findViewById(R.id.tvBirthDate);
+        tvPhone = view.findViewById(R.id.tvPhone);
+        tvEmail = view.findViewById(R.id.tvEmail);
+        tvInterest = view.findViewById(R.id.tvInterest);
+        btnLogout = view.findViewById(R.id.btnLogout);
 
         // Firebase Auth
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
-            Toast.makeText(this, "Vui lòng đăng nhập lại!", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(ProfileActivity.this, LoginActivity.class));
-            finish();
+            // Sử dụng getContext() và getActivity()
+            Toast.makeText(getContext(), "Vui lòng đăng nhập lại!", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(getActivity(), LoginActivity.class));
+            if (getActivity() != null) {
+                getActivity().finish();
+            }
             return;
         }
 
@@ -58,7 +73,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         // Firebase Database reference
         databaseRef = FirebaseDatabase
-                .getInstance("https://nt118-dd4f7-default-rtdb.asia-southeast1.firebasedatabase.app/")
+                .getInstance("https://nt118q14-default-rtdb.asia-southeast1.firebasedatabase.app/")
                 .getReference("Users")
                 .child(userId);
 
@@ -70,7 +85,8 @@ public class ProfileActivity extends AppCompatActivity {
 
         // 🔹 Khi nhấn vào ảnh — cho phép chọn ảnh mới
         imgAvatar.setOnClickListener(v -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(ProfileActivity.this);
+            // Sử dụng getContext()
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             builder.setTitle("Thay đổi ảnh đại diện");
             builder.setMessage("Bạn có muốn chọn ảnh mới không?");
             builder.setPositiveButton("Chọn ảnh", (dialog, which) -> openImagePicker());
@@ -81,9 +97,12 @@ public class ProfileActivity extends AppCompatActivity {
         // Xử lý đăng xuất
         btnLogout.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
-            Toast.makeText(ProfileActivity.this, "Đã đăng xuất!", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(ProfileActivity.this, LoginActivity.class));
-            finish();
+            // Sử dụng getContext() và getActivity()
+            Toast.makeText(getContext(), "Đã đăng xuất!", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(getActivity(), LoginActivity.class));
+            if (getActivity() != null) {
+                getActivity().finish();
+            }
         });
     }
 
@@ -92,7 +111,8 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 if (!snapshot.exists()) {
-                    Toast.makeText(ProfileActivity.this, "Không tìm thấy dữ liệu người dùng!", Toast.LENGTH_SHORT).show();
+                    // Sử dụng getContext()
+                    Toast.makeText(getContext(), "Không tìm thấy dữ liệu người dùng!", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -117,6 +137,7 @@ public class ProfileActivity extends AppCompatActivity {
                         Bitmap originalBitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
 
                         if (originalBitmap != null) {
+                            // getResources() là của Fragment, không cần ProfileActivity.this
                             int sizeInPx = (int) (120 * getResources().getDisplayMetrics().density);
                             Bitmap scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, sizeInPx, sizeInPx, true);
                             Bitmap circleBitmap = getCircularBitmap(scaledBitmap);
@@ -132,14 +153,16 @@ public class ProfileActivity extends AppCompatActivity {
 
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Toast.makeText(ProfileActivity.this, "Lỗi khi tải dữ liệu người dùng!", Toast.LENGTH_SHORT).show();
+                    // Sử dụng getContext()
+                    Toast.makeText(getContext(), "Lỗi khi tải dữ liệu người dùng!", Toast.LENGTH_SHORT).show();
                     imgAvatar.setImageResource(R.drawable.avatar);
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError error) {
-                Toast.makeText(ProfileActivity.this, "Lỗi tải dữ liệu: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                // Sử dụng getContext()
+                Toast.makeText(getContext(), "Lỗi tải dữ liệu: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -148,19 +171,22 @@ public class ProfileActivity extends AppCompatActivity {
     private void openImagePicker() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
+        // Gọi startActivityForResult từ Fragment
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
 
-    // 🔹 Nhận ảnh đã chọn
+    // 🔹 Nhận ảnh đã chọn (Fragment nhận kết quả trực tiếp)
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+        // Thay đổi RESULT_OK từ Activity sang hằng số Activity.RESULT_OK
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == getActivity().RESULT_OK && data != null && data.getData() != null) {
             imageUri = data.getData();
 
             try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+                // Sử dụng requireActivity().getContentResolver()
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), imageUri);
                 Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, 400, 400, true);
                 Bitmap circleBitmap = getCircularBitmap(resizedBitmap);
 
@@ -176,7 +202,8 @@ public class ProfileActivity extends AppCompatActivity {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                Toast.makeText(this, "Lỗi khi chọn ảnh!", Toast.LENGTH_SHORT).show();
+                // Sử dụng getContext()
+                Toast.makeText(getContext(), "Lỗi khi chọn ảnh!", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -186,8 +213,9 @@ public class ProfileActivity extends AppCompatActivity {
         if (currentUser == null) return;
 
         databaseRef.child("avatarBase64").setValue(encodedImage)
-                .addOnSuccessListener(aVoid -> Toast.makeText(ProfileActivity.this, "Cập nhật ảnh thành công!", Toast.LENGTH_SHORT).show())
-                .addOnFailureListener(e -> Toast.makeText(ProfileActivity.this, "Lỗi khi lưu ảnh!", Toast.LENGTH_SHORT).show());
+                // Sử dụng getContext()
+                .addOnSuccessListener(aVoid -> Toast.makeText(getContext(), "Cập nhật ảnh thành công!", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e -> Toast.makeText(getContext(), "Lỗi khi lưu ảnh!", Toast.LENGTH_SHORT).show());
     }
 
     // 🔹 Cắt ảnh tròn
