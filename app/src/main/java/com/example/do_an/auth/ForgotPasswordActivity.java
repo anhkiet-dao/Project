@@ -1,4 +1,4 @@
-package com.example.do_an.user;
+package com.example.do_an.auth;
 
 import android.content.Intent;
 import android.os.Bundle;

@@ -1,4 +1,4 @@
-package com.example.do_an.UI;
+package com.example.do_an.Note;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -17,7 +17,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.do_an.R;
-import com.example.do_an.application.NoteModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;

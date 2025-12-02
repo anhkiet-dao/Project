@@ -1,11 +1,10 @@
-package com.example.do_an.application;
+package com.example.do_an.Favorite;
 
 import android.content.Context;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.do_an.R;
-import com.example.do_an.Story.FavoriteManager;
 
 import java.util.Map;
 

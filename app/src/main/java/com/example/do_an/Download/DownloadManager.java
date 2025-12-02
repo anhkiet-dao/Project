@@ -1,4 +1,4 @@
-package com.example.do_an.application;
+package com.example.do_an.Download;
 
 import android.app.Activity; // Dùng Activity chung
 import android.content.Context;
@@ -11,7 +11,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.example.do_an.R;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.File;

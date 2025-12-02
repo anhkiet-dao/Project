@@ -25,10 +25,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.do_an.R;
-import com.example.do_an.Story.StatisticFragment;
+import com.example.do_an.Statistic.StatisticFragment;
 import com.example.do_an.application.Encryption;
 import com.example.do_an.application.InforAppFragment;
-import com.example.do_an.user.LoginActivity;
+import com.example.do_an.auth.LoginActivity;
 import com.example.do_an.user.ProfileFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;

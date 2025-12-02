@@ -2,7 +2,6 @@ package com.example.do_an.UI;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -20,12 +19,13 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.do_an.Note.NoteFragment;
 import com.example.do_an.R;
 import com.example.do_an.application.SettingsManager;
-import com.example.do_an.application.DownloadManager;
-import com.example.do_an.application.FavoriteHandler;
-import com.example.do_an.application.HistoryManager;
-import com.example.do_an.application.PdfViewerController;
+import com.example.do_an.Download.DownloadManager;
+import com.example.do_an.Favorite.FavoriteHandler;
+import com.example.do_an.History.HistoryManager;
+import com.example.do_an.pdf.PdfViewerController;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;

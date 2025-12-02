@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.do_an.R;
+import com.example.do_an.Series.SeriesFragment;
 import com.example.do_an.Story.Story;
 import com.example.do_an.Story.StoryAdapter;
 import com.google.firebase.firestore.DocumentSnapshot;

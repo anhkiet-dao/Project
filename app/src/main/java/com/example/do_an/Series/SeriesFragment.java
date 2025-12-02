@@ -1,4 +1,4 @@
-package com.example.do_an.UI;
+package com.example.do_an.Series;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,11 +14,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.do_an.R;
 
+import com.example.do_an.UI.ReadFragment;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.example.do_an.Story.Series;
-import com.example.do_an.Story.SeriesAdapter;
+
 import java.util.ArrayList;
 import java.util.List;
 

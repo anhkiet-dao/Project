@@ -1,4 +1,4 @@
-package com.example.do_an.Story;
+package com.example.do_an.Series;
 
 public class Series {
     private String id;       // Document ID trong Firestore

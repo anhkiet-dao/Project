@@ -1,8 +1,7 @@
-package com.example.do_an.application;
+package com.example.do_an.Download;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Intent;
 import android.os.Bundle; // Cần import Bundle
 import android.view.LayoutInflater;
 import android.view.View;

@@ -1,7 +1,8 @@
-package com.example.do_an.application;
+package com.example.do_an.History;
 
 import android.util.Log;
 
+import com.example.do_an.application.Encryption;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 

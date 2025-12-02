@@ -1,4 +1,4 @@
-package com.example.do_an.Story;
+package com.example.do_an.Favorite;
 
 public class FavoriteStory {
     private String storyId;

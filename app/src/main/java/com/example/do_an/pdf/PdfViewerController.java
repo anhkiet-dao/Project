@@ -1,4 +1,4 @@
-package com.example.do_an.application;
+package com.example.do_an.pdf;
 
 import static android.content.ContentValues.TAG;
 
@@ -16,6 +16,7 @@ import androidx.appcompat.widget.AppCompatButton;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.do_an.R;
+import com.example.do_an.application.SettingsManager;
 
 import java.io.File;
 

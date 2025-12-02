@@ -13,6 +13,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.do_an.Download.DownloadFragment;
+import com.example.do_an.Favorite.FavoriteFragment;
+import com.example.do_an.History.HistoryFragment;
 import com.example.do_an.R;
 
 public class MyListFragment extends Fragment {

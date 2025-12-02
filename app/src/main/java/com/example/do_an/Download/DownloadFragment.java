@@ -1,11 +1,10 @@
-package com.example.do_an.UI;
+package com.example.do_an.Download;
 
 import android.os.Bundle;
-import android.os.Environment;
+
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.example.do_an.application.DownloadedPdfAdapter;
 
 import android.view.LayoutInflater;
 import android.view.View;

@@ -1,4 +1,4 @@
-package com.example.do_an.application;
+package com.example.do_an.Note;
 
 // package com.example.do_an.models;
 

@@ -1,4 +1,4 @@
-package com.example.do_an.Story;
+package com.example.do_an.Series;
 
 import android.annotation.SuppressLint;
 import android.view.LayoutInflater;

@@ -1,4 +1,4 @@
-package com.example.do_an.UI;
+package com.example.do_an.Favorite;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,8 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.do_an.R;
-import com.example.do_an.Story.FavoriteAdapter;
-import com.example.do_an.Story.FavoriteStory;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -24,7 +22,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.example.do_an.application.Encryption;
 
 public class FavoriteFragment extends Fragment {
 

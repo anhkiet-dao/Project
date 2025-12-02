@@ -1,4 +1,4 @@
-package com.example.do_an.Story;
+package com.example.do_an.Statistic;
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -48,14 +48,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Collections;
-import java.util.Comparator;
 
 public class StatisticFragment extends Fragment { // Đã chuyển thành Fragment
     private TextView tvTotalBooks, tvTotalHours;

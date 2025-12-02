@@ -1,4 +1,4 @@
-package com.example.do_an.application;
+package com.example.do_an.pdf;
 
 import android.content.Context;
 import android.graphics.Bitmap;

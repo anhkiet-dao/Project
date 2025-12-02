@@ -1,4 +1,4 @@
-package com.example.do_an.user;
+package com.example.do_an.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,6 +10,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.do_an.R;
+import com.example.do_an.user.UserInfoActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
