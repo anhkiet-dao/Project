@@ -3,11 +3,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageView
+    <com.github.chrisbanes.photoview.PhotoView
         android:id="@+id/pageImageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="fitCenter"
-        android:contentDescription="Một trang PDF" />
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"/>
 
 </FrameLayout>

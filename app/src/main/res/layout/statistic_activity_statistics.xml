@@ -75,7 +75,7 @@
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:layout_marginBottom="15dp"
-            android:visibility="gone"> <!-- mặc định ẩn nếu chọn tuần -->
+            android:visibility="gone">
 
             <LinearLayout
                 android:id="@+id/llDates"
@@ -97,13 +97,13 @@
                 android:layout_weight="1"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="4dp"
-                android:layout_marginEnd="8dp">
+                android:layout_marginEnd="4dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp"
+                    android:padding="10dp"
                     android:background="#E3F2FD">
 
                     <TextView
@@ -112,7 +112,7 @@
                     android:text="Tổng số sách"
                     android:textStyle="bold"
                     android:layout_gravity="center_horizontal"
-                    android:textSize="18sp"
+                    android:textSize="15sp"
                     android:textColor="#0D47A1" />
 
                     <TextView
@@ -121,7 +121,7 @@
                         android:layout_height="wrap_content"
                         android:text="0"
                         android:layout_gravity="center_horizontal"
-                        android:textSize="18sp"
+                        android:textSize="15sp"
                         android:textStyle="bold"
                         android:textColor="#0D47A1" />
                 </LinearLayout>
@@ -130,16 +130,16 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="1.5"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="4dp"
-                android:layout_marginStart="8dp">
+                android:layout_marginStart="4dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp"
+                    android:padding="10dp"
                     android:background="#E8F5E9">
 
                     <TextView
@@ -148,7 +148,7 @@
                     android:text="Tổng số giờ đọc"
                     android:textStyle="bold"
                     android:layout_gravity="center_horizontal"
-                    android:textSize="18sp"
+                    android:textSize="15sp"
                     android:textColor="#1B5E20" />
 
                     <TextView
@@ -157,7 +157,7 @@
                         android:layout_height="wrap_content"
                         android:text="0"
                         android:layout_gravity="center_horizontal"
-                        android:textSize="18sp"
+                        android:textSize="15sp"
                         android:textStyle="bold"
                         android:textColor="#1B5E20" />
                 </LinearLayout>

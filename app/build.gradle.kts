@@ -79,5 +79,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
+    implementation("com.github.chrisbanes:PhotoView:2.3.0")
+
 }
 

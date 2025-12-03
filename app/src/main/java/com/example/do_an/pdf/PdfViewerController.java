@@ -23,19 +23,14 @@ import java.io.File;
 public class PdfViewerController {
 
     private final Context context;
-    // <<< THAY ĐỔI: Không dùng final cho ViewPager2 và TextView nữa
     private ViewPager2 pdfViewPager;
     private TextView txtTieuDe;
     private TextView txtPageIndicator;
-    // >>>
-
     private final SettingsManager settingsManager;
     private PdfPageAdapter pdfPageAdapter;
-    private File pdfFile; // <<< THÊM: Lưu trữ File PDF
-
+    private File pdfFile;
     private final StringSupplier titleSupplier;
     private final StringConsumer urlConsumer;
-
     private Handler autoHandler = new Handler();
     private Runnable autoRunnable;
     public interface StringSupplier { String get(); }
@@ -44,7 +39,7 @@ public class PdfViewerController {
                                SettingsManager settingsManager, TextView pageIndicator,
                                StringSupplier titleSupplier, StringConsumer urlConsumer) {
         this.context = context;
-        this.pdfViewPager = viewPager; // Lần khởi tạo đầu tiên
+        this.pdfViewPager = viewPager;
         this.txtTieuDe = tieuDe;
         this.settingsManager = settingsManager;
         this.txtPageIndicator = pageIndicator;

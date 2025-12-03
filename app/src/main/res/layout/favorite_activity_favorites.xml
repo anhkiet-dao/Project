@@ -7,24 +7,32 @@
     android:background="#F9F9F9"
     android:padding="5dp">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardToolbar"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:background="?attr/colorPrimary"
-        app:titleTextColor="@android:color/white"
-        app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light" >
+        android:layout_height="wrap_content"
+        app:cardElevation="0dp"  app:cardBackgroundColor="?attr/colorPrimary">
 
-        <TextView
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Truyện yêu thích của bạn"
-            android:gravity="center"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="@color/white" />
+            android:layout_height="40dp"
+            android:background="@android:color/transparent"
+            app:titleTextColor="@android:color/white"
+            app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light" >
 
-    </com.google.android.material.appbar.MaterialToolbar>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Truyện yêu thích"
+                android:gravity="center"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white" />
+
+        </com.google.android.material.appbar.MaterialToolbar>
+
+    </com.google.android.material.card.MaterialCardView>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerFavorites"

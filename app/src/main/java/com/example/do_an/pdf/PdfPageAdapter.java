@@ -17,6 +17,7 @@ import com.example.do_an.R;
 
 import java.io.File;
 import java.io.IOException;
+import com.github.chrisbanes.photoview.PhotoView;
 
 public class PdfPageAdapter extends RecyclerView.Adapter<PdfPageAdapter.PdfPageViewHolder> {
 
@@ -175,11 +176,16 @@ public class PdfPageAdapter extends RecyclerView.Adapter<PdfPageAdapter.PdfPageV
     }
 
     static class PdfPageViewHolder extends RecyclerView.ViewHolder {
-        ImageView pageImageView;
+        PhotoView pageImageView;
 
         public PdfPageViewHolder(@NonNull View itemView) {
             super(itemView);
             pageImageView = itemView.findViewById(R.id.pageImageView);
+
+            pageImageView.setMinimumScale(1f);
+            pageImageView.setMaximumScale(5f);
+            pageImageView.setAllowParentInterceptOnEdge(true);
+
         }
     }
 
