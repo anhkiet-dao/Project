@@ -3,14 +3,13 @@ package com.example.do_an.Note;
 // package com.example.do_an.models;
 
 public class NoteModel {
-    public String userId; // Email người dùng
-    public String noteContextId; // ID ngữ cảnh (Story ID + Title)
-    public int pageNumber; // Số trang
-    public String content; // Nội dung ghi chú
-    public long timestamp; // Thời gian cập nhật
+    public String userId;
+    public String noteContextId;
+    public int pageNumber;
+    public String content;
+    public long timestamp;
 
     public NoteModel() {
-        // Cần thiết cho Firebase
     }
 
     public NoteModel(String userId, String noteContextId, int pageNumber, String content, long timestamp) {
@@ -21,5 +20,4 @@ public class NoteModel {
         this.timestamp = timestamp;
     }
 
-    // Bạn có thể thêm Getters và Setters nếu cần thiết, nhưng Firebase hoạt động tốt với các public field
 }

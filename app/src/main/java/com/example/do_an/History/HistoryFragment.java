@@ -42,7 +42,6 @@ public class HistoryFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Nạp giao diện cho Fragment
         View view = inflater.inflate(R.layout.history_activity_history, container, false);
 
         recyclerView = view.findViewById(R.id.recyclerHistory);
@@ -96,7 +95,6 @@ public class HistoryFragment extends Fragment {
 
                     String dateKey = sdfDay.format(startDate);
 
-                    // Hiển thị: Tên truyện chính + tên tập
                     String displayTitle = (episodeTitle != null && !episodeTitle.isEmpty())
                             ? title + " - " + episodeTitle
                             : title;
@@ -112,7 +110,6 @@ public class HistoryFragment extends Fragment {
                     mapDay.get(dateKey).add(historyItem);
                 }
 
-                // Sắp xếp ngày từ mới đến cũ
                 List<String> sortedDates = new ArrayList<>(mapDay.keySet());
                 Collections.sort(sortedDates, (d1, d2) -> {
                     try {
@@ -124,7 +121,6 @@ public class HistoryFragment extends Fragment {
                     }
                 });
 
-                // Chuyển map sang groupList
                 groupList.clear();
                 for (String date : sortedDates) {
                     groupList.add(new HistoryGroup(date, mapDay.get(date)));
@@ -161,7 +157,6 @@ public class HistoryFragment extends Fragment {
         }
     }
 
-    // 🔹 Adapter nhóm ngày
     public static class HistoryGroupAdapter extends RecyclerView.Adapter<HistoryGroupAdapter.GroupViewHolder> {
 
         private final ArrayList<HistoryGroup> list;
@@ -199,7 +194,6 @@ public class HistoryFragment extends Fragment {
         }
     }
 
-    // 🔹 Adapter từng truyện
     public static class HistoryItemAdapter extends RecyclerView.Adapter<HistoryItemAdapter.ViewHolder> {
 
         private final ArrayList<HistoryItem> list;

@@ -5,11 +5,8 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
 public class Encryption {
-
-    // 🔑 Khóa bí mật (phải có đúng 16 ký tự)
     private static final String SECRET_KEY = "mysecretkey12345";
 
-    // 📦 Mã hóa chuỗi (Encrypt)
     public static String encrypt(String data) {
         try {
             SecretKeySpec keySpec = new SecretKeySpec(SECRET_KEY.getBytes("UTF-8"), "AES");
@@ -23,7 +20,6 @@ public class Encryption {
         }
     }
 
-    // 🔓 Giải mã chuỗi (Decrypt)
     public static String decrypt(String encryptedData) {
         try {
             SecretKeySpec keySpec = new SecretKeySpec(SECRET_KEY.getBytes("UTF-8"), "AES");

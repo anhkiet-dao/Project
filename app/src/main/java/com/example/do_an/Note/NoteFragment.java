@@ -33,7 +33,7 @@ public class NoteFragment extends Fragment {
 
     private String userEmail;
     private DatabaseReference notesRef;
-    private static final String TAG = "NoteFragment"; // <<< THAY ĐỔI: Tên tag
+    private static final String TAG = "NoteFragment";
 
     private String uniqueNoteKey;
     private int pageNumber;
@@ -191,7 +191,7 @@ public class NoteFragment extends Fragment {
     private void hideKeyboardAndClearFocus() {
         edtNote.clearFocus();
 
-        View view = getView(); // Lấy View của Fragment
+        View view = getView();
         if (view != null) {
             InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
             if (imm != null) {

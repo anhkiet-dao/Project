@@ -12,7 +12,6 @@ import com.example.do_an.UI.ReadFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import android.util.Log;
 
-// DÒNG NÀY ĐÃ ĐƯỢC SỬA: Thay thế 'MainActivity.NavigationListener' bằng 'NavigationListener'
 public class MainActivity extends AppCompatActivity implements ReadFragment.NavigationListener {
 
     private BottomNavigationView bottomNav;
@@ -24,17 +23,14 @@ public class MainActivity extends AppCompatActivity implements ReadFragment.Navi
 
     private static final int FRAGMENT_CONTAINER_ID = R.id.fragment_container;
 
-    // --- Khai báo Interface Reset Chung ---
     public interface ResettableFragment {
         void resetState();
     }
 
-    // --- Khai báo Interface Navigation Listener (Đặt ở đây là OK) ---
     public interface NavigationListener {
         void setBottomNavVisibility(int visibility);
     }
 
-    // @Override BÂY GIỜ HOẠT ĐỘNG VÌ CLASS TRIỂN KHAI INTERFACE
     @Override
     public void setBottomNavVisibility(int visibility) {
         if (bottomNav != null) {

@@ -33,7 +33,7 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
     public DownloadedPdfAdapter(Activity activity, List<File> pdfFiles, DownloadedPdfDao pdfDao) {
         this.activity = activity;
         this.pdfFiles = new ArrayList<>(pdfFiles);
-        this.pdfDao = pdfDao; // Gán DAO
+        this.pdfDao = pdfDao;
     }
 
     @Override

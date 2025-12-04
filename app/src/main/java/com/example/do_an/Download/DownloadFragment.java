@@ -75,7 +75,6 @@ public class DownloadFragment extends Fragment{
                     Toast.makeText(getContext(), "Chưa có file PDF nào đã tải xuống!", Toast.LENGTH_SHORT).show();
                 }
 
-                // 💥 DÒNG BỊ LỖI ĐÃ ĐƯỢC SỬA: Thêm pdfDao vào đối số
                 adapter = new DownloadedPdfAdapter(requireActivity(), pdfFiles, pdfDao);
                 rvDownloadedPdfs.setAdapter(adapter);
             });

@@ -11,21 +11,17 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-// Đã chuyển đổi từ AppCompatActivity sang Fragment
 public class InforAppFragment extends Fragment {
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Tạo layout theo cách lập trình (giống như trong Activity cũ)
 
-        // 1. Tạo Layout chính (LinearLayout)
         LinearLayout layout = new LinearLayout(getContext());
         layout.setOrientation(LinearLayout.VERTICAL);
-        // Chuyển đổi padding DP sang PX nếu cần, nhưng tạm thời giữ nguyên giá trị
-        layout.setPadding(50, 50, 50, 50); // Giảm bớt padding top để hợp lý hơn trong Fragment
 
-        // 2. Tạo TextView giới thiệu app
+        layout.setPadding(50, 50, 50, 50);
+
         TextView txtInfo = new TextView(getContext());
         txtInfo.setText(
                 "📚 Chào mừng các độc giả đến với ứng dụng đọc Orumanga!\n\n" +
@@ -40,10 +36,8 @@ public class InforAppFragment extends Fragment {
         txtInfo.setTextSize(18);
         txtInfo.setTextColor(Color.BLACK);
 
-        // 3. Thêm TextView vào layout
         layout.addView(txtInfo);
 
-        // Trả về layout đã tạo
         return layout;
     }
 }

@@ -131,7 +131,6 @@ public class DownloadManager {
                             if (loadingListener != null) loadingListener.hideDownloadProgress();
                         });
                     }).start();
-                    // --- KẾT THÚC LƯU VÀO ROOM ---
 
                 } catch (Exception e) {
                     e.printStackTrace();

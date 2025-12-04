@@ -66,15 +66,12 @@ public class UserInfoActivity extends AppCompatActivity {
             return;
         }
 
-        // Firebase Database
         databaseRef = FirebaseDatabase.getInstance(
                         "https://nt118q14-default-rtdb.asia-southeast1.firebasedatabase.app/")
                 .getReference("Users");
 
-        // Xin quyền đọc ảnh
         requestImagePermission();
 
-        // Chọn ảnh
         pickImageLauncher = registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
                 uri -> {
@@ -146,7 +143,6 @@ public class UserInfoActivity extends AppCompatActivity {
         userMap.put("email", Encryption.encrypt(email));
         userMap.put("interest", Encryption.encrypt(interest));
 
-        // Nếu người dùng có chọn ảnh, convert thành Base64
         if (imageUri != null) {
             try {
                 InputStream inputStream = getContentResolver().openInputStream(imageUri);

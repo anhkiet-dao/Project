@@ -36,7 +36,6 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
         Series series = list.get(position);
         String name = series.getName();
 
-        // Tự động chuyển "Tap 01" → "Tập 01"
         String display = name != null ? name.replace("Tap ", "Tập ").replace("tap ", "Tập ") : "Tập " + (position + 1);
 
         holder.txtName.setText(display);

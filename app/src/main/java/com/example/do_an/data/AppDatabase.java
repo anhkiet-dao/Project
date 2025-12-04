@@ -10,7 +10,6 @@ import androidx.room.RoomDatabase;
 @Database(entities = {DownloadedPdfEntity.class}, version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
-    // Khai báo DAO
     public abstract DownloadedPdfDao downloadedPdfDao();
 
     private static volatile AppDatabase INSTANCE;

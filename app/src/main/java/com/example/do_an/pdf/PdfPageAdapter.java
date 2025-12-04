@@ -26,11 +26,10 @@ public class PdfPageAdapter extends RecyclerView.Adapter<PdfPageAdapter.PdfPageV
     private PdfRenderer pdfRenderer;
     private ParcelFileDescriptor fileDescriptor;
     private Bitmap[] bitmapCache;
-    public int pageMode = 1; // 1 = single, 2 = double
+    public int pageMode = 1;
     public void setPageMode(int mode) {
         if (mode < 1) mode = 1;
         this.pageMode = mode;
-//        notifyDataSetChanged();
     }
     public PdfPageAdapter(Context context, File pdfFile) {
         this.context = context;

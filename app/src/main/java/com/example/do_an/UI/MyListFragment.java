@@ -54,7 +54,6 @@ public class MyListFragment extends Fragment {
             selectButton(btnDownload);
         });
 
-        // Fragment mặc định
         loadFragment(new ReadlistFragment());
         selectButton(btnReadlist);
 

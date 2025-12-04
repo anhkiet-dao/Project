@@ -54,7 +54,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Collections;
 
-public class StatisticFragment extends Fragment { // Đã chuyển thành Fragment
+public class StatisticFragment extends Fragment {
     private TextView tvTotalBooks, tvTotalHours;
     private RadioGroup rgTimeFrame;
     private RadioButton rbDaily, rbWeekly;
@@ -159,7 +159,7 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
             try {
                 String startStr = Encryption.decrypt(h.getStartTime());
                 String endStr = Encryption.decrypt(h.getEndTime());
-                String title = Encryption.decrypt(h.getTitle()); // Giữ lại title để tránh lỗi, nhưng không dùng để đếm
+                String title = Encryption.decrypt(h.getTitle());
                 if (startStr == null || endStr == null) continue;
 
                 Date startDate = sdfFull.parse(startStr);
@@ -170,7 +170,7 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
                 String endDay = sdfDayMonth.format(endDate);
 
                 if (startDay.equals(dateStr) || endDay.equals(dateStr)) {
-                    totalReads++; // Tăng biến đếm số tập/lần đọc
+                    totalReads++;
                     totalMillis += (endDate.getTime() - startDate.getTime());
                 }
 
@@ -179,7 +179,7 @@ public class StatisticFragment extends Fragment { // Đã chuyển thành Fragme
             }
         }
 
-        tvTotalBooks.setText(String.valueOf(totalReads)); // Sử dụng biến đếm số tập
+        tvTotalBooks.setText(String.valueOf(totalReads));
         long totalMinutes = totalMillis / 60000;
         if (totalMinutes < 60) {
             tvTotalHours.setText(totalMinutes + " phút");

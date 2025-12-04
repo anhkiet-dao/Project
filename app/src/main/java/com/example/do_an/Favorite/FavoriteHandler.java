@@ -17,7 +17,7 @@ public class FavoriteHandler {
     }
 
     private String getFavoriteTitle(String mainStoryTitle, String currentTitle) {
-        // Nếu tên hiển thị (currentTitle) khác tên truyện chính, coi nó là tên tập
+
         if (mainStoryTitle != null && !mainStoryTitle.equals(currentTitle)) {
             return mainStoryTitle + " - " + currentTitle;
         }
@@ -66,7 +66,6 @@ public class FavoriteHandler {
         boolean isFavorite = btnFavorite.getTag() != null && (boolean) btnFavorite.getTag();
 
         if (!isFavorite) {
-            // Thêm yêu thích
             favoriteManager.addFavorite(
                     userEmail, storyId, titleForFavorite, author, category, null, imageUrl, readUrl
             );
@@ -74,7 +73,6 @@ public class FavoriteHandler {
             btnFavorite.setTag(true);
             Toast.makeText(context, "Đã thêm: " + titleForFavorite + " vào yêu thích ❤️", Toast.LENGTH_SHORT).show();
         } else {
-            // Xóa yêu thích
             favoriteManager.removeFavorite(userEmail, storyId, titleForFavorite);
             btnFavorite.setImageResource(R.drawable.ic_favorite_border);
             btnFavorite.setTag(false);

@@ -6,10 +6,10 @@ import android.content.SharedPreferences;
 public class SettingsManager {
     private static final String PREF_NAME = "reader_settings";
     private static final String DARK_MODE = "dark_mode";
-    private static final String DIRECTION = "direction"; // 0 = vertical, 1 = horizontal
-    private static final String PAGE_MODE = "page_mode"; // 1 or 2
+    private static final String DIRECTION = "direction";
+    private static final String PAGE_MODE = "page_mode";
     private static final String AUTO_NEXT = "auto_next";
-    private static final String AUTO_TIME = "auto_time"; // seconds
+    private static final String AUTO_TIME = "auto_time";
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
     private static final String SHOW_PAGE_INDICATOR = "show_page_indicator";

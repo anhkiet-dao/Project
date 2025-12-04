@@ -26,8 +26,6 @@ public class ReadlistFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private StoryAdapter storyAdapter;
-
-    // Danh sách gốc & danh sách hiển thị
     private final List<Story> storyList = new ArrayList<>();
     private final List<Story> filteredList = new ArrayList<>();
 
@@ -44,11 +42,9 @@ public class ReadlistFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerViewStories);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Adapter dùng filteredList
         storyAdapter = new StoryAdapter(getContext(), filteredList);
         recyclerView.setAdapter(storyAdapter);
 
-        // Sự kiện click vào 1 truyện
         storyAdapter.setOnStoryClickListener(story -> {
             SeriesFragment seriesFragment = new SeriesFragment();
 
@@ -64,8 +60,8 @@ public class ReadlistFragment extends Fragment {
             if (getActivity() != null) {
                 getActivity().getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.containerContent, seriesFragment) // ID khung chứa trong activity_mylist.xml
-                        .addToBackStack(null) // Quan trọng: Để bấm nút Back quay lại được danh sách
+                        .replace(R.id.containerContent, seriesFragment)
+                        .addToBackStack(null)
                         .commit();
             }
         });
@@ -92,7 +88,6 @@ public class ReadlistFragment extends Fragment {
                             }
                         }
 
-                        // Ban đầu hiển thị toàn bộ
                         filteredList.addAll(storyList);
                         storyAdapter.notifyDataSetChanged();
 
@@ -105,9 +100,6 @@ public class ReadlistFragment extends Fragment {
                 );
     }
 
-    // ----------------------------------------------------
-    // 🔍 Hàm FILTER để MyList gọi khi người dùng nhập search
-    // ----------------------------------------------------
     public void onSearch(String keyword) {
         filteredList.clear();
 

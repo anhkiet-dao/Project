@@ -27,23 +27,19 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.auth_activity_register);
 
-        // Ánh xạ view
         emailInput = findViewById(R.id.emailEditText);
         passwordInput = findViewById(R.id.passwordEditText);
         confirmPasswordInput = findViewById(R.id.confirmPasswordEditText);
         registerButton = findViewById(R.id.registerButton);
         loginNowText = findViewById(R.id.loginNowText);
 
-        // Khởi tạo Firebase Auth
         auth = FirebaseAuth.getInstance();
 
-        // Khi nhấn "Đăng nhập ngay"
         loginNowText.setOnClickListener(v -> {
             startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
             finish();
         });
 
-        // Khi nhấn "Đăng ký"
         registerButton.setOnClickListener(v -> registerUser());
     }
 
@@ -67,14 +63,12 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        // Tạo tài khoản Firebase Authentication
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser user = auth.getCurrentUser();
                         Toast.makeText(this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show();
 
-                        // ✅ Sau khi tạo tài khoản, chuyển sang màn hình nhập thông tin
                         if (user != null) {
                             Intent intent = new Intent(RegisterActivity.this, UserInfoActivity.class);
                             intent.putExtra("uid", user.getUid());

@@ -53,14 +53,12 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
 
         String imageUrl = story.getAnhBia();
 
-        // 🔹 Kiểm tra link ảnh
         if (imageUrl == null || imageUrl.trim().isEmpty()) {
             Log.e("StoryAdapter", "Không có link ảnh cho truyện: " + story.getTenTruyen());
             holder.imgAnhBia.setImageResource(R.drawable.bg_image_placeholder);
             return;
         }
 
-        // 🔹 Xử lý link Google Drive (chuyển sang dạng có thể load được)
         if (imageUrl.contains("drive.google.com")) {
             try {
                 if (imageUrl.contains("/d/")) {
@@ -77,11 +75,10 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
 
         Log.d("StoryAdapter", "Đang tải ảnh từ: " + imageUrl);
 
-        // 🔹 Sử dụng Glide để load ảnh
         Glide.with(context)
                 .load(imageUrl)
-                .placeholder(R.drawable.bg_image_placeholder) // hiển thị tạm khi chưa load xong
-                .error(R.drawable.bg_image_placeholder)       // hiển thị nếu load lỗi
+                .placeholder(R.drawable.bg_image_placeholder)
+                .error(R.drawable.bg_image_placeholder)
                 .into(holder.imgAnhBia);
 
         holder.itemView.setOnClickListener(v -> {

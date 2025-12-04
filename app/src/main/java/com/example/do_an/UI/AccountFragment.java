@@ -65,9 +65,7 @@ public class AccountFragment extends Fragment {
 
         fragmentContainer = view.findViewById(R.id.fragment_container);
 
-        // Thiết lập trạng thái ban đầu
         if (fragmentContainer != null) {
-            // Đảm bảo container ẩn khi fragment mới được tạo
             fragmentContainer.setVisibility(View.GONE);
         }
 
@@ -133,12 +131,9 @@ public class AccountFragment extends Fragment {
         if (fragmentContainer != null) {
             FragmentManager fm = requireActivity().getSupportFragmentManager();
 
-            // Kiểm tra xem Back Stack có Fragment con nào không
             if (fm.getBackStackEntryCount() > 0) {
-                // Xóa tất cả các Fragment con đang có trong Back Stack của Activity
                 fm.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
-                // Sau khi pop, Back Stack Count sẽ là 0, và listener sẽ ẩn container, nhưng ta đảm bảo lại.
                 if (fm.getBackStackEntryCount() == 0) {
                     fragmentContainer.setVisibility(View.GONE);
                 }
@@ -146,7 +141,6 @@ public class AccountFragment extends Fragment {
         }
     }
 
-    // MỞ FRAGMENT CON
     private void openChildFragment(Fragment fragment) {
         if (fragmentContainer == null) return;
 
@@ -202,7 +196,6 @@ public class AccountFragment extends Fragment {
         paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
         canvas.drawBitmap(bitmap, null, rect, paint);
 
-        // Đã có lệnh return, giải quyết lỗi Cannot resolve symbol 'output'
         return output;
     }
 }

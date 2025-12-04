@@ -1,11 +1,10 @@
 package com.example.do_an.Series;
 
 public class Series {
-    private String id;       // Document ID trong Firestore
+    private String id;
     private String name;
     private String link;
 
-    // Constructor rỗng bắt buộc cho Firestore
     public Series() {}
 
     public Series(String name, String link) {
@@ -13,7 +12,6 @@ public class Series {
         this.link = link;
     }
 
-    // Getter & Setter
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 

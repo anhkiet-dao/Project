@@ -50,7 +50,6 @@ public class FavoriteManager {
         });
     }
 
-    // ✅ SỬA: Dùng push() để tạo key ngẫu nhiên, không bị trùng
     public void addFavorite(String email, String storyId, String title, String author, String category,
                             String description, String imageUrl, String readUrl) {
         String safeEmail = email.replace(".", "_");
@@ -63,29 +62,23 @@ public class FavoriteManager {
         favoriteData.put("imageUrl", imageUrl);
         favoriteData.put("readUrl", readUrl);
 
-        // Thay vì child(storyId), ta dùng push() để tạo key mới mỗi lần lưu
         database.child(safeEmail).push()
                 .setValue(favoriteData)
                 .addOnSuccessListener(a -> Log.d(TAG, "✅ Đã thêm yêu thích: " + title))
                 .addOnFailureListener(e -> Log.e(TAG, "❌ Lỗi thêm yêu thích", e));
     }
 
-    // ✅ SỬA: Vì dùng push(), ta không biết key là gì để xóa ngay.
-    // Ta phải tìm node có storyId VÀ title khớp với cái muốn xóa.
     public void removeFavorite(String email, String storyId, String titleToRemove) {
         String safeEmail = email.replace(".", "_");
 
-        // Query tìm các mục trong danh sách của user
         Query query = database.child(safeEmail).orderByChild("storyId").equalTo(storyId);
 
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot appleSnapshot: snapshot.getChildren()) {
-                    // Lấy data ra kiểm tra
                     String title = appleSnapshot.child("title").getValue(String.class);
 
-                    // Nếu storyId khớp (do query) VÀ title khớp -> Xóa đúng cái đó
                     if (title != null && title.equals(titleToRemove)) {
                         appleSnapshot.getRef().removeValue()
                                 .addOnSuccessListener(a -> Log.d(TAG, "🗑️ Đã xóa: " + titleToRemove));

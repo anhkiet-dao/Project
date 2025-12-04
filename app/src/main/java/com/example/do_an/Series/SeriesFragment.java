@@ -43,7 +43,6 @@ public class SeriesFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Nhận dữ liệu từ Bundle
         Bundle args = getArguments();
         if (args != null) {
             storyId = args.getString("STORY_ID");
@@ -73,37 +72,32 @@ public class SeriesFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerSeries);
         int numberOfColumns = 3;
 
-        // Kiểm tra an toàn cho Context trước khi sử dụng
         if (getContext() != null) {
             recyclerView.setLayoutManager(new GridLayoutManager(getContext(), numberOfColumns));
 
             adapter = new SeriesAdapter(seriesList, series -> {
                 if (getContext() == null || getActivity() == null) return;
 
-                // 1. Chuẩn bị Bundle để truyền dữ liệu cho ReadFragment
                 Bundle readArgs = new Bundle();
 
                 readArgs.putString("STORY_ID", storyId);
-                readArgs.putString("STORY_TITLE", storyName); // Tên truyện chính
+                readArgs.putString("STORY_TITLE", storyName);
                 readArgs.putString("STORY_AUTHOR", storyAuthor);
                 readArgs.putString("STORY_CATEGORY", storyCategory);
                 readArgs.putString("STORY_DESCRIPTION", storyDescription);
                 readArgs.putString("STORY_IMAGE_URL", storyImageUrl);
 
                 readArgs.putString("PDF_LINK", series.getLink());
-                readArgs.putString("TAP", series.getName()); // Tên tập để hiển thị
+                readArgs.putString("TAP", series.getName());
 
-                // 2. Tạo instance của ReadFragment
                 ReadFragment readFragment = new ReadFragment();
-                readFragment.setArguments(readArgs); // Gán Bundle
+                readFragment.setArguments(readArgs);
 
-                // 3. Thực hiện Fragment Transaction để chuyển Fragment
                 getActivity().getSupportFragmentManager()
                         .beginTransaction()
-                        // !!! QUAN TRỌNG: Thay R.id.fragment_container bằng ID của View Container thực tế
-                        // (Ví dụ: FrameLayout) trong Activity chứa Fragment này.
+
                         .replace(R.id.fragment_container, readFragment)
-                        .addToBackStack(null) // Thêm vào Back Stack để có thể quay lại SeriesFragment
+                        .addToBackStack(null)
                         .commit();
             });
             recyclerView.setAdapter(adapter);

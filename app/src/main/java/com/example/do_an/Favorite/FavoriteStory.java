@@ -9,7 +9,6 @@ public class FavoriteStory {
     private String readUrl;
 
     public FavoriteStory() {
-        // BẮT BUỘC cho Firebase
     }
 
     public String getStoryId() {

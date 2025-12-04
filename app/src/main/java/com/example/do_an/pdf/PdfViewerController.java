@@ -50,12 +50,10 @@ public class PdfViewerController {
         this.pdfFile = pdfFile; // <<< LƯU FILE PDF
 
         if (pdfPageAdapter != null) {
-            // Trường hợp 1: Fragment View bị hủy và tạo lại (tái sử dụng Adapter và Renderer)
 
-            // Cần gán lại Adapter cho ViewPager2 mới
             pdfViewPager.setAdapter(pdfPageAdapter);
 
-            applySettingsToReader(); // Áp dụng lại cài đặt và vị trí trang
+            applySettingsToReader();
 
             Log.d(TAG, "Renderer đã tồn tại, tái sử dụng Adapter.");
             return;
@@ -210,7 +208,7 @@ public class PdfViewerController {
             @Override public void onStopTrackingTouch(SeekBar seekBar) {
                 int p = seekBar.getProgress();
                 if (p < 1) p = 1;
-                settingsManager.setAutoTime(p); // Lưu giá trị mới
+                settingsManager.setAutoTime(p);
 
                 if (settingsManager.isAutoNext()) { stopAutoNext(); startAutoNext(); }
             }
@@ -218,18 +216,18 @@ public class PdfViewerController {
 
         btnSettings.setOnClickListener(v -> {
             settingsContainer.setVisibility(View.VISIBLE);
-            txtPageIndicator.setVisibility(View.GONE); // ẨN khi mở Cài đặt
+            txtPageIndicator.setVisibility(View.GONE);
         });
 
         btnCloseSettings.setOnClickListener(v -> {
             settingsContainer.setVisibility(View.GONE);
-            txtPageIndicator.setVisibility(View.VISIBLE); // HIỆN lại khi đóng
+            txtPageIndicator.setVisibility(View.VISIBLE);
         });
     }
 
     public void startAutoNext() {
         stopAutoNext();
-        if (pdfViewPager == null) return; // Thêm kiểm tra
+        if (pdfViewPager == null) return;
 
         int delaySec = settingsManager.getAutoTime();
         final long delayMs = (delaySec < 1 ? 3 : delaySec) * 1000L;
@@ -237,7 +235,7 @@ public class PdfViewerController {
         autoRunnable = new Runnable() {
             @Override
             public void run() {
-                if (pdfPageAdapter == null || pdfViewPager == null) return; // Thêm kiểm tra
+                if (pdfPageAdapter == null || pdfViewPager == null) return;
                 int current = pdfViewPager.getCurrentItem();
                 int total = pdfPageAdapter.getItemCount();
 
@@ -264,7 +262,6 @@ public class PdfViewerController {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                // Bạn có thể lưu vị trí đọc hiện tại vào SharedPreferences ở đây nếu cần
                 if (pdfPageAdapter != null) {
                     updatePageIndicator(position, pdfPageAdapter.getItemCount());
                 }
@@ -273,18 +270,17 @@ public class PdfViewerController {
     }
 
     public void clearView() {
-        // Xóa tham chiếu tới View để tránh rò rỉ bộ nhớ
         this.pdfViewPager = null;
         this.txtTieuDe = null;
         this.txtPageIndicator = null;
-        stopAutoNext(); // Đảm bảo dừng tác vụ tự động chuyển trang
+        stopAutoNext();
         Log.d("PdfController", "Đã xóa tham chiếu View.");
     }
     public void closeRenderer() {
         if (pdfPageAdapter != null) {
             pdfPageAdapter.close();
-            pdfPageAdapter = null; // Thiết lập Adapter về null
-            this.pdfFile = null; // Xóa tham chiếu File
+            pdfPageAdapter = null;
+            this.pdfFile = null;
             Log.d("PdfController", "Đã đóng PdfRenderer.");
         }
     }

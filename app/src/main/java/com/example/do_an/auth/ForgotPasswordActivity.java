@@ -24,15 +24,12 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.auth_activity_forgot_password);
 
-        // Khởi tạo Firebase Auth
         mAuth = FirebaseAuth.getInstance();
 
-        // Ánh xạ view
         emailEditText = findViewById(R.id.emailEditText);
         resetButton = findViewById(R.id.resetButton);
         backToLoginText = findViewById(R.id.backToLoginText);
 
-        // Xử lý nút "Gửi liên kết đặt lại mật khẩu"
         resetButton.setOnClickListener(v -> {
             String email = emailEditText.getText().toString().trim();
 
@@ -41,7 +38,6 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                 return;
             }
 
-            // Gửi email đặt lại mật khẩu
             mAuth.sendPasswordResetEmail(email)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
@@ -49,7 +45,6 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                                     "Đã gửi email đặt lại mật khẩu đến " + email,
                                     Toast.LENGTH_LONG).show();
 
-                            // Quay lại màn hình đăng nhập
                             Intent intent = new Intent(ForgotPasswordActivity.this, LoginActivity.class);
                             startActivity(intent);
                             finish();
@@ -60,7 +55,6 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                     });
         });
 
-        // Quay lại màn hình đăng nhập
         backToLoginText.setOnClickListener(v -> {
             Intent intent = new Intent(ForgotPasswordActivity.this, LoginActivity.class);
             startActivity(intent);

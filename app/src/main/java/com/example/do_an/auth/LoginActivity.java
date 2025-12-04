@@ -25,7 +25,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        // 🔥 AUTO LOGIN (nếu đã đăng nhập rồi → vào thẳng app)
+        // AUTO LOGIN
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             Intent intent = new Intent(this, MainActivity.class);
@@ -40,17 +40,14 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.auth_activity_login);
 
-        // Khởi tạo view
         emailInput = findViewById(R.id.emailEditText);
         passwordInput = findViewById(R.id.passwordEditText);
         loginButton = findViewById(R.id.loginButton);
         forgotPasswordText = findViewById(R.id.forgotPasswordText);
         registerNowText = findViewById(R.id.registerNowText);
 
-        // Khởi tạo Firebase Auth
         mAuth = FirebaseAuth.getInstance();
 
-        // Xử lý nút đăng nhập
         loginButton.setOnClickListener(v -> {
             String email = emailInput.getText().toString().trim();
             String password = passwordInput.getText().toString().trim();
@@ -60,7 +57,6 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
 
-            // Gọi Firebase Authentication để đăng nhập
             mAuth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
@@ -73,7 +69,6 @@ public class LoginActivity extends AppCompatActivity {
                             if (user != null) {
                                 Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
 
-                                // Chuyển sang ProfileActivity
                                 Intent intent = new Intent(this, MainActivity.class); // sau này sửa lại
                                 intent.putExtra("userEmail", user.getEmail()); // Gửi email qua
                                 startActivity(intent);
@@ -85,13 +80,11 @@ public class LoginActivity extends AppCompatActivity {
                     });
         });
 
-        // Mở trang Quên mật khẩu
         forgotPasswordText.setOnClickListener(v -> {
             Intent intent = new Intent(this, ForgotPasswordActivity.class);
             startActivity(intent);
         });
 
-        // Mở trang Đăng ký
         registerNowText.setOnClickListener(v -> {
             Intent intent = new Intent(this, RegisterActivity.class);
             startActivity(intent);
