@@ -13,6 +13,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.do_an.Download.DownloadFragment;
+import com.example.do_an.Favorite.FavoriteFragment;
+import com.example.do_an.History.HistoryFragment;
 import com.example.do_an.R;
 
 public class MyListFragment extends Fragment {
@@ -26,7 +29,7 @@ public class MyListFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.activity_mylist, container, false);
+        View view = inflater.inflate(R.layout.ui_activity_mylist, container, false);
 
         btnReadlist = view.findViewById(R.id.btnReadlist);
         btnHistory = view.findViewById(R.id.btnHistory);

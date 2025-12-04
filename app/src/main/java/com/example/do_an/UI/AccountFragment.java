@@ -25,10 +25,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.do_an.R;
-import com.example.do_an.Story.StatisticFragment;
+import com.example.do_an.Statistic.StatisticFragment;
 import com.example.do_an.application.Encryption;
 import com.example.do_an.application.InforAppFragment;
-import com.example.do_an.user.LoginActivity;
+import com.example.do_an.auth.LoginActivity;
 import com.example.do_an.user.ProfileFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -48,7 +48,7 @@ public class AccountFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.account_delay, container, false);
+        return inflater.inflate(R.layout.ui_account_delay, container, false);
     }
 
     @Override

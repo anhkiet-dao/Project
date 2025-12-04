@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.do_an.R;
+import com.example.do_an.Series.SeriesFragment;
 import com.example.do_an.Story.Story;
 import com.example.do_an.Story.StoryAdapter;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -38,7 +39,7 @@ public class ReadlistFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.activity_list, container, false);
+        View view = inflater.inflate(R.layout.ui_activity_list, container, false);
 
         recyclerView = view.findViewById(R.id.recyclerViewStories);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

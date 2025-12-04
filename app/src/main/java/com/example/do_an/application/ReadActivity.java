@@ -18,7 +18,7 @@
 //import androidx.appcompat.app.AppCompatDelegate;
 //
 //import com.example.do_an.R;
-//import com.example.do_an.Story.FavoriteManager;
+//import com.example.do_an.Favorite.FavoriteManager;
 //import com.google.firebase.auth.FirebaseAuth;
 //import com.google.firebase.auth.FirebaseUser;
 //
