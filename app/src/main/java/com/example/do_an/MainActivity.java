@@ -1,19 +1,21 @@
 package com.example.do_an;
 
 import android.os.Bundle;
+import android.view.View; // Cần thiết cho View.GONE/View.VISIBLE
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction; // Thêm import này
+import androidx.fragment.app.FragmentTransaction;
 import com.example.do_an.UI.AccountFragment;
 import com.example.do_an.UI.MyListFragment;
+import com.example.do_an.UI.ReadFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import android.util.Log;
 
-public class MainActivity extends AppCompatActivity {
+// DÒNG NÀY ĐÃ ĐƯỢC SỬA: Thay thế 'MainActivity.NavigationListener' bằng 'NavigationListener'
+public class MainActivity extends AppCompatActivity implements ReadFragment.NavigationListener {
 
     private BottomNavigationView bottomNav;
-
     private Fragment activeFragment;
     private Fragment readFragment;
     private Fragment profileFragment;
@@ -25,6 +27,19 @@ public class MainActivity extends AppCompatActivity {
     // --- Khai báo Interface Reset Chung ---
     public interface ResettableFragment {
         void resetState();
+    }
+
+    // --- Khai báo Interface Navigation Listener (Đặt ở đây là OK) ---
+    public interface NavigationListener {
+        void setBottomNavVisibility(int visibility);
+    }
+
+    // @Override BÂY GIỜ HOẠT ĐỘNG VÌ CLASS TRIỂN KHAI INTERFACE
+    @Override
+    public void setBottomNavVisibility(int visibility) {
+        if (bottomNav != null) {
+            bottomNav.setVisibility(visibility);
+        }
     }
 
     @Override

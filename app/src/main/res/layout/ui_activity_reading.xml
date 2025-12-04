@@ -21,7 +21,7 @@
             android:id="@+id/btnBack"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:src="@drawable/img_2"/>
+            android:src="@drawable/bg_back"/>
 
         <TextView
             android:id="@+id/txtTieuDe"
@@ -48,7 +48,7 @@
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:layout_marginStart="8dp"
-                android:src="@drawable/img_3"
+                android:src="@drawable/bg_favorit"
                 android:contentDescription="Yêu thích" />
 
             <ImageView
@@ -56,7 +56,7 @@
                 android:layout_width="38dp"
                 android:layout_height="38dp"
                 android:layout_marginStart="12dp"
-                android:src="@drawable/img_4"
+                android:src="@drawable/bg_download"
                 android:contentDescription="Tải xuống" />
 
             <ImageView
@@ -64,7 +64,7 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_marginStart="10dp"
-                android:src="@drawable/img_13"
+                android:src="@drawable/bg_setting"
                 android:contentDescription="Cài đặt" />
         </LinearLayout>
     </LinearLayout>
@@ -73,8 +73,6 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
         android:background="@drawable/bg_pdf_frame"
         android:elevation="8dp">
 
@@ -114,7 +112,7 @@
             android:id="@+id/txtPageIndicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|start"
+            android:layout_gravity="bottom|center_horizontal"
             android:layout_marginStart="16dp"
             android:layout_marginBottom="16dp"
             android:text="0/0"
@@ -130,11 +128,22 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:src="@drawable/ic_note"
-            android:layout_gravity="bottom|end"
+            android:layout_gravity="bottom|start"
             android:padding="8dp"
             android:layout_margin="5dp"
             android:elevation="12dp"
             android:contentDescription="Ghi chú" />
+
+        <ImageView
+            android:id="@+id/btnfull"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/ic_fullscreen"
+            android:layout_gravity="bottom|end"
+            android:padding="8dp"
+            android:layout_margin="5dp"
+            android:elevation="12dp"
+            android:contentDescription="Toàn màn hình" />
 
         <ProgressBar
             android:id="@+id/progressDownload"

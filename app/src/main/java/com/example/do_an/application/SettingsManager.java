@@ -12,6 +12,7 @@ public class SettingsManager {
     private static final String AUTO_TIME = "auto_time"; // seconds
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
+    private static final String SHOW_PAGE_INDICATOR = "show_page_indicator";
 
     public SettingsManager(Context ctx) {
         pref = ctx.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
@@ -29,4 +30,8 @@ public class SettingsManager {
 
     public void setAutoTime(int v){ editor.putInt(AUTO_TIME, v).apply(); }
     public int getAutoTime(){ return pref.getInt(AUTO_TIME, 3); }
+    public void setShowPageIndicator(boolean v){ editor.putBoolean(SHOW_PAGE_INDICATOR, v).apply(); }
+    public boolean isPageIndicatorEnabled(){
+        return pref.getBoolean(SHOW_PAGE_INDICATOR, true);
+    }
 }

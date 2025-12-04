@@ -71,11 +71,28 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
     private DownloadedPdfDao pdfDao;
     private String episodePdfLink;
     private String pdfPath;
+    private ImageView btnFullScreenAction;
+    private LinearLayout topBar;
+    private boolean isFullScreenMode = false;
+    private NavigationListener navigationListener;
+    private LinearLayout rootLayout;
 
     public static ReadFragment newInstance(Bundle storyData) {
         ReadFragment fragment = new ReadFragment();
         fragment.setArguments(storyData);
         return fragment;
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        try {
+            // Gán Activity cho listener
+            navigationListener = (NavigationListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString()
+                    + " must implement NavigationListener");
+        }
     }
 
     @Override
@@ -128,6 +145,9 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
         loadingLayout = view.findViewById(R.id.loadingLayout);
         progressDownload = view.findViewById(R.id.progressDownload);
         btnNote = view.findViewById(R.id.btnNote);
+        btnFullScreenAction = view.findViewById(R.id.btnfull);
+        topBar = view.findViewById(R.id.topBar);
+        rootLayout = (LinearLayout) view;
 
         if (currentTitle != null) {
             txtTieuDe.setText(currentTitle);
@@ -345,6 +365,10 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
                     .commit();
         });
 
+        btnFullScreenAction.setOnClickListener(v -> toggleFullScreenMode());
+        btnFullScreenAction.setVisibility(View.VISIBLE);
+        btnFullScreenAction.setBackgroundResource(android.R.color.transparent);
+
         pdfViewerController.setupSettingsView(
                 root.findViewById(R.id.settingsContainer),
                 root.findViewById(R.id.btnCloseSettings),
@@ -353,6 +377,55 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
 
         if (pdfViewPager != null) {
             pdfViewPager.registerOnPageChangeCallback(pdfViewerController.getPageChangeCallback());
+        }
+    }
+
+    // Trong ReadFragment.java, cập nhật toggleFullScreenMode()
+
+    // Trong ReadFragment.java, tìm và thay thế phương thức toggleFullScreenMode()
+
+    private void toggleFullScreenMode() {
+        isFullScreenMode = !isFullScreenMode;
+
+        final int originalPaddingBottom = (int) (getResources().getDisplayMetrics().density * 47);
+
+        if (isFullScreenMode) {
+            if (topBar != null) topBar.setVisibility(View.GONE);
+            if (txtPageIndicator != null) txtPageIndicator.setVisibility(View.VISIBLE);
+            if (rootLayout != null) {
+                rootLayout.setPadding(
+                        rootLayout.getPaddingLeft(),
+                        rootLayout.getPaddingTop(),
+                        rootLayout.getPaddingRight(),
+                        0 // Padding đáy là 0
+                );
+            }
+            if (navigationListener != null) {
+                navigationListener.setBottomNavVisibility(View.GONE);
+            }
+            if (btnFullScreenAction != null) {
+                btnFullScreenAction.setImageResource(R.drawable.bg_exit_full);
+                btnFullScreenAction.setVisibility(View.VISIBLE);
+            }
+        } else {
+            if (topBar != null) topBar.setVisibility(View.VISIBLE);
+            if (txtPageIndicator != null && settingsManager.isPageIndicatorEnabled()) {
+                txtPageIndicator.setVisibility(View.VISIBLE);
+            }
+            if (rootLayout != null) {
+                rootLayout.setPadding(
+                        rootLayout.getPaddingLeft(),
+                        rootLayout.getPaddingTop(),
+                        rootLayout.getPaddingRight(),
+                        originalPaddingBottom
+                );
+            }
+            if (navigationListener != null) {
+                navigationListener.setBottomNavVisibility(View.VISIBLE);
+            }
+            if (btnFullScreenAction != null) {
+                btnFullScreenAction.setImageResource(R.drawable.ic_fullscreen);
+            }
         }
     }
 
@@ -404,5 +477,9 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
                 Log.e(TAG, "Lỗi khi đóng PdfRenderer trong onDestroy: " + e.getMessage());
             }
         }
+    }
+
+    public interface NavigationListener {
+        void setBottomNavVisibility(int visibility);
     }
 }
