@@ -7,7 +7,7 @@
         android:id="@+id/pageImageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="fitCenter"
-        android:contentDescription="Một trang PDF" />
+        android:contentDescription="Một trang PDF"
+        android:scaleType="fitCenter" />
 
 </FrameLayout>

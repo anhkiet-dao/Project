@@ -4,7 +4,7 @@
     <!-- trạng thái được chọn -->
     <item android:state_selected="true">
         <shape android:shape="rectangle">
-            <solid android:color="#2196F3"/> <!-- nền xanh khi chọn -->
+            <solid android:color="@color/button_day_selected"/> <!-- nền xanh khi chọn -->
             <corners android:radius="200dp"/>
         </shape>
     </item>
@@ -12,7 +12,7 @@
     <!-- trạng thái bình thường -->
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="#BBDEFB"/> <!-- nền nhạt khi chưa chọn -->
+            <solid android:color="@color/button_day_unselected"/> <!-- nền nhạt khi chưa chọn -->
             <corners android:radius="200dp"/>
         </shape>
     </item>

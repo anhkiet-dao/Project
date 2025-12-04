@@ -1,12 +1,11 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="12dp"
     android:layout_margin="5dp"
     android:background="@drawable/ic_background"
-    android:gravity="center_vertical">
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="12dp">
 
     <!-- Tên PDF -->
     <TextView
@@ -14,26 +13,26 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:ellipsize="end"
+        android:maxLines="1"
         android:paddingStart="12dp"
         android:text="Tên PDF"
-        android:textSize="16sp"
-        android:textColor="#333333"
-        android:maxLines="1"
-        android:ellipsize="end"/>
+        android:textColor="@color/color_text_primary"
+        android:textSize="16sp" />
 
     <!-- Nút Xóa -->
     <TextView
         android:id="@+id/btnDelete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@drawable/bg_button"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
         android:paddingHorizontal="14dp"
         android:paddingVertical="6dp"
         android:text="Xóa"
-        android:textSize="14sp"
-        android:textColor="@android:color/white"
-        android:background="@drawable/bg_button"
-        android:gravity="center"
-        android:clickable="true"
-        android:focusable="true"/>
+        android:textColor="@color/white"
+        android:textSize="14sp" />
 
 </LinearLayout>

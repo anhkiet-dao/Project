@@ -2,57 +2,60 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
-    android:background="#FFFFFF"
+    android:background="@color/color_background"
     android:padding="40dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/rounded_bg"
-        android:padding="20dp"
+        android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:gravity="center_horizontal">
+        android:padding="20dp">
 
         <TextView
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
             android:text="THÔNG TIN NGƯỜI DÙNG"
+            android:textColor="@color/color_text_primary"
             android:textSize="22sp"
-            android:textStyle="bold"
-            android:textColor="#000000"
-            android:layout_marginBottom="20dp" />
+            android:textStyle="bold" />
 
         <ImageView
-            android:id="@+id/imgAvatar"
+            android:id="@+id/img_avatar"
             android:layout_width="120dp"
             android:layout_height="120dp"
             android:layout_gravity="center"
             android:layout_marginBottom="20dp"
-            android:background="@drawable/avatar_frame"
-            android:padding="3dp"
-            android:scaleType="centerCrop"
             android:adjustViewBounds="true"
-            android:contentDescription="Avatar" />
+            android:background="@drawable/avatar_frame"
+            android:contentDescription="Avatar"
+            android:padding="3dp"
+            android:scaleType="centerCrop" />
 
         <!-- Email -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="10dp">
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Email: "
-                android:textStyle="bold"
-                android:textSize="18sp" />
+                android:textColor="@color/color_text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
             <TextView
-                android:id="@+id/tvEmail"
+                android:id="@+id/tv_email"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="..."
+                android:textColor="@color/color_text_secondary"
                 android:textSize="18sp" />
         </LinearLayout>
 
@@ -60,19 +63,23 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="10dp">
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Họ và tên: "
-                android:textStyle="bold"
-                android:textSize="18sp" />
+                android:textColor="@color/color_text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
             <TextView
-                android:id="@+id/tvFullName"
+                android:id="@+id/tv_fullname"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="..."
+                android:textColor="@color/color_text_secondary"
                 android:textSize="18sp" />
         </LinearLayout>
 
@@ -80,19 +87,23 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="10dp">
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Giới tính: "
-                android:textStyle="bold"
-                android:textSize="18sp" />
+                android:textColor="@color/color_text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
             <TextView
-                android:id="@+id/tvGender"
+                android:id="@+id/tv_gender"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="..."
+                android:textColor="@color/color_text_secondary"
                 android:textSize="18sp" />
         </LinearLayout>
 
@@ -100,19 +111,23 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="10dp">
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Ngày sinh: "
-                android:textStyle="bold"
-                android:textSize="18sp" />
+                android:textColor="@color/color_text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
             <TextView
-                android:id="@+id/tvBirthDate"
+                android:id="@+id/tv_birthdate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="..."
+                android:textColor="@color/color_text_secondary"
                 android:textSize="18sp" />
         </LinearLayout>
 
@@ -120,48 +135,56 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="10dp">
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Số điện thoại: "
-                android:textStyle="bold"
-                android:textSize="18sp" />
+                android:textColor="@color/color_text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
             <TextView
-                android:id="@+id/tvPhone"
+                android:id="@+id/tv_phone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="..."
+                android:textColor="@color/color_text_secondary"
                 android:textSize="18sp" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="10dp">
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Sở thích: "
-                android:textStyle="bold"
-                android:textSize="18sp" />
+                android:textColor="@color/color_text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
             <TextView
-                android:id="@+id/tvInterest"
+                android:id="@+id/tv_interest"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="..."
+                android:textColor="@color/color_text_secondary"
                 android:textSize="18sp" />
         </LinearLayout>
 
         <Button
-            android:id="@+id/btnLogout"
+            android:id="@+id/btn_logout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:backgroundTint="@color/color_error"
             android:text="Đăng xuất"
-            android:textSize="18sp"
-            android:backgroundTint="#FF5722"
-            android:textColor="#FFFFFF" />
+            android:textColor="@color/white"
+            android:textSize="18sp" />
     </LinearLayout>
 </ScrollView>

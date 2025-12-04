@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.do_an.application.ThemeManager;
 import com.example.do_an.main.AccountFragment;
 import com.example.do_an.main.MyListFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -31,10 +32,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Áp dụng theme trước khi setContentView
+        new ThemeManager(this).applyTheme();
+        
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Initialize FragmentManager here (safe lifecycle point)
         fm = getSupportFragmentManager();
 
         bottomNav = findViewById(R.id.bottomNav);

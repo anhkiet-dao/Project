@@ -1,7 +1,7 @@
-package com.example.do_an.history;
+package com.example.do_an.history.item;
 
 public class HistoryItem {
-    String title, author, startTime, endTime;
+    public String title, author, startTime, endTime;
 
     public HistoryItem(String title, String author, String startTime, String endTime) {
         this.title = title;

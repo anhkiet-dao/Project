@@ -2,12 +2,12 @@
     android:shape="oval">
 
     <!-- Màu nền bên trong -->
-    <solid android:color="#80D8FF" />
+    <solid android:color="@color/color_surface_variant" />
 
-    <!-- Viền trắng quanh ảnh -->
+    <!-- Viền quanh ảnh -->
     <stroke
         android:width="3dp"
-        android:color="#FFFFFF" />
+        android:color="@color/color_accent" />
 
     <!-- Kích thước gợi ý (có thể bỏ) -->
     <size

@@ -1,4 +1,4 @@
-package com.example.do_an.ai;
+package com.example.do_an.application.ai;
 
 import androidx.appcompat.app.AppCompatActivity;
 

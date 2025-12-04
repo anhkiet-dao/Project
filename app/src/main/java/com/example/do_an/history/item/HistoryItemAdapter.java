@@ -1,4 +1,4 @@
-package com.example.do_an.history;
+package com.example.do_an.history.item;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -14,8 +15,23 @@ import com.example.do_an.R;
 public class HistoryItemAdapter extends ListAdapter<HistoryItem, HistoryItemAdapter.ViewHolder> {
 
     public HistoryItemAdapter() {
-        super(new HistoryItemDiffCallback());
+        super(DIFF_CALLBACK);
     }
+
+    private static final DiffUtil.ItemCallback<HistoryItem> DIFF_CALLBACK = new DiffUtil.ItemCallback<HistoryItem>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull HistoryItem oldItem, @NonNull HistoryItem newItem) {
+            return (oldItem.title + "|" + oldItem.startTime).equals(newItem.title + "|" + newItem.startTime);
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull HistoryItem oldItem, @NonNull HistoryItem newItem) {
+            return oldItem.title.equals(newItem.title)
+                    && oldItem.author.equals(newItem.author)
+                    && oldItem.startTime.equals(newItem.startTime)
+                    && oldItem.endTime.equals(newItem.endTime);
+        }
+    };
 
     @NonNull
     @Override
@@ -32,7 +48,7 @@ public class HistoryItemAdapter extends ListAdapter<HistoryItem, HistoryItemAdap
         holder.tvTime.setText("Bắt đầu: " + item.startTime + "\nKết thúc: " + item.endTime);
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitleAuthor, tvTime;
 
         public ViewHolder(@NonNull View itemView) {

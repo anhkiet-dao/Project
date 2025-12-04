@@ -19,7 +19,6 @@ import androidx.fragment.app.Fragment; // Đã thay thế AppCompatActivity bằ
 
 import com.example.do_an.R;
 import com.example.do_an.application.Encryption;
-import com.example.do_an.history.History;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;

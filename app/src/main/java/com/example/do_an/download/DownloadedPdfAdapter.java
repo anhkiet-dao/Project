@@ -2,28 +2,27 @@ package com.example.do_an.download;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.os.Bundle; // Cần import Bundle
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.app.AppCompatActivity; // Cần AppCompatActivity để dùng getSupportFragmentManager
+
+import com.example.do_an.R;
+import com.example.do_an.main.read.ReadFragment;
+
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.do_an.R;
-// Cần import ReadFragment
-import com.example.do_an.main.read.ReadFragment; // <<< Import ReadFragment
-
-import org.json.JSONObject;
-
-public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdapter.PdfViewHolder> {
+public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdapter.ViewHolder> {
 
     // Giữ nguyên Activity, nhưng chúng ta sẽ coi nó là AppCompatActivity
     private Activity activity;
@@ -35,13 +34,13 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
     }
 
     @Override
-    public PdfViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.pdf_item_pdf, parent, false);
-        return new PdfViewHolder(view);
+        return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(PdfViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, int position) {
 
         File pdf = pdfFiles.get(position);
         holder.txtPdfName.setText(pdf.getName());
@@ -125,7 +124,7 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
     }
 
 
-    private void showDeleteDialog(File fileToDelete, int adapterPos, PdfViewHolder holder) {
+    private void showDeleteDialog(File fileToDelete, int adapterPos, ViewHolder holder) {
 
         Dialog dialog = new Dialog(this.activity);
         dialog.setContentView(R.layout.note_item_confirm_delete);
@@ -161,10 +160,10 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
     }
 
 
-    static class PdfViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
         TextView txtPdfName, btnDelete;
 
-        public PdfViewHolder(View itemView) {
+        public ViewHolder(View itemView) {
             super(itemView);
             txtPdfName = itemView.findViewById(R.id.txtPdfName);
             btnDelete = itemView.findViewById(R.id.btnDelete);

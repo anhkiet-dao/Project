@@ -3,11 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/color_background"
     android:padding="5dp">
 
     <!-- Avatar -->
     <ImageView
-        android:id="@+id/imgAvatar"
+        android:id="@+id/img_avatar"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:background="@drawable/avatar_circle_bg"
@@ -28,14 +29,16 @@
         android:drawableLeft="@drawable/ic_search"
         android:drawablePadding="8dp"
         android:hint="Search"
+        android:textColorHint="@color/color_text_hint"
+        android:textColor="@color/color_text_primary"
         android:inputType="text"
         android:padding="10dp"
         android:singleLine="true"
-        app:layout_constraintBottom_toBottomOf="@+id/imgAvatar"
+        app:layout_constraintBottom_toBottomOf="@+id/img_avatar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0"
-        app:layout_constraintStart_toEndOf="@+id/imgAvatar"
-        app:layout_constraintTop_toTopOf="@+id/imgAvatar" />
+        app:layout_constraintStart_toEndOf="@+id/img_avatar"
+        app:layout_constraintTop_toTopOf="@+id/img_avatar" />
 
     <!-- Hàng nút chức năng -->
     <LinearLayout
@@ -48,7 +51,7 @@
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imgAvatar">
+        app:layout_constraintTop_toBottomOf="@+id/img_avatar">
 
         <Button
             android:id="@+id/btn_readlist"
@@ -56,11 +59,11 @@
             android:layout_height="45dp"
             android:layout_margin="2dp"
             android:layout_weight="1"
-            android:padding="4dp"
             android:minWidth="0dp"
+            android:padding="4dp"
+            android:text="Truyện"
             android:textAllCaps="false"
-            android:textSize="15sp"
-            android:text="Truyện" />
+            android:textSize="15sp" />
 
         <Button
             android:id="@+id/btn_download"
@@ -68,11 +71,11 @@
             android:layout_height="45dp"
             android:layout_margin="2dp"
             android:layout_weight="1"
-            android:padding="4dp"
             android:minWidth="0dp"
+            android:padding="4dp"
+            android:text="Tải về"
             android:textAllCaps="false"
-            android:textSize="15sp"
-            android:text="Tải về" />
+            android:textSize="15sp" />
 
         <Button
             android:id="@+id/btn_history"
@@ -80,11 +83,11 @@
             android:layout_height="45dp"
             android:layout_margin="2dp"
             android:layout_weight="1"
-            android:padding="4dp"
             android:minWidth="0dp"
+            android:padding="4dp"
+            android:text="Đã xem"
             android:textAllCaps="false"
-            android:textSize="15sp"
-            android:text="Đã xem" />
+            android:textSize="15sp" />
 
         <Button
             android:id="@+id/btn_favorite"
@@ -92,11 +95,11 @@
             android:layout_height="45dp"
             android:layout_margin="2dp"
             android:layout_weight="1"
-            android:padding="4dp"
             android:minWidth="0dp"
+            android:padding="4dp"
+            android:text="Yêu thích"
             android:textAllCaps="false"
-            android:textSize="15sp"
-            android:text="Yêu thích" />
+            android:textSize="15sp" />
     </LinearLayout>
 
     <!-- Vùng chứa nội dung hiển thị -->

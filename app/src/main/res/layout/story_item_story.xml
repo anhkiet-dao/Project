@@ -3,9 +3,9 @@
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:backgroundTint="@color/color_card_background"
     card_view:cardCornerRadius="16dp"
-    card_view:cardUseCompatPadding="true"
-    android:backgroundTint="@android:color/white">
+    card_view:cardUseCompatPadding="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,10 +17,10 @@
             android:id="@+id/img_thumbnail"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:scaleType="fitXY"
-            android:background="@drawable/bg_image_placeholder"
             android:layout_marginEnd="12dp"
-            android:contentDescription="Ảnh bìa truyện" />
+            android:background="@drawable/bg_image_placeholder"
+            android:contentDescription="Ảnh bìa truyện"
+            android:scaleType="fitXY" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -29,52 +29,52 @@
 
             <TextView
                 android:id="@+id/tv_title"
-                android:text="Tên truyện"
-                android:textStyle="bold"
-                android:textSize="18sp"
-                android:textColor="#1A1A1A"
-                android:layout_marginBottom="4dp"
-                android:maxLines="2"
-                android:ellipsize="end"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:text="Tên truyện"
+                android:textColor="@color/color_item_title"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tv_author"
-                android:text="Tác giả: "
-                android:textSize="15sp"
-                android:textColor="#444"
-                android:layout_marginBottom="2dp"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dp"
+                android:text="Tác giả: "
+                android:textColor="@color/color_item_subtitle"
+                android:textSize="15sp" />
 
             <TextView
                 android:id="@+id/tv_year"
-                android:text="Năm phát hành: "
-                android:textSize="15sp"
-                android:textColor="#444"
-                android:layout_marginBottom="2dp"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dp"
+                android:text="Năm phát hành: "
+                android:textColor="@color/color_item_subtitle"
+                android:textSize="15sp" />
 
             <TextView
                 android:id="@+id/tv_genre"
-                android:text="Thể loại: "
-                android:textSize="15sp"
-                android:textColor="#444"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:text="Thể loại: "
+                android:textColor="@color/color_item_subtitle"
+                android:textSize="15sp" />
 
             <!-- Debug field: hidden in release; shows raw thumbnail string when DEBUG -->
             <TextView
                 android:id="@+id/tv_debug"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="10sp"
-                android:textColor="#880000"
-                android:visibility="gone"
+                android:ellipsize="end"
                 android:maxLines="2"
-                android:ellipsize="end" />
+                android:textColor="@color/color_error"
+                android:textSize="10sp"
+                android:visibility="gone" />
 
         </LinearLayout>
     </LinearLayout>

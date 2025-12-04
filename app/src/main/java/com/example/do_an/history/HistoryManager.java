@@ -3,6 +3,7 @@ package com.example.do_an.history;
 import android.util.Log;
 
 import com.example.do_an.application.Encryption;
+import com.example.do_an.application.constant.FirebaseCollectionPaths;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -12,15 +13,24 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import javax.annotation.Nullable;
+
 public class HistoryManager {
+
     private static final String TAG = "HistoryManager";
     private String currentHistoryKey;
-    public HistoryManager(Object context) {
-    }
 
-    public void saveStartReadingHistory(String userEmail, String storyId, String mainStoryTitle,
-                                        String currentTitle, String author) {
+    public HistoryManager(Object context) {}
+
+    public void saveStartReadingHistory(@Nullable String userEmail,
+                                        @Nullable String storyId,
+                                        @Nullable String mainStoryTitle,
+                                        String currentTitle,
+                                        String author) {
+
         if (userEmail == null || storyId == null) return;
+
+        userEmail = userEmail.replace(".", "_");
 
         String currentEpisodeTitle = (currentTitle.equals(mainStoryTitle)) ? "" : currentTitle;
         String titleForHistory = (mainStoryTitle != null) ? mainStoryTitle : currentTitle;
@@ -30,18 +40,18 @@ public class HistoryManager {
         String startTime = sdf.format(new Date());
 
         HashMap<String, Object> historyData = new HashMap<>();
-         historyData.put("title", Encryption.encrypt(titleForHistory));
-         historyData.put("author", Encryption.encrypt(author));
-         historyData.put("episodeTitle", Encryption.encrypt(currentEpisodeTitle));
-         historyData.put("startTime", Encryption.encrypt(startTime));
-         historyData.put("storyId", Encryption.encrypt(storyId));
-
+        historyData.put("title", Encryption.encrypt(titleForHistory));
+        historyData.put("author", Encryption.encrypt(author));
+        historyData.put("episodeTitle", Encryption.encrypt(currentEpisodeTitle));
+        historyData.put("startTime", Encryption.encrypt(startTime));
+        historyData.put("storyId", Encryption.encrypt(storyId));
 
         DatabaseReference dbRef = FirebaseDatabase.getInstance()
-                .getReference("History")
-                .child(userEmail.replace(".", "_"))
+                .getReference(FirebaseCollectionPaths.HISTORY)
+                .child(userEmail)
                 .push();
-        currentHistoryKey = dbRef.getKey(); // Lưu key để dùng cho thời gian kết thúc
+
+        currentHistoryKey = dbRef.getKey();
         dbRef.setValue(historyData)
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "✅ Đã lưu thời gian bắt đầu đọc"))
                 .addOnFailureListener(e -> Log.e(TAG, "❌ Lỗi lưu thời gian bắt đầu", e));
@@ -50,15 +60,17 @@ public class HistoryManager {
     public void saveEndReadingHistory(String userEmail) {
         if (userEmail == null || currentHistoryKey == null) return;
 
+        userEmail = userEmail.replace(".", "_");
+
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.getDefault());
         sdf.setTimeZone(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
         String endTime = sdf.format(new Date());
 
-         String encryptedEndTime = Encryption.encrypt(endTime);
+        String encryptedEndTime = Encryption.encrypt(endTime);
 
         DatabaseReference dbRef = FirebaseDatabase.getInstance()
-                .getReference("History")
-                .child(userEmail.replace(".", "_"))
+                .getReference(FirebaseCollectionPaths.HISTORY)
+                .child(userEmail)
                 .child(currentHistoryKey)
                 .child("endTime");
 

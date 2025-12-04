@@ -1,26 +1,47 @@
 package com.example.do_an.series;
 
-import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.do_an.R;
-import java.util.List;
 
-public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder> {
+import java.util.Objects;
 
-    private final List<Series> list;
-    private final OnSeriesClick listener;
+public class SeriesAdapter extends ListAdapter<Series, SeriesAdapter.ViewHolder> {
 
-    public interface OnSeriesClick { void onClick(Series series); }
+    private OnSeriesClick listener = series -> {};
 
-    public SeriesAdapter(List<Series> list, OnSeriesClick listener) {
-        this.list = list;
+    public interface OnSeriesClick {
+        void onClick(Series series);
+    }
+
+    public void setOnSeriesClickListener(OnSeriesClick listener) {
         this.listener = listener;
     }
+
+    public SeriesAdapter() {
+        super(DIFF_CALLBACK);
+    }
+
+    private static final DiffUtil.ItemCallback<Series> DIFF_CALLBACK = new DiffUtil.ItemCallback<Series>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull Series oldItem, @NonNull Series newItem) {
+            return Objects.equals(oldItem.getId(), newItem.getId());
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull Series oldItem, @NonNull Series newItem) {
+            return Objects.equals(oldItem.getName(), newItem.getName())
+                    && Objects.equals(oldItem.getLink(), newItem.getLink());
+        }
+    };
 
     @NonNull
     @Override
@@ -30,29 +51,25 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.ViewHolder
         return new ViewHolder(view);
     }
 
-    @SuppressLint("MissingSuperCall")
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Series series = list.get(position);
+        Series series = getItem(position);
         String name = series.getName();
 
-        // Tự động chuyển "Tap 01" → "Tập 01"
-        String display = name != null ? name.replace("Tap ", "Tập ").replace("tap ", "Tập ") : "Tập " + (position + 1);
+        String display = name != null
+                ? name.replace("Tap ", "Tập ").replace("tap ", "Tập ")
+                : "Tập " + (position + 1);
 
-        holder.txtName.setText(display);
+        holder.tvName.setText(display);
         holder.itemView.setOnClickListener(v -> listener.onClick(series));
     }
 
-    @Override
-    public int getItemCount() {
-        return list.size();
-    }
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        final TextView tvName;
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView txtName;
         ViewHolder(View itemView) {
             super(itemView);
-            txtName = itemView.findViewById(R.id.txtSeriesName);
+            tvName = itemView.findViewById(R.id.txtSeriesName);
         }
     }
 }

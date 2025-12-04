@@ -3,9 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".user.UserInfoActivity"
     android:background="@drawable/bg_gradient"
-    android:padding="24dp">
+    android:padding="24dp"
+    tools:context=".user.UserInfoActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,97 +13,104 @@
         android:orientation="vertical">
 
         <TextView
-            android:text="Nhập thông tin cá nhân"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:gravity="center"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="20dp" />
+            android:gravity="center"
+            android:paddingBottom="20dp"
+            android:text="Nhập thông tin cá nhân"
+            android:textColor="@color/text_on_gradient"
+            android:textSize="22sp"
+            android:textStyle="bold" />
 
         <ImageView
-            android:id="@+id/imgAvatar"
+            android:id="@+id/img_avatar"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_gravity="center_horizontal"
-            android:src="@drawable/avatar"
-            android:scaleType="centerCrop"
             android:background="@drawable/avatar_frame"
             android:clipToOutline="true"
-            android:contentDescription="Avatar" />
+            android:contentDescription="Avatar"
+            android:scaleType="centerCrop"
+            android:src="@drawable/avatar" />
 
         <EditText
             android:id="@+id/edtFullName"
-            android:hint="Họ và tên"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="Họ và tên"
             android:inputType="textPersonName"
             android:padding="10dp" />
 
         <TextView
-            android:text="Giới tính:"
-            android:layout_marginTop="16dp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Giới tính:"
+            android:textColor="@color/text_on_gradient" />
 
         <RadioGroup
             android:id="@+id/radioGender"
-            android:orientation="horizontal"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
             <RadioButton
                 android:id="@+id/radioMale"
-                android:text="Nam"
-                android:checked="true"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="Nam"
+                android:textColor="@color/text_on_gradient" />
+
             <RadioButton
                 android:id="@+id/radioFemale"
-                android:text="Nữ"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:text="Nữ"
+                android:textColor="@color/text_on_gradient" />
         </RadioGroup>
 
         <TextView
-            android:text="Ngày sinh:"
-            android:layout_marginTop="16dp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Ngày sinh:"
+            android:textColor="@color/text_on_gradient" />
 
         <EditText
             android:id="@+id/edtBirthDate"
-            android:hint="Chọn ngày sinh"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:focusable="false"
-            android:inputType="none"
             android:drawableEnd="@android:drawable/ic_menu_my_calendar"
+            android:focusable="false"
+            android:hint="Chọn ngày sinh"
+            android:inputType="none"
             android:padding="10dp" />
 
         <EditText
             android:id="@+id/edtPhone"
-            android:hint="Số điện thoại"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:hint="Số điện thoại"
             android:inputType="phone"
             android:padding="10dp" />
 
         <EditText
             android:id="@+id/edtinterest"
-            android:hint="Nhập sở thích"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:hint="Nhập sở thích"
             android:inputType="textPersonName"
             android:padding="10dp" />
 
         <Button
             android:id="@+id/btnSave"
-            android:text="Lưu thông tin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:textColor="@android:color/white" />
+            android:text="Lưu thông tin"
+            android:textColor="@color/button_text" />
     </LinearLayout>
 </ScrollView>

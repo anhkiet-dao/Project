@@ -2,4 +2,93 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    
+    <!-- Light Theme Colors -->
+    <color name="md_theme_light_primary">#1976D2</color>
+    <color name="md_theme_light_onPrimary">#FFFFFF</color>
+    <color name="md_theme_light_primaryContainer">#D1E4FF</color>
+    <color name="md_theme_light_onPrimaryContainer">#001D36</color>
+    <color name="md_theme_light_secondary">#535F70</color>
+    <color name="md_theme_light_onSecondary">#FFFFFF</color>
+    <color name="md_theme_light_background">#FDFCFF</color>
+    <color name="md_theme_light_onBackground">#1A1C1E</color>
+    <color name="md_theme_light_surface">#FDFCFF</color>
+    <color name="md_theme_light_onSurface">#1A1C1E</color>
+    <color name="md_theme_light_surfaceVariant">#DFE2EB</color>
+    <color name="md_theme_light_onSurfaceVariant">#43474E</color>
+    <color name="md_theme_light_error">#BA1A1A</color>
+    <color name="md_theme_light_onError">#FFFFFF</color>
+    
+    <!-- Dark Theme Colors -->
+    <color name="md_theme_dark_primary">#A0CAFF</color>
+    <color name="md_theme_dark_onPrimary">#003258</color>
+    <color name="md_theme_dark_primaryContainer">#00497D</color>
+    <color name="md_theme_dark_onPrimaryContainer">#D1E4FF</color>
+    <color name="md_theme_dark_secondary">#BBC7DB</color>
+    <color name="md_theme_dark_onSecondary">#253140</color>
+    <color name="md_theme_dark_background">#1A1C1E</color>
+    <color name="md_theme_dark_onBackground">#E2E2E6</color>
+    <color name="md_theme_dark_surface">#1A1C1E</color>
+    <color name="md_theme_dark_onSurface">#E2E2E6</color>
+    <color name="md_theme_dark_surfaceVariant">#43474E</color>
+    <color name="md_theme_dark_onSurfaceVariant">#C3C6CF</color>
+    <color name="md_theme_dark_error">#FFB4AB</color>
+    <color name="md_theme_dark_onError">#690005</color>
+    
+    <!-- Semantic colors for Light Theme (used in layouts) -->
+    <color name="color_background">#FDFCFF</color>
+    <color name="color_surface">#FFFFFF</color>
+    <color name="color_surface_variant">#F5F5F5</color>
+    <color name="color_card_background">#FFFFFF</color>
+    <color name="color_text_primary">#1A1C1E</color>
+    <color name="color_text_secondary">#555555</color>
+    <color name="color_text_hint">#888888</color>
+    <color name="color_divider">#E0E0E0</color>
+    <color name="color_ripple">#20000000</color>
+    
+    <!-- Gradient colors -->
+    <color name="color_gradient_start">#B9E2FC</color>
+    <color name="color_gradient_end">#00BCD4</color>
+    
+    <!-- Accent/Button colors -->
+    <color name="color_accent">#1976D2</color>
+    <color name="color_accent_dark">#1565C0</color>
+    <color name="color_link">#5E60CE</color>
+    <color name="color_highlight">#FFD700</color>
+    
+    <!-- Status colors -->
+    <color name="color_success">#4CAF50</color>
+    <color name="color_warning">#FFC107</color>
+    <color name="color_error">#F44336</color>
+    
+    <!-- Card item colors -->
+    <color name="color_item_background">#FFFFFF</color>
+    <color name="color_item_title">#1A1A1A</color>
+    <color name="color_item_subtitle">#444444</color>
+    
+    <!-- Stats card colors -->
+    <color name="color_stats_blue_bg">#E3F2FD</color>
+    <color name="color_stats_blue_text">#0D47A1</color>
+    <color name="color_stats_green_bg">#E8F5E9</color>
+    <color name="color_stats_green_text">#1B5E20</color>
+    
+    <!-- Bottom nav -->
+    <color name="color_bottom_nav">#03A9F4</color>
+    <color name="color_bottom_nav_indicator">#B3E5FC</color>
+    
+    <!-- Additional semantic colors for layouts -->
+    <color name="primary">#1976D2</color>
+    <color name="text_on_gradient">#FFFFFF</color>
+    <color name="button_text">#FFFFFF</color>
+    
+    <!-- Rounded button colors -->
+    <color name="rounded_button_pressed">#D1C4E9</color>
+    <color name="rounded_button_normal">#EDE7F6</color>
+    <color name="rounded_button_stroke">#B39DDB</color>
+    
+    <!-- Button state colors -->
+    <color name="button_selected">#2196F3</color>
+    <color name="button_unselected">#E0E0E0</color>
+    <color name="button_day_selected">#2196F3</color>
+    <color name="button_day_unselected">#BBDEFB</color>
 </resources>

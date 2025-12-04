@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
-    android:background="@drawable/bg_gradient"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_gradient"
+    android:orientation="vertical"
     android:paddingTop="10dp"
     android:paddingBottom="47dp">
 
@@ -12,30 +12,30 @@
         android:id="@+id/topBar"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:orientation="horizontal"
+        android:elevation="4dp"
         android:gravity="center_vertical"
-        android:paddingHorizontal="12dp"
-        android:elevation="4dp">
+        android:orientation="horizontal"
+        android:paddingHorizontal="12dp">
 
         <ImageView
             android:id="@+id/btnBack"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:src="@drawable/img_2"/>
+            android:src="@drawable/img_2" />
 
         <TextView
             android:id="@+id/txtTieuDe"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginStart="16dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:gravity="center_horizontal"
+            android:singleLine="true"
             android:text="Tên sách"
             android:textColor="@android:color/white"
             android:textSize="20sp"
-            android:gravity="center_horizontal"
-            android:textStyle="bold"
-            android:ellipsize="end"
-            android:singleLine="true" />
+            android:textStyle="bold" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -48,33 +48,33 @@
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:layout_marginStart="8dp"
-                android:src="@drawable/img_3"
-                android:contentDescription="Yêu thích" />
+                android:contentDescription="Yêu thích"
+                android:src="@drawable/img_3" />
 
             <ImageView
                 android:id="@+id/btnDown"
                 android:layout_width="38dp"
                 android:layout_height="38dp"
                 android:layout_marginStart="12dp"
-                android:src="@drawable/img_4"
-                android:contentDescription="Tải xuống" />
+                android:contentDescription="Tải xuống"
+                android:src="@drawable/img_4" />
 
             <ImageView
                 android:id="@+id/btnSettings"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_marginStart="10dp"
-                android:src="@drawable/img_13"
-                android:contentDescription="Cài đặt" />
+                android:contentDescription="Cài đặt"
+                android:src="@drawable/img_13" />
         </LinearLayout>
     </LinearLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
+        android:layout_weight="1"
         android:background="@drawable/bg_pdf_frame"
         android:elevation="8dp">
 
@@ -86,11 +86,11 @@
 
         <LinearLayout
             android:id="@+id/loadingLayout"
-            android:orientation="vertical"
-            android:gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical"
             android:visibility="gone">
 
             <ProgressBar
@@ -103,10 +103,10 @@
                 android:id="@+id/txtLoading"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:text="Đang tải..."
                 android:textColor="@android:color/background_dark"
-                android:textSize="16sp"
-                android:layout_marginTop="8dp" />
+                android:textSize="16sp" />
 
         </LinearLayout>
 
@@ -117,9 +117,9 @@
             android:layout_gravity="bottom|start"
             android:layout_marginStart="16dp"
             android:layout_marginBottom="16dp"
-            android:text="0/0"
-            android:padding="4dp"
             android:background="#80000000"
+            android:padding="4dp"
+            android:text="0/0"
             android:textColor="@android:color/white"
             android:textSize="16sp"
             android:textStyle="bold"
@@ -129,12 +129,12 @@
             android:id="@+id/btnNote"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:src="@drawable/ic_note"
             android:layout_gravity="bottom|end"
-            android:padding="8dp"
             android:layout_margin="5dp"
+            android:contentDescription="Ghi chú"
             android:elevation="12dp"
-            android:contentDescription="Ghi chú" />
+            android:padding="8dp"
+            android:src="@drawable/ic_note" />
 
         <ProgressBar
             android:id="@+id/progressDownload"
@@ -151,9 +151,9 @@
         android:id="@+id/settingsContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
         android:background="#99000000"
-        android:padding="24dp">
+        android:padding="24dp"
+        android:visibility="gone">
 
         <ScrollView
             android:layout_width="match_parent"
@@ -163,28 +163,28 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
+                android:layout_gravity="center_vertical"
                 android:background="@drawable/bg_settings_card"
-                android:padding="20dp"
                 android:elevation="12dp"
-                android:layout_gravity="center_vertical">
+                android:orientation="vertical"
+                android:padding="20dp">
 
                 <TextView
-                    android:text="Cài đặt"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
-                    android:textColor="#222222"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:paddingBottom="12dp"/>
+                    android:paddingBottom="12dp"
+                    android:text="Cài đặt"
+                    android:textColor="@color/color_text_primary"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
 
                 <TextView
-                    android:text="Chiều đọc:"
-                    android:textStyle="bold"
-                    android:textColor="#333333"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:text="Chiều đọc:"
+                    android:textColor="@color/color_text_primary"
+                    android:textStyle="bold" />
 
                 <RadioGroup
                     android:id="@+id/rgReadingDirection"
@@ -198,23 +198,23 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Dọc"
-                        android:textColor="#444444"/>
+                        android:textColor="@color/color_text_secondary" />
 
                     <RadioButton
                         android:id="@+id/rbHorizontal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Ngang"
-                        android:textColor="#444444"/>
+                        android:textColor="@color/color_text_secondary" />
                 </RadioGroup>
 
                 <TextView
-                    android:text="Hiển thị trang:"
-                    android:textStyle="bold"
-                    android:layout_marginTop="14dp"
-                    android:textColor="#333333"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="Hiển thị trang:"
+                    android:textColor="@color/color_text_primary"
+                    android:textStyle="bold" />
 
                 <RadioGroup
                     android:id="@+id/rgPageMode"
@@ -225,56 +225,56 @@
 
                     <RadioButton
                         android:id="@+id/rbSinglePage"
-                        android:text="1 trang / lần"
-                        android:textColor="#444444"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:text="1 trang / lần"
+                        android:textColor="@color/color_text_secondary" />
 
                     <RadioButton
                         android:id="@+id/rbDoublePage"
-                        android:text="2 trang / lần"
-                        android:textColor="#444444"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:text="2 trang / lần"
+                        android:textColor="@color/color_text_secondary" />
                 </RadioGroup>
 
                 <Switch
                     android:id="@+id/switchAutoNext"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
                     android:text="Tự động chuyển trang"
-                    android:textColor="#333333"
-                    android:layout_marginTop="14dp"/>
+                    android:textColor="@color/color_text_primary" />
 
                 <LinearLayout
                     android:id="@+id/layoutAutoTime"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:visibility="gone"
+                    android:layout_marginTop="6dp"
                     android:gravity="center_vertical"
-                    android:layout_marginTop="6dp">
+                    android:orientation="horizontal"
+                    android:visibility="gone">
 
                     <TextView
-                        android:text="Thời gian:"
-                        android:textColor="#444444"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content"
+                        android:text="Thời gian:"
+                        android:textColor="@color/color_text_secondary" />
 
                     <SeekBar
                         android:id="@+id/seekAutoTime"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:max="30"/>
+                        android:max="30" />
 
                     <TextView
                         android:id="@+id/txtAutoTime"
-                        android:text="5s"
-                        android:textColor="#333333"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingLeft="8dp"/>
+                        android:paddingLeft="8dp"
+                        android:text="5s"
+                        android:textColor="@color/color_text_primary" />
                 </LinearLayout>
 
                 <androidx.appcompat.widget.AppCompatButton
@@ -282,10 +282,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="18dp"
+                    android:backgroundTint="@color/color_accent"
                     android:text="Đóng"
                     android:textAllCaps="false"
-                    android:backgroundTint="#3F51B5"
-                    android:textColor="@android:color/white" />
+                    android:textColor="@color/white" />
 
             </LinearLayout>
         </ScrollView>

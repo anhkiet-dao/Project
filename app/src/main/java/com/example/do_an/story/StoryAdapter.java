@@ -7,11 +7,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.do_an.R;
+import com.example.do_an.application.util.GoogleDriveUtil;
+import com.example.do_an.application.util.StringUtil;
+
+import java.util.Objects;
 
 public class StoryAdapter extends ListAdapter<Story, StoryAdapter.StoryViewHolder> {
 
@@ -27,25 +32,41 @@ public class StoryAdapter extends ListAdapter<Story, StoryAdapter.StoryViewHolde
     }
 
     public StoryAdapter() {
-        super(new StoryDiffCallback());
+        super(DIFF_CALLBACK);
     }
+
+    private static final DiffUtil.ItemCallback<Story> DIFF_CALLBACK = new DiffUtil.ItemCallback<Story>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull Story oldItem, @NonNull Story newItem) {
+            return Objects.equals(oldItem.getId(), newItem.getId());
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull Story oldItem, @NonNull Story newItem) {
+            return Objects.equals(oldItem.getTitle(), newItem.getTitle())
+                    && Objects.equals(oldItem.getAuthor(), newItem.getAuthor())
+                    && Objects.equals(oldItem.getYear(), newItem.getYear())
+                    && Objects.equals(oldItem.getGenre(), newItem.getGenre())
+                    && Objects.equals(oldItem.getThumbnail(), newItem.getThumbnail());
+        }
+    };
 
     @NonNull
     @Override
     public StoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // use parent.getContext() to ensure correct themed context and avoid unexpected nulls
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.story_item_story, parent, false);
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.story_item_story, parent, false);
         return new StoryViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull StoryViewHolder holder, int position) {
         Story story = getItem(position);
-        
-        String title = orDefault(story.getTitle(), "(Không có tiêu đề)");
-        String author = orDefault(story.getAuthor(), "Chưa rõ");
-        String year = orDefault(story.getYear(), "N/A");
-        String genre = orDefault(story.getGenre(), "");
+
+        String title = StringUtil.orDefault(story.getTitle(), "(Không có tiêu đề)");
+        String author = StringUtil.orDefault(story.getAuthor(), "Chưa rõ");
+        String year = StringUtil.orDefault(story.getYear(), "N/A");
+        String genre = StringUtil.orDefault(story.getGenre(), "");
         String thumbnail = story.getThumbnail();
 
         holder.tvTitle.setText(title);
@@ -53,10 +74,11 @@ public class StoryAdapter extends ListAdapter<Story, StoryAdapter.StoryViewHolde
         holder.tvYear.setText(String.format("Năm phát hành: %s", year));
         holder.tvGenre.setText(genre);
 
-        if (isBlank(thumbnail)) {
+        if (StringUtil.isBlank(thumbnail)) {
             holder.imgThumbnail.setImageResource(R.drawable.bg_image_placeholder);
         } else {
-            String imageUrl = convertGoogleDriveUrl(thumbnail);
+            String imageUrl = GoogleDriveUtil.convertGoogleDriveUrl(thumbnail);
+
             Glide.with(holder.itemView.getContext())
                     .load(imageUrl)
                     .placeholder(R.drawable.bg_image_placeholder)
@@ -65,29 +87,6 @@ public class StoryAdapter extends ListAdapter<Story, StoryAdapter.StoryViewHolde
         }
 
         holder.itemView.setOnClickListener(v -> listener.onStoryClick(story));
-    }
-
-    private String orDefault(String value, String defaultValue) {
-        return isBlank(value) ? defaultValue : value;
-    }
-
-    private boolean isBlank(String s) {
-        return s == null || s.trim().isEmpty();
-    }
-
-    private String convertGoogleDriveUrl(String url) {
-        if (!url.contains("drive.google.com")) {
-            return url;
-        }
-
-        String fileId = "";
-        if (url.contains("/d/")) {
-            fileId = url.split("/d/")[1].split("/")[0];
-        } else if (url.contains("id=")) {
-            fileId = url.substring(url.indexOf("id=") + 3);
-        }
-
-        return fileId.isEmpty() ? url : "https://drive.google.com/uc?export=view&id=" + fileId;
     }
 
     public static class StoryViewHolder extends RecyclerView.ViewHolder {

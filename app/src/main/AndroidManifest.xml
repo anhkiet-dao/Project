@@ -41,11 +41,11 @@
         <activity android:name=".user.UserInfoActivity"
             android:exported="false" />
 
-        <activity android:name=".ai.AIReadingAssistant" android:exported="false" />
-        <activity android:name=".ai.AISummarizer" android:exported="false" />
-        <activity android:name=".ai.AIVoiceReader" />
-        <activity android:name=".ai.AIBookRecommender" android:exported="false" />
-        <activity android:name=".ai.GeminiAPIHelper" android:exported="false" />
+        <activity android:name=".application.ai.AIReadingAssistant" android:exported="false" />
+        <activity android:name=".application.ai.AISummarizer" android:exported="false" />
+        <activity android:name=".application.ai.AIVoiceReader" />
+        <activity android:name=".application.ai.AIBookRecommender" android:exported="false" />
+        <activity android:name=".application.ai.GeminiAPIHelper" android:exported="false" />
 
 <!--        <activity android:name=".user.LoginActivity"-->
 <!--            android:exported="false" />-->

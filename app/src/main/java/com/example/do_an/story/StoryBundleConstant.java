@@ -6,4 +6,5 @@ public class StoryBundleConstant {
     public static final String STORY_AUTHOR = "STORY_AUTHOR";
     public static final String STORY_CATEGORY = "STORY_CATEGORY";
     public static final String STORY_IMAGE_URL = "STORY_IMAGE_URL";
+    public static final String STORY_DESCRIPTION = "STORY_DESCRIPTION";
 }

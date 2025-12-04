@@ -13,8 +13,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.do_an.R;
-import com.example.do_an.series.SeriesFragment;
 import com.example.do_an.application.constant.FirebaseCollectionPaths;
+import com.example.do_an.series.SeriesFragment;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -33,9 +33,10 @@ public class ReadlistFragment extends Fragment {
 
         RecyclerView recyclerView = view.findViewById(R.id.recyclerViewStories);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
         storyAdapter = new StoryAdapter();
         recyclerView.setAdapter(storyAdapter);
+
+        loadStoriesFromFirebase();
 
         storyAdapter.setOnStoryClickListener(story -> {
             SeriesFragment seriesFragment = new SeriesFragment();
@@ -55,8 +56,6 @@ public class ReadlistFragment extends Fragment {
                         .commit();
             }
         });
-
-        loadStoriesFromFirebase();
 
         return view;
     }

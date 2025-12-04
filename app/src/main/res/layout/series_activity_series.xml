@@ -3,29 +3,29 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/color_background"
     android:orientation="vertical"
-    android:background="@android:color/white"
     android:padding="5dp">
 
     <com.google.android.material.appbar.MaterialToolbar
-    android:id="@+id/toolbar"
-    android:layout_width="match_parent"
-    android:layout_height="40dp"
-    android:background="?attr/colorPrimary"
-    app:titleTextColor="@android:color/white"
-    app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light" >
-
-    <TextView
-        android:id="@+id/tvDanh"
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Danh sách các tập"
-        android:gravity="center"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:textColor="@color/white"/>
+        android:layout_height="40dp"
+        android:background="?attr/colorPrimary"
+        app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light"
+        app:titleTextColor="@color/white">
 
-</com.google.android.material.appbar.MaterialToolbar>
+        <TextView
+            android:id="@+id/tvDanh"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Danh sách các tập"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+    </com.google.android.material.appbar.MaterialToolbar>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerSeries"
@@ -33,8 +33,9 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:clipToPadding="false"
+        android:overScrollMode="ifContentScrolls"
         android:paddingTop="8dp"
-        android:paddingBottom="72dp" android:scrollbars="vertical"
-        android:overScrollMode="ifContentScrolls"/>
+        android:paddingBottom="72dp"
+        android:scrollbars="vertical" />
 
 </LinearLayout>

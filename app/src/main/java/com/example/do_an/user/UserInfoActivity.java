@@ -1,29 +1,34 @@
 package com.example.do_an.user;
 
+import android.Manifest;
+import android.app.DatePickerDialog;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Bundle;
+import android.util.Log;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.Toast;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import android.Manifest;
-import android.app.DatePickerDialog;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.os.Bundle;
-import android.util.Base64;
-import android.util.Log;
-import android.widget.*;
-import android.content.Intent;
-
 import com.example.do_an.MainActivity;
 import com.example.do_an.R;
 import com.example.do_an.application.Encryption;
+import com.example.do_an.application.constant.FirebaseCollectionPaths;
+import com.example.do_an.application.constant.FirebaseConstant;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
@@ -55,7 +60,7 @@ public class UserInfoActivity extends AppCompatActivity {
         radioGender = findViewById(R.id.radioGender);
         btnSave = findViewById(R.id.btnSave);
         edtinterest = findViewById(R.id.edtinterest);
-        imgAvatar = findViewById(R.id.imgAvatar);
+        imgAvatar = findViewById(R.id.img_avatar);
 
         userId = getIntent().getStringExtra("uid");
         email = getIntent().getStringExtra("email");
@@ -66,15 +71,11 @@ public class UserInfoActivity extends AppCompatActivity {
             return;
         }
 
-        // Firebase Database
-        databaseRef = FirebaseDatabase.getInstance(
-                        "https://nt118q14-default-rtdb.asia-southeast1.firebasedatabase.app/")
-                .getReference("Users");
+        databaseRef = FirebaseDatabase.getInstance(FirebaseConstant.URL)
+                .getReference(FirebaseCollectionPaths.USER);
 
-        // Xin quyền đọc ảnh
         requestImagePermission();
 
-        // Chọn ảnh
         pickImageLauncher = registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
                 uri -> {
@@ -146,25 +147,24 @@ public class UserInfoActivity extends AppCompatActivity {
         userMap.put("email", Encryption.encrypt(email));
         userMap.put("interest", Encryption.encrypt(interest));
 
-        // Nếu người dùng có chọn ảnh, convert thành Base64
         if (imageUri != null) {
             try {
                 InputStream inputStream = getContentResolver().openInputStream(imageUri);
                 Bitmap bitmap = android.graphics.BitmapFactory.decodeStream(inputStream);
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
-                String encodedImage = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+
+                String encodedImage = ProfileAvatarUtil.encodeBase64(bitmap);
                 userMap.put("avatarBase64", encodedImage);
+
             } catch (IOException e) {
-                e.printStackTrace();
                 Toast.makeText(this, "Lỗi khi đọc ảnh!", Toast.LENGTH_SHORT).show();
             }
         }
 
-        databaseRef.child(userId).setValue(userMap)
+        databaseRef.child(userId)
+                .setValue(userMap)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, "Đã lưu thông tin thành công!", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(UserInfoActivity.this, MainActivity.class));
+                    startActivity(new Intent(this, MainActivity.class));
                     finish();
                 })
                 .addOnFailureListener(e -> {

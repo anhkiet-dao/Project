@@ -13,8 +13,9 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.do_an.R;
-
+import com.example.do_an.application.constant.FirebaseCollectionPaths;
 import com.example.do_an.main.read.ReadFragment;
+import com.example.do_an.story.StoryBundleConstant;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -22,22 +23,18 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.do_an.story.StoryBundleConstant;
-
 public class SeriesFragment extends Fragment {
 
-    private RecyclerView recyclerView;
-    private SeriesAdapter adapter;
-    private final List<Series> seriesList = new ArrayList<>();
-    private FirebaseFirestore db;
+    private SeriesAdapter seriesAdapter;
+    private FirebaseFirestore firestore;
     private String storyId, storyName, storyAuthor, storyCategory, storyDescription, storyImageUrl;
-
-    public SeriesFragment() {
-    }
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+
         return inflater.inflate(R.layout.series_activity_series, container, false);
     }
 
@@ -45,15 +42,13 @@ public class SeriesFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Nhận dữ liệu từ Bundle
         Bundle args = getArguments();
         if (args != null) {
-            // Use StoryBundleConstant and provide default empty string to avoid null
             storyId = args.getString(StoryBundleConstant.STORY_ID, "");
             storyName = args.getString(StoryBundleConstant.STORY_NAME, "");
             storyAuthor = args.getString(StoryBundleConstant.STORY_AUTHOR, "");
             storyCategory = args.getString(StoryBundleConstant.STORY_CATEGORY, "");
-            storyDescription = args.getString("STORY_DESCRIPTION", "");
+            storyDescription = args.getString(StoryBundleConstant.STORY_DESCRIPTION, "");
             storyImageUrl = args.getString(StoryBundleConstant.STORY_IMAGE_URL, "");
         } else {
             storyId = "";
@@ -64,10 +59,8 @@ public class SeriesFragment extends Fragment {
             storyImageUrl = "";
         }
 
-        if (storyId == null || storyId.isEmpty()) {
-            if (getContext() != null) {
-                Toast.makeText(getContext(), "Không tìm thấy truyện!", Toast.LENGTH_SHORT).show();
-            }
+        if (storyId.isEmpty()) {
+            Toast.makeText(getContext(), "Không tìm thấy truyện!", Toast.LENGTH_SHORT).show();
             if (getActivity() != null) {
                 getActivity().onBackPressed();
             }
@@ -75,83 +68,72 @@ public class SeriesFragment extends Fragment {
         }
 
         MaterialToolbar toolbar = view.findViewById(R.id.toolbar);
-        toolbar.setTitle(storyName != null && !storyName.isEmpty() ? storyName : "Danh sách tập");
+        toolbar.setTitle(!storyName.isEmpty() ? storyName : "Danh sách tập");
         toolbar.setNavigationOnClickListener(v -> {
             if (getActivity() != null) getActivity().onBackPressed();
         });
 
-        recyclerView = view.findViewById(R.id.recyclerSeries);
-        int numberOfColumns = 3;
+        RecyclerView recyclerView = view.findViewById(R.id.recyclerSeries);
+        recyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 3));
 
-        // Kiểm tra an toàn cho Context trước khi sử dụng
-        if (getContext() != null) {
-            recyclerView.setLayoutManager(new GridLayoutManager(getContext(), numberOfColumns));
+        seriesAdapter = new SeriesAdapter();
+        recyclerView.setAdapter(seriesAdapter);
 
-            adapter = new SeriesAdapter(seriesList, series -> {
-                if (getContext() == null || getActivity() == null) return;
+        seriesAdapter.setOnSeriesClickListener(series -> {
+            Bundle readArgs = new Bundle();
+            readArgs.putString("STORY_ID", storyId);
+            readArgs.putString("STORY_TITLE", storyName);
+            readArgs.putString("STORY_AUTHOR", storyAuthor);
+            readArgs.putString("STORY_CATEGORY", storyCategory);
+            readArgs.putString("STORY_DESCRIPTION", storyDescription);
+            readArgs.putString("STORY_IMAGE_URL", storyImageUrl);
+            readArgs.putString("PDF_LINK", series.getLink());
+            readArgs.putString("TAP", series.getName());
 
-                // 1. Chuẩn bị Bundle để truyền dữ liệu cho ReadFragment
-                Bundle readArgs = new Bundle();
+            ReadFragment readFragment = new ReadFragment();
+            readFragment.setArguments(readArgs);
 
-                readArgs.putString("STORY_ID", storyId);
-                readArgs.putString("STORY_TITLE", storyName); // Tên truyện chính
-                readArgs.putString("STORY_AUTHOR", storyAuthor);
-                readArgs.putString("STORY_CATEGORY", storyCategory);
-                readArgs.putString("STORY_DESCRIPTION", storyDescription);
-                readArgs.putString("STORY_IMAGE_URL", storyImageUrl);
+            getParentFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.frame_main, readFragment)
+                    .addToBackStack(null)
+                    .commit();
+        });
 
-                readArgs.putString("PDF_LINK", series.getLink());
-                readArgs.putString("TAP", series.getName()); // Tên tập để hiển thị
-
-                // 2. Tạo instance của ReadFragment
-                ReadFragment readFragment = new ReadFragment();
-                readFragment.setArguments(readArgs); // Gán Bundle
-
-                // 3. Thực hiện Fragment Transaction để chuyển Fragment
-                // Use the parent fragment manager so this works both when SeriesFragment is nested
-                // inside MyListFragment (frame_main) or hosted directly by the Activity.
-                getParentFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.frame_main, readFragment)
-                        .addToBackStack(null)
-                        .commit();
-            });
-            recyclerView.setAdapter(adapter);
-        }
-
-        db = FirebaseFirestore.getInstance();
-        loadSeries();
+        firestore = FirebaseFirestore.getInstance();
+        loadSeriesFromFiresbase();
     }
 
-    private void loadSeries() {
-        if (storyId == null || db == null) return;
+    private void loadSeriesFromFiresbase() {
+        if (storyId.isEmpty()) return;
 
-        db.collection("story")
+        firestore.collection(FirebaseCollectionPaths.STORY_SERIES)
                 .document(storyId)
-                .collection("Series")
+                .collection(FirebaseCollectionPaths.SERIES)
                 .orderBy("name")
                 .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    // Kiểm tra Context và Fragment có được gắn chưa
-                    if (getContext() == null || !isAdded()) return;
+                .addOnSuccessListener(snapshots -> {
 
-                    seriesList.clear();
-                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                    if (!isAdded()) return;
+
+                    List<Series> seriesList = new ArrayList<>();
+
+                    for (QueryDocumentSnapshot doc : snapshots) {
                         Series s = doc.toObject(Series.class);
                         s.setId(doc.getId());
                         if (s.getName() != null && s.getLink() != null) {
                             seriesList.add(s);
                         }
                     }
-                    if (adapter != null) {
-                        adapter.notifyDataSetChanged();
-                    }
+
+                    seriesAdapter.submitList(seriesList);
+
                     if (seriesList.isEmpty()) {
                         Toast.makeText(getContext(), "Chưa có tập nào!", Toast.LENGTH_LONG).show();
                     }
                 })
                 .addOnFailureListener(e -> {
-                    if (getContext() != null && isAdded()) {
+                    if (isAdded()) {
                         Toast.makeText(getContext(), "Lỗi tải dữ liệu!", Toast.LENGTH_SHORT).show();
                     }
                 });

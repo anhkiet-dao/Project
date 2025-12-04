@@ -3,64 +3,65 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:backgroundTint="@color/color_card_background"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"
     app:cardCornerRadius="14dp"
     app:cardElevation="6dp"
-    app:cardUseCompatPadding="true"
-    android:foreground="?android:attr/selectableItemBackground"
-    android:clickable="true"
-    android:focusable="true">
+    app:cardUseCompatPadding="true">
 
     <LinearLayout
-        android:orientation="horizontal"
-        android:padding="12dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp">
 
         <!-- Thông tin truyện -->
         <LinearLayout
-            android:orientation="vertical"
-            android:layout_marginStart="12dp"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tv_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Tên truyện"
-                android:textStyle="bold"
-                android:textColor="#222222"
-                android:textSize="17sp"
+                android:ellipsize="end"
                 android:maxLines="2"
-                android:ellipsize="end" />
+                android:text="Tên truyện"
+                android:textColor="@color/color_item_title"
+                android:textSize="17sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tv_author"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:text="👤 Tác giả: ..."
-                android:textColor="#444"
-                android:textSize="14sp"
-                android:layout_marginTop="4dp" />
+                android:textColor="@color/color_item_subtitle"
+                android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/tv_genre"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
                 android:text="📚 Thể loại: ..."
-                android:textColor="#555"
-                android:textSize="14sp"
-                android:layout_marginTop="2dp" />
+                android:textColor="@color/color_text_secondary"
+                android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/txtQuocGia"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
                 android:text="🌏 Quốc gia: ..."
-                android:textColor="#777"
-                android:textSize="13sp"
-                android:layout_marginTop="2dp" />
+                android:textColor="@color/color_text_hint"
+                android:textSize="13sp" />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

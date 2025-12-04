@@ -55,12 +55,12 @@ public class AccountFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        imgAvatar = view.findViewById(R.id.imgAvatar);
+        imgAvatar = view.findViewById(R.id.img_avatar);
         tvProfile = view.findViewById(R.id.tvProfile);
         tvSettings = view.findViewById(R.id.tvSettings);
         tvAnalytics = view.findViewById(R.id.tvAnalytics);
         tvInformation = view.findViewById(R.id.tvInformation);
-        btnLogout = view.findViewById(R.id.btnLogout);
+        btnLogout = view.findViewById(R.id.btn_logout);
         tvUsername = view.findViewById(R.id.tvUsername);
 
         fragmentContainer = view.findViewById(R.id.fragment_container);

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Semantic colors for Dark Theme (used in layouts) -->
+    <color name="color_background">#1A1C1E</color>
+    <color name="color_surface">#1E1E1E</color>
+    <color name="color_surface_variant">#2D2D2D</color>
+    <color name="color_card_background">#252525</color>
+    <color name="color_text_primary">#E2E2E6</color>
+    <color name="color_text_secondary">#B0B0B0</color>
+    <color name="color_text_hint">#888888</color>
+    <color name="color_divider">#3D3D3D</color>
+    <color name="color_ripple">#20FFFFFF</color>
+    
+    <!-- Gradient colors for dark theme -->
+    <color name="color_gradient_start">#1E3A5F</color>
+    <color name="color_gradient_end">#0D47A1</color>
+    
+    <!-- Accent/Button colors -->
+    <color name="color_accent">#90CAF9</color>
+    <color name="color_accent_dark">#64B5F6</color>
+    <color name="color_link">#BB86FC</color>
+    <color name="color_highlight">#FFD54F</color>
+    
+    <!-- Status colors -->
+    <color name="color_success">#81C784</color>
+    <color name="color_warning">#FFD54F</color>
+    <color name="color_error">#EF5350</color>
+    
+    <!-- Card item colors -->
+    <color name="color_item_background">#252525</color>
+    <color name="color_item_title">#FFFFFF</color>
+    <color name="color_item_subtitle">#B0B0B0</color>
+    
+    <!-- Stats card colors -->
+    <color name="color_stats_blue_bg">#1E3A5F</color>
+    <color name="color_stats_blue_text">#90CAF9</color>
+    <color name="color_stats_green_bg">#1B3D20</color>
+    <color name="color_stats_green_text">#81C784</color>
+    
+    <!-- Bottom nav -->
+    <color name="color_bottom_nav">#1E3A5F</color>
+    <color name="color_bottom_nav_indicator">#2196F3</color>
+    
+    <!-- Additional semantic colors for layouts -->
+    <color name="primary">#A0CAFF</color>
+    <color name="text_on_gradient">#FFFFFF</color>
+    <color name="button_text">#FFFFFF</color>
+    
+    <!-- Rounded button colors -->
+    <color name="rounded_button_pressed">#5E35B1</color>
+    <color name="rounded_button_normal">#3D3D5C</color>
+    <color name="rounded_button_stroke">#7C4DFF</color>
+    
+    <!-- Button state colors -->
+    <color name="button_selected">#64B5F6</color>
+    <color name="button_unselected">#424242</color>
+    <color name="button_day_selected">#64B5F6</color>
+    <color name="button_day_unselected">#1E3A5F</color>
+</resources>
