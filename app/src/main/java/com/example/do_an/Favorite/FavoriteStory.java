@@ -8,14 +8,16 @@ public class FavoriteStory {
     private String imageUrl;
     private String readUrl;
 
-    public String getStoryId() { return storyId; }
-
-    public void setId(String id) {
-        this.storyId = storyId;
-    }
-
     public FavoriteStory() {
         // BẮT BUỘC cho Firebase
+    }
+
+    public String getStoryId() {
+        return storyId;
+    }
+
+    public void setStoryId(String id) {
+        this.storyId = id;
     }
 
     public String getTitle() { return title; }

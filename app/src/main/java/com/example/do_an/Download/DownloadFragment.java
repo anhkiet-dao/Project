@@ -15,27 +15,31 @@ import com.example.do_an.R;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
+import com.example.do_an.data.AppDatabase;
+import com.example.do_an.data.DownloadedPdfDao;
+import com.example.do_an.data.DownloadedPdfEntity;
 
 public class DownloadFragment extends Fragment{
     private RecyclerView rvDownloadedPdfs;
     private DownloadedPdfAdapter adapter;
     private List<File> pdfFiles;
+    private DownloadedPdfDao pdfDao;
 
     public DownloadFragment() {
-        // Required empty public constructor
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        // Gắn layout (giống Activity nhưng dùng inflater)
         View view = inflater.inflate(R.layout.download_activity_downloaded_list, container, false);
 
         rvDownloadedPdfs = view.findViewById(R.id.rvDownloadedPdfs);
         rvDownloadedPdfs.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        pdfDao = AppDatabase.getDatabase(requireContext()).downloadedPdfDao();
 
         loadDownloadedPdfs();
 
@@ -43,23 +47,48 @@ public class DownloadFragment extends Fragment{
     }
 
     private void loadDownloadedPdfs() {
+        new Thread(() -> {
 
-        // getContext() thay cho this trong Activity
-        File pdfDir = new File(requireContext().getExternalFilesDir(null), "PDF");
+            List<DownloadedPdfEntity> downloadedEntities = getAllDownloadedPdfs(pdfDao);
+            List<File> localFiles = new ArrayList<>();
+            List<DownloadedPdfEntity> entitiesToRemove = new ArrayList<>();
 
-        if (!pdfDir.exists() || !pdfDir.isDirectory()) {
-            Toast.makeText(getContext(), "Chưa có file PDF nào!", Toast.LENGTH_SHORT).show();
-            pdfFiles = new ArrayList<>();
-        } else {
-            File[] files = pdfDir.listFiles((dir, name) -> name.toLowerCase().endsWith(".pdf"));
-            if (files != null) {
-                pdfFiles = Arrays.asList(files);
-            } else {
-                pdfFiles = new ArrayList<>();
+            for (DownloadedPdfEntity entity : downloadedEntities) {
+                File pdfFile = new File(entity.localFilePath);
+                if (pdfFile.exists()) {
+                    localFiles.add(pdfFile);
+                } else {
+                    entitiesToRemove.add(entity);
+                }
             }
-        }
 
-        adapter = new DownloadedPdfAdapter(requireActivity(), pdfFiles);
-        rvDownloadedPdfs.setAdapter(adapter);
+            if (!entitiesToRemove.isEmpty()) {
+                for (DownloadedPdfEntity entity : entitiesToRemove) {
+                    pdfDao.delete(entity);
+                }
+            }
+
+            requireActivity().runOnUiThread(() -> {
+                pdfFiles = localFiles;
+
+                if (pdfFiles.isEmpty()) {
+                    Toast.makeText(getContext(), "Chưa có file PDF nào đã tải xuống!", Toast.LENGTH_SHORT).show();
+                }
+
+                // 💥 DÒNG BỊ LỖI ĐÃ ĐƯỢC SỬA: Thêm pdfDao vào đối số
+                adapter = new DownloadedPdfAdapter(requireActivity(), pdfFiles, pdfDao);
+                rvDownloadedPdfs.setAdapter(adapter);
+            });
+        }).start();
+    }
+
+    private List<DownloadedPdfEntity> getAllDownloadedPdfs(DownloadedPdfDao dao) {
+
+        try {
+            return dao.getAllPdfs();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 }

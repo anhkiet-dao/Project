@@ -1,6 +1,7 @@
 package com.example.do_an.Favorite;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,9 +29,9 @@ public class FavoriteFragment extends Fragment {
     private RecyclerView recyclerFavorites;
     private FavoriteAdapter adapter;
     private final List<FavoriteStory> favoriteList = new ArrayList<>();
-
     private DatabaseReference favRef;
     private FirebaseAuth auth;
+    private ValueEventListener favEventListener;
 
     @Nullable
     @Override
@@ -38,7 +39,7 @@ public class FavoriteFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.favorite_activity_favorites, container, false); // ⚠️ Đảm bảo bạn có file XML fragment_favorite.xml
+        View view = inflater.inflate(R.layout.favorite_activity_favorites, container, false);
 
         recyclerFavorites = view.findViewById(R.id.recyclerFavorites);
         recyclerFavorites.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -50,15 +51,17 @@ public class FavoriteFragment extends Fragment {
             return view;
         }
 
-        // Khởi tạo adapter 1 lần
         adapter = new FavoriteAdapter(getContext(), favoriteList);
         recyclerFavorites.setAdapter(adapter);
 
-        // Xử lý nút bỏ yêu thích
         adapter.setOnRemoveFavoriteListener((story, position) -> {
             String emailKey = email.replace(".", "_");
+
+            Log.d("FavoriteFragment", "Đang xóa truyện ID: " + story.getStoryId()
+                    + " tại path: Favorites/" + emailKey + "/" + story.getStoryId());
+
             DatabaseReference ref = FirebaseDatabase
-                    .getInstance("https://nt118-dd4f7-default-rtdb.asia-southeast1.firebasedatabase.app/")
+                    .getInstance("https://nt118q14-default-rtdb.asia-southeast1.firebasedatabase.app/")
                     .getReference("Favorites")
                     .child(emailKey)
                     .child(story.getStoryId());
@@ -71,18 +74,26 @@ public class FavoriteFragment extends Fragment {
                 }
                 Toast.makeText(getContext(), "Đã bỏ yêu thích: " + story.getTitle(), Toast.LENGTH_SHORT).show();
             }).addOnFailureListener(e ->
-                    Toast.makeText(getContext(), "Lỗi khi bỏ yêu thích", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(getContext(), "Lỗi khi bỏ yêu thích: " + e.getMessage(), Toast.LENGTH_LONG).show()
             );
         });
 
-        // Chỉ load dữ liệu 1 lần, không lắng nghe liên tục
         String emailKey = email.replace(".", "_");
         favRef = FirebaseDatabase
                 .getInstance("https://nt118q14-default-rtdb.asia-southeast1.firebasedatabase.app/")
                 .getReference("Favorites")
                 .child(emailKey);
 
-        favRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        loadFavoriteStories();
+        return view;
+    }
+
+    private void loadFavoriteStories() {
+        if (favEventListener != null) {
+            favRef.removeEventListener(favEventListener);
+        }
+
+        favEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 favoriteList.clear();
@@ -90,6 +101,10 @@ public class FavoriteFragment extends Fragment {
                     FavoriteStory story = storySnap.getValue(FavoriteStory.class);
 
                     if (story != null) {
+
+                        String firebaseKey = storySnap.getKey();
+                        story.setStoryId(firebaseKey);
+
                         try {
                             if (story.getTitle() != null) {
                                 story.setTitle((story.getTitle()));
@@ -119,10 +134,18 @@ public class FavoriteFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Lỗi tải danh sách yêu thích!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Lỗi tải danh sách yêu thích: " + error.getMessage(), Toast.LENGTH_LONG).show();
             }
-        });
+        };
 
-        return view;
+        favRef.addValueEventListener(favEventListener);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (favRef != null && favEventListener != null) {
+            favRef.removeEventListener(favEventListener);
+        }
     }
 }

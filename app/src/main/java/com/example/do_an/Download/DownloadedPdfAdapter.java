@@ -2,7 +2,7 @@ package com.example.do_an.Download;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.os.Bundle; // Cần import Bundle
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,28 +10,30 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.app.AppCompatActivity; // Cần AppCompatActivity để dùng getSupportFragmentManager
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileReader; // Không cần thiết nữa, nhưng giữ lại nếu cần
 import java.util.ArrayList;
 import java.util.List;
 
 import com.example.do_an.R;
-// Cần import ReadFragment
-import com.example.do_an.UI.ReadFragment; // <<< Import ReadFragment
+import com.example.do_an.UI.ReadFragment;
+import com.example.do_an.data.DownloadedPdfDao;
+import com.example.do_an.data.DownloadedPdfEntity; // Cần import Entity
 
-import org.json.JSONObject;
+import org.json.JSONObject; // Không cần thiết nữa, nhưng giữ lại nếu cần
 
 public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdapter.PdfViewHolder> {
 
-    // Giữ nguyên Activity, nhưng chúng ta sẽ coi nó là AppCompatActivity
     private Activity activity;
     private List<File> pdfFiles;
+    private DownloadedPdfDao pdfDao;
 
-    public DownloadedPdfAdapter(Activity activity, List<File> pdfFiles) {
+    public DownloadedPdfAdapter(Activity activity, List<File> pdfFiles, DownloadedPdfDao pdfDao) {
         this.activity = activity;
         this.pdfFiles = new ArrayList<>(pdfFiles);
+        this.pdfDao = pdfDao; // Gán DAO
     }
 
     @Override
@@ -44,78 +46,63 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
     public void onBindViewHolder(PdfViewHolder holder, int position) {
 
         File pdf = pdfFiles.get(position);
-        holder.txtPdfName.setText(pdf.getName());
 
-        holder.itemView.setOnClickListener(v -> {
-            // === LOGIC CHUYỂN TỪ ACTIVITY SANG FRAGMENT ===
+        final String pdfFileName = pdf.getName();
 
-            // 1. Chuẩn bị dữ liệu Bundle
-            Bundle readArgs = new Bundle();
+        String defaultTitle = pdfFileName.replace(".pdf", "");
+        holder.txtPdfName.setText(defaultTitle);
+        holder.txtPdfAuthor.setText("Tác giả: Tác giả ẩn danh (Đang tải...)");
 
-            String title = pdf.getName().replace(".pdf", "");
-            String storyId = title + "_id";
-            String author = "Tác giả ẩn danh";
-            String category = "PDF đã tải";
-            String imageUrl = "";
-            String description = "Đây là file PDF đã tải về.";
+        new Thread(() -> {
+            DownloadedPdfEntity entity = pdfDao.getPdfByFileName(pdfFileName);
 
-            File jsonFile = new File(pdf.getParent(), title + ".json");
-            if (jsonFile.exists()) {
-                try {
-                    FileReader reader = new FileReader(jsonFile);
-                    char[] buffer = new char[(int) jsonFile.length()];
-                    reader.read(buffer);
-                    reader.close();
-                    String content = new String(buffer);
-                    JSONObject json = new JSONObject(content);
+            activity.runOnUiThread(() -> {
+                String title;
+                String author;
 
-                    storyId = json.optString("STORY_ID", storyId);
-                    title = json.optString("STORY_TITLE", title);
-                    author = json.optString("STORY_AUTHOR", author);
-                    category = json.optString("STORY_CATEGORY", category);
-                    imageUrl = json.optString("STORY_IMAGE_URL", imageUrl);
-                    description = json.optString("STORY_DESCRIPTION", description);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                if (entity != null) {
+                    title = entity.fileName.replace(".pdf", "");
+                    author = entity.author != null && !entity.author.isEmpty() ? entity.author : "Đang cập nhật";
+                } else {
+                    title = defaultTitle;
+                    author = "Không tìm thấy";
+                    Toast.makeText(activity, "Lỗi: Không tìm thấy thông tin Room cho " + defaultTitle, Toast.LENGTH_SHORT).show();
                 }
-            }
 
-            // Đặt dữ liệu vào Bundle
-            readArgs.putString("STORY_ID", storyId);
-            readArgs.putString("STORY_TITLE", title);
-            readArgs.putString("STORY_AUTHOR", author);
-            readArgs.putString("STORY_CATEGORY", category);
-            readArgs.putString("STORY_IMAGE_URL", imageUrl);
-            readArgs.putString("STORY_DESCRIPTION", description);
-            // KEY QUAN TRỌNG: Đường dẫn file cục bộ
-            readArgs.putString("PDF_PATH", pdf.getAbsolutePath());
-            // TAP (Episode title) sẽ là title
+                holder.txtPdfName.setText(title);
+                holder.txtPdfAuthor.setText("Tác giả: " + author);
 
-            // 2. Kiểm tra Activity và thực hiện Fragment Transaction
-            if (activity instanceof AppCompatActivity) {
-                AppCompatActivity appCompatActivity = (AppCompatActivity) activity;
+                final String finalTitle = title;
+                final String finalAuthor = author;
 
-                // Tạo instance của ReadFragment
-                ReadFragment readFragment = ReadFragment.newInstance(readArgs);
-                // Hoặc ReadFragment readFragment = new ReadFragment(); readFragment.setArguments(readArgs);
+                holder.itemView.setOnClickListener(v -> {
+                    Bundle readArgs = new Bundle();
 
-                appCompatActivity.getSupportFragmentManager()
-                        .beginTransaction()
-                        // !!! QUAN TRỌNG: Thay R.id.fragment_container bằng ID container thực tế
-                        .replace(R.id.fragment_container, readFragment)
-                        .addToBackStack(null) // Cho phép nhấn nút back để quay lại màn hình danh sách đã tải
-                        .commit();
-            } else {
-                Toast.makeText(activity, "Lỗi: Không thể mở màn hình đọc (Activity không tương thích)", Toast.LENGTH_SHORT).show();
-            }
-            // === KẾT THÚC LOGIC CHUYỂN ĐỔI ===
-        });
+                    readArgs.putString("STORY_TITLE", finalTitle);
+                    readArgs.putString("STORY_AUTHOR", finalAuthor);
+                    readArgs.putString("PDF_PATH", pdf.getAbsolutePath());
+
+                    if (activity instanceof AppCompatActivity) {
+                        AppCompatActivity appCompatActivity = (AppCompatActivity) activity;
+                        ReadFragment readFragment = ReadFragment.newInstance(readArgs);
+
+                        appCompatActivity.getSupportFragmentManager()
+                                .beginTransaction()
+                                .add(R.id.fragment_container, readFragment)
+                                .addToBackStack(null)
+                                .commit();
+                    } else {
+                        Toast.makeText(activity, "Không thể mở file!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            });
+        }).start();
 
         holder.btnDelete.setOnClickListener(v -> {
             int adapterPos = holder.getAdapterPosition();
             if (adapterPos == RecyclerView.NO_POSITION) return;
             File fileToDelete = pdfFiles.get(adapterPos);
-            showDeleteDialog(fileToDelete, adapterPos, holder);
+            showDeleteDialog(fileToDelete, adapterPos);
         });
     }
 
@@ -124,9 +111,7 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
         return pdfFiles.size();
     }
 
-
-    private void showDeleteDialog(File fileToDelete, int adapterPos, PdfViewHolder holder) {
-
+    private void showDeleteDialog(File fileToDelete, int adapterPos) {
         Dialog dialog = new Dialog(this.activity);
         dialog.setContentView(R.layout.note_item_confirm_delete);
         dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
@@ -137,6 +122,12 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
         btnYes.setOnClickListener(v -> {
 
             boolean deleted = fileToDelete.delete();
+            final String fileNameToDelete = fileToDelete.getName();
+
+            new Thread(() -> {
+                DownloadedPdfEntity entity = pdfDao.getPdfByFileName(fileNameToDelete);
+                if (entity != null) pdfDao.delete(entity);
+            }).start();
 
             File jsonFile = new File(
                     fileToDelete.getParent(),
@@ -147,26 +138,25 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
             if (deleted) {
                 pdfFiles.remove(adapterPos);
                 notifyItemRemoved(adapterPos);
-                Toast.makeText(this.activity, "Đã xóa " + fileToDelete.getName(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this.activity, "Đã xóa " + fileNameToDelete, Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this.activity, "Không thể xóa " + fileToDelete.getName(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this.activity, "Không thể xóa " + fileNameToDelete, Toast.LENGTH_SHORT).show();
             }
 
             dialog.dismiss();
         });
 
         btnNo.setOnClickListener(v -> dialog.dismiss());
-
         dialog.show();
     }
 
-
     static class PdfViewHolder extends RecyclerView.ViewHolder {
-        TextView txtPdfName, btnDelete;
+        TextView txtPdfName, txtPdfAuthor, btnDelete;
 
         public PdfViewHolder(View itemView) {
             super(itemView);
             txtPdfName = itemView.findViewById(R.id.txtPdfName);
+            txtPdfAuthor = itemView.findViewById(R.id.txtPdfAuthor); // LẤY VIEW TÁC GIẢ
             btnDelete = itemView.findViewById(R.id.btnDelete);
         }
     }

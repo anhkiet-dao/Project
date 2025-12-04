@@ -1,9 +1,12 @@
+// --- BẠN CHỈ CẦN THAY THẾ TOÀN BỘ FILE ReadFragment.java BẰNG CODE NÀY ---
+
 package com.example.do_an.UI;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +37,10 @@ import okhttp3.Call;
 
 import java.io.File;
 
+import com.example.do_an.data.AppDatabase;
+import com.example.do_an.data.DownloadedPdfDao;
+import com.example.do_an.data.DownloadedPdfEntity;
+
 public class ReadFragment extends Fragment implements DownloadManager.LoadingListener {
 
     private static final String TAG = "ReadFragment";
@@ -61,6 +68,10 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
     public String getCurrentTitle() { return currentTitle; }
     public String getMainStoryTitle() { return mainStoryTitle; }
     private ProgressBar progressDownload;
+    private DownloadedPdfDao pdfDao;
+    private String episodePdfLink;
+    private String pdfPath;
+
     public static ReadFragment newInstance(Bundle storyData) {
         ReadFragment fragment = new ReadFragment();
         fragment.setArguments(storyData);
@@ -81,13 +92,20 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
             userEmail = currentUser.getEmail();
         } else {
             Toast.makeText(context, "Bạn chưa đăng nhập!", Toast.LENGTH_SHORT).show();
-            // Yêu cầu Activity chứa nó thoát (hoặc dùng FragmentManager để loại bỏ Fragment)
             if (getActivity() != null) getActivity().finish();
         }
 
         setupIntentData(getArguments());
-        if (currentStoryId == null) {
-            Toast.makeText(context, "Lỗi: Không có thông tin truyện!", Toast.LENGTH_LONG).show();
+
+        Log.d(TAG, "--- FINAL DATA CHECK ---");
+        Log.d(TAG, "currentTitle: " + currentTitle);
+        Log.d(TAG, "episodePdfLink (Online URL): " + episodePdfLink);
+        Log.d(TAG, "pdfPath (Offline Path): " + pdfPath);
+        Log.d(TAG, "------------------------");
+
+
+        if (currentStoryId == null && pdfPath == null) {
+            Toast.makeText(context, "Lỗi: Không có thông tin truyện để đọc!", Toast.LENGTH_LONG).show();
             if (getActivity() != null) getActivity().finish();
         }
     }
@@ -118,8 +136,11 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
         Context context = requireContext();
         settingsManager = new SettingsManager(context);
         historyManager = new HistoryManager(context);
-        downloadManager = new DownloadManager(context);
         favoriteHandler = new FavoriteHandler(context);
+
+        AppDatabase db = AppDatabase.getDatabase(context);
+        pdfDao = db.downloadedPdfDao();
+        downloadManager = new DownloadManager(context, pdfDao);
 
         downloadManager.setLoadingListener(this);
         downloadManager.setTxtPageIndicator(txtPageIndicator);
@@ -131,47 +152,95 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
                 (url) -> currentReadUrl = url
         );
 
-        setupViewsAndListeners(view);
+        if (pdfPath != null && !pdfPath.trim().isEmpty()) {
+            Log.d(TAG, "FLOW: OFFLINE. Đang tìm thông tin trong Room.");
+            findAndSetupStoryInfoFromRoom(pdfPath);
+        } else {
+            Log.d(TAG, "FLOW: ONLINE. Đang tải nội dung từ PDF_LINK.");
+            checkMandatoryStoryInfo();
+            setupViewsAndListeners(view);
+            loadPdfContent();
 
-        loadPdfContent();
-
-        if (userEmail != null && currentStoryId != null) {
-            historyManager.saveStartReadingHistory(
-                    userEmail, currentStoryId, mainStoryTitle, currentTitle, currentAuthor
-            );
+            if (userEmail != null && currentStoryId != null) {
+                historyManager.saveStartReadingHistory(
+                        userEmail, currentStoryId, mainStoryTitle, currentTitle, currentAuthor
+                );
+            }
         }
+    }
+
+    private void findAndSetupStoryInfoFromRoom(String filePath) {
+        showLoading();
+
+        new Thread(() -> {
+            DownloadedPdfEntity entity = pdfDao.getPdfByFilePath(filePath);
+
+            requireActivity().runOnUiThread(() -> {
+                if (entity != null) {
+                    currentStoryId = entity.storyDocumentId;
+
+                    String savedFileName = entity.fileName.replace(".pdf", "");
+                    currentTitle = savedFileName;
+                    mainStoryTitle = savedFileName;
+
+                    currentAuthor = entity.author != null ? entity.author : "Tác giả: Đang cập nhật";
+                    currentCategory = "Đã tải xuống";
+                    currentReadUrl = entity.pdfUrl;
+
+                    if (currentTitle != null) {
+                        txtTieuDe.setText(currentTitle);
+                    }
+
+                    checkMandatoryStoryInfo();
+                    setupViewsAndListeners(getView());
+                    loadPdfContent();
+
+                    if (userEmail != null && currentStoryId != null) {
+                        historyManager.saveStartReadingHistory(
+                                userEmail, currentStoryId, mainStoryTitle, currentTitle, currentAuthor
+                        );
+                    }
+                    hideLoading();
+                } else {
+                    Log.e(TAG, "ERROR: Không tìm thấy Entity trong Room bằng path: " + filePath);
+                    Toast.makeText(getContext(), "Lỗi: Không tìm thấy thông tin chi tiết truyện đã tải trong CSDL.", Toast.LENGTH_LONG).show();
+                    hideLoading();
+                }
+            });
+        }).start();
+    }
+
+    private void checkMandatoryStoryInfo() {
+        if (currentStoryId == null) {
+            if (mainStoryTitle != null && !mainStoryTitle.isEmpty()) {
+                currentStoryId = mainStoryTitle;
+            } else if (currentTitle != null && !currentTitle.isEmpty()) {
+                currentStoryId = currentTitle;
+            } else {
+                Log.e(TAG, "Không thể xác định Story ID!");
+            }
+        }
+        if (currentAuthor == null) currentAuthor = "Tác giả: Đang cập nhật";
     }
 
     @Override
     public void showLoading() {
-        if (loadingLayout != null) {
-            if (isAdded()) { // Đảm bảo Fragment đã được đính kèm vào Activity
-                requireActivity().runOnUiThread(() -> {
-                    loadingLayout.setVisibility(View.VISIBLE);
-                });
-            }
+        if (loadingLayout != null && isAdded()) {
+            requireActivity().runOnUiThread(() -> loadingLayout.setVisibility(View.VISIBLE));
         }
     }
 
     @Override
     public void hideLoading() {
-        if (loadingLayout != null) {
-            if (isAdded()) {
-                requireActivity().runOnUiThread(() -> {
-                    loadingLayout.setVisibility(View.GONE);
-                });
-            }
+        if (loadingLayout != null && isAdded()) {
+            requireActivity().runOnUiThread(() -> loadingLayout.setVisibility(View.GONE));
         }
     }
 
     @Override
     public void hideDownloadProgress() {
-        if (progressDownload != null) {
-            if (isAdded()) {
-                requireActivity().runOnUiThread(() -> {
-                    progressDownload.setVisibility(View.GONE);
-                });
-            }
+        if (progressDownload != null && isAdded()) {
+            requireActivity().runOnUiThread(() -> progressDownload.setVisibility(View.GONE));
         }
     }
 
@@ -182,8 +251,8 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
     private void setupIntentData(Bundle args) {
         if (args == null) return;
 
-        String episodeTitle = args.getString("TAP");
-        String pdfPath = args.getString("PDF_PATH");
+        episodePdfLink = args.getString("PDF_LINK");
+        pdfPath = args.getString("PDF_PATH");
 
         currentStoryId = args.getString("STORY_ID");
         mainStoryTitle = args.getString("STORY_TITLE");
@@ -193,20 +262,30 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
         currentImageUrl = args.getString("STORY_IMAGE_URL");
         currentDescription = args.getString("STORY_DESCRIPTION");
 
+        String episodeTitle = args.getString("TAP_TITLE");
+        if (episodeTitle == null || episodeTitle.isEmpty()) {
+            episodeTitle = args.getString("TAP");
+        }
+
         if (episodeTitle != null && !episodeTitle.isEmpty()) {
             currentTitle = episodeTitle;
         } else if (pdfPath != null) {
-            currentTitle = new File(pdfPath).getName().replace(".pdf", "");
+            String fileName = new File(pdfPath).getName().replace(".pdf", "");
+            currentTitle = fileName;
+            if (mainStoryTitle == null) mainStoryTitle = fileName;
         } else {
             currentTitle = mainStoryTitle;
         }
 
         if (mainStoryTitle == null) mainStoryTitle = currentTitle;
+
+        Log.d(TAG, "BUNDLE: TAP: " + args.getString("TAP"));
+        Log.d(TAG, "BUNDLE: PDF_LINK: " + args.getString("PDF_LINK"));
+        Log.d(TAG, "BUNDLE: PDF_PATH: " + args.getString("PDF_PATH"));
     }
+
     private void setupViewsAndListeners(View root) {
-        // Back Button
         root.findViewById(R.id.btnBack).setOnClickListener(v -> {
-            // Trong Fragment, nút Back thường dùng để pop back stack hoặc kết thúc Activity
             if (getActivity() != null) {
                 getActivity().onBackPressed();
             }
@@ -226,7 +305,19 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
                 return;
             }
             if (progressDownload != null) progressDownload.setVisibility(View.VISIBLE);
-            downloadManager.downloadPdfWithOkHttp(currentReadUrl, currentTitle + ".pdf");
+
+            String fullFileName = mainStoryTitle;
+            if (currentTitle != null && !currentTitle.isEmpty() && !currentTitle.equals(mainStoryTitle)) {
+                fullFileName += " - " + currentTitle;
+            }
+            fullFileName += ".pdf";
+
+            downloadManager.downloadPdfWithOkHttp(
+                    currentReadUrl,
+                    fullFileName,
+                    currentStoryId,
+                    currentAuthor
+            );
         });
 
         btnNote.setOnClickListener(v -> {
@@ -254,28 +345,23 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
                     .commit();
         });
 
-        // Settings
         pdfViewerController.setupSettingsView(
                 root.findViewById(R.id.settingsContainer),
                 root.findViewById(R.id.btnCloseSettings),
                 root.findViewById(R.id.btnSettings)
         );
 
-        // Page change callback
         if (pdfViewPager != null) {
             pdfViewPager.registerOnPageChangeCallback(pdfViewerController.getPageChangeCallback());
         }
     }
 
     private void loadPdfContent() {
-        Bundle args = getArguments();
-        if (args == null) return;
-
-        String episodePdfLink = args.getString("PDF_LINK");
-        String pdfPath = args.getString("PDF_PATH");
-
         currentDownloadCall = downloadManager.loadAndSetupPdf(
-                episodePdfLink, pdfPath, mainStoryTitle, pdfViewerController::setupPdfRenderer,
+                episodePdfLink,
+                pdfPath,
+                mainStoryTitle,
+                pdfViewerController::setupPdfRenderer,
                 (url) -> currentReadUrl = url
         );
     }
@@ -297,7 +383,11 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
         if (pdfViewerController != null) {
             pdfViewerController.stopAutoNext();
 
-            pdfViewerController.closeRenderer();
+            try {
+                pdfViewerController.closeRenderer();
+            } catch (Exception e) {
+                Log.e(TAG, "Lỗi khi đóng PdfRenderer trong onDestroyView: " + e.getMessage());
+            }
         }
         if (downloadManager != null) {
             downloadManager.setIsActivityDestroyed(true);
@@ -308,7 +398,11 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
     public void onDestroy() {
         super.onDestroy();
         if (pdfViewerController != null) {
-            pdfViewerController.closeRenderer();
+            try { // ⬅️ Bảo vệ cả ở đây
+                pdfViewerController.closeRenderer();
+            } catch (Exception e) {
+                Log.e(TAG, "Lỗi khi đóng PdfRenderer trong onDestroy: " + e.getMessage());
+            }
         }
     }
 }
