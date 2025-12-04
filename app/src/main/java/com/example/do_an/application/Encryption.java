@@ -25,6 +25,9 @@ public class Encryption {
 
     // 🔓 Giải mã chuỗi (Decrypt)
     public static String decrypt(String encryptedData) {
+        if (encryptedData == null || encryptedData.isEmpty()) {
+            return null;
+        }
         try {
             SecretKeySpec keySpec = new SecretKeySpec(SECRET_KEY.getBytes("UTF-8"), "AES");
             Cipher cipher = Cipher.getInstance("AES");

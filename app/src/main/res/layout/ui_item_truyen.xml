@@ -24,7 +24,7 @@
             android:layout_weight="1">
 
             <TextView
-                android:id="@+id/txtTenTruyen"
+                android:id="@+id/tv_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Tên truyện"
@@ -35,7 +35,7 @@
                 android:ellipsize="end" />
 
             <TextView
-                android:id="@+id/txtTacGia"
+                android:id="@+id/tv_author"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="👤 Tác giả: ..."
@@ -44,7 +44,7 @@
                 android:layout_marginTop="4dp" />
 
             <TextView
-                android:id="@+id/txtTheLoai"
+                android:id="@+id/tv_genre"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="📚 Thể loại: ..."
