@@ -32,47 +32,26 @@
 
         <!-- Màn hình Đăng ký -->
         <activity
-            android:name=".user.RegisterActivity"
+            android:name=".auth.RegisterActivity"
             android:exported="false" />
 
-        <activity android:name=".user.ForgotPasswordActivity"
+        <activity android:name=".auth.ForgotPasswordActivity"
             android:exported="false" />
 
         <activity android:name=".user.UserInfoActivity"
             android:exported="false" />
 
-        <activity android:name=".application.NoteActivity"
-            android:exported="false" />
-
-        <activity android:name=".user.ProfileActivity"
-            android:exported="false" />
-
-        <activity android:name=".application.InforApp"
-            android:exported="false" />
-
-        <activity android:name=".UI.Account"
-            android:exported="false" />
-
-        <activity android:name=".API.AIReadingAssistant" android:exported="false" />
-        <activity android:name=".API.AISummarizer" android:exported="false" />
-        <activity android:name=".API.AIVoiceReader" />
-        <activity android:name=".API.AIBookRecommender" android:exported="false" />
-        <activity android:name=".API.GeminiAPIHelper" android:exported="false" />
+        <activity android:name=".ai.AIReadingAssistant" android:exported="false" />
+        <activity android:name=".ai.AISummarizer" android:exported="false" />
+        <activity android:name=".ai.AIVoiceReader" />
+        <activity android:name=".ai.AIBookRecommender" android:exported="false" />
+        <activity android:name=".ai.GeminiAPIHelper" android:exported="false" />
 
 <!--        <activity android:name=".user.LoginActivity"-->
 <!--            android:exported="false" />-->
 
-        <activity android:name=".application.ReadActivity"
-            android:exported="false"/>
-
-        <activity android:name=".UI.MyList"
-            android:exported="false"/>
-
-        <activity android:name=".Story.StatisticActivity"
-            android:exported="false"/>
-
         <activity
-            android:name=".user.LoginActivity"
+            android:name=".auth.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

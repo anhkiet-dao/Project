@@ -1,14 +1,15 @@
 package com.example.do_an;
 
 import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction; // Thêm import này
-import com.example.do_an.UI.AccountFragment;
-import com.example.do_an.UI.MyListFragment;
+import androidx.fragment.app.FragmentTransaction;
+
+import com.example.do_an.main.AccountFragment;
+import com.example.do_an.main.MyListFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import android.util.Log;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -18,7 +19,8 @@ public class MainActivity extends AppCompatActivity {
     private Fragment readFragment;
     private Fragment profileFragment;
 
-    private FragmentManager fm = getSupportFragmentManager();
+    // Initialize fm in onCreate() to avoid calling getSupportFragmentManager() before Activity is created
+    private FragmentManager fm;
 
     private static final int FRAGMENT_CONTAINER_ID = R.id.fragment_container;
 
@@ -31,6 +33,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Initialize FragmentManager here (safe lifecycle point)
+        fm = getSupportFragmentManager();
 
         bottomNav = findViewById(R.id.bottomNav);
 

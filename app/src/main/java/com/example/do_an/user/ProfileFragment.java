@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.do_an.R;
+import com.example.do_an.auth.LoginActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.*;
@@ -39,7 +40,7 @@ public class ProfileFragment extends Fragment { // Đã chuyển thành Fragment
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.activity_profile, container, false);
+        return inflater.inflate(R.layout.user_activity_profile, container, false);
     }
 
     // 2. Ánh xạ view và thực hiện logic trong onViewCreated
