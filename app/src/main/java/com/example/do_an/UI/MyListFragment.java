@@ -1,13 +1,11 @@
 package com.example.do_an.UI;
 
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,11 +15,22 @@ import com.example.do_an.Download.DownloadFragment;
 import com.example.do_an.Favorite.FavoriteFragment;
 import com.example.do_an.History.HistoryFragment;
 import com.example.do_an.R;
+import com.example.do_an.Statistic.StatisticFragment;
+import com.example.do_an.application.Encryption;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.Calendar;
 
 public class MyListFragment extends Fragment {
 
-    private Button btnReadlist, btnHistory, btnFavorite, btnDownload;
-    EditText edtSearch;
+    private Button btnAnalytics, btnHistory, btnFavorite, btnDownload;
+    private TextView tvGreeting; // Lời chào người dùng
 
     @Nullable
     @Override
@@ -31,15 +40,17 @@ public class MyListFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.ui_activity_mylist, container, false);
 
-        btnReadlist = view.findViewById(R.id.btnReadlist);
+        btnAnalytics = view.findViewById(R.id.btnAnalytics);
         btnHistory = view.findViewById(R.id.btnHistory);
         btnFavorite = view.findViewById(R.id.btnFavorite);
         btnDownload = view.findViewById(R.id.btnDownload);
-        edtSearch = view.findViewById(R.id.edtSearch);
+        tvGreeting = view.findViewById(R.id.txtGreeting);
 
-        btnReadlist.setOnClickListener(v -> {
-            loadFragment(new ReadlistFragment());
-            selectButton(btnReadlist);
+        setupUserGreeting();
+
+        btnAnalytics.setOnClickListener(v -> {
+            loadFragment(new StatisticFragment());
+            selectButton(btnAnalytics);
         });
         btnHistory.setOnClickListener(v -> {
             loadFragment(new HistoryFragment());
@@ -54,35 +65,19 @@ public class MyListFragment extends Fragment {
             selectButton(btnDownload);
         });
 
-        loadFragment(new ReadlistFragment());
-        selectButton(btnReadlist);
-
-        edtSearch.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                Fragment child = getChildFragmentManager().findFragmentById(R.id.containerContent);
-                if (child instanceof ReadlistFragment) {
-                    ((ReadlistFragment) child).onSearch(s.toString());
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
-        });
+        loadFragment(new DownloadFragment());
+        selectButton(btnDownload);
 
         return view;
     }
 
     private void selectButton(Button selected) {
-        btnReadlist.setBackgroundResource(R.drawable.button_unselected);
+        btnAnalytics.setBackgroundResource(R.drawable.button_unselected);
         btnHistory.setBackgroundResource(R.drawable.button_unselected);
         btnFavorite.setBackgroundResource(R.drawable.button_unselected);
         btnDownload.setBackgroundResource(R.drawable.button_unselected);
 
-        btnReadlist.setTextColor(getResources().getColor(android.R.color.white));
+        btnAnalytics.setTextColor(getResources().getColor(android.R.color.white));
         btnHistory.setTextColor(getResources().getColor(android.R.color.white));
         btnFavorite.setTextColor(getResources().getColor(android.R.color.white));
         btnDownload.setTextColor(getResources().getColor(android.R.color.white));
@@ -96,5 +91,56 @@ public class MyListFragment extends Fragment {
                 .beginTransaction()
                 .replace(R.id.containerContent, fragment)
                 .commit();
+    }
+
+    private void setupUserGreeting() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null || currentUser.getEmail() == null) {
+            tvGreeting.setText("Chào bạn!");
+            return;
+        }
+
+        final String userEmail = currentUser.getEmail();
+        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("Users");
+
+        usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot userSnap : snapshot.getChildren()) {
+                    String encryptedEmail = userSnap.child("email").getValue(String.class);
+                    if (encryptedEmail == null) continue;
+
+                    try {
+                        String emailDecrypted = Encryption.decrypt(encryptedEmail.trim());
+                        if (userEmail.equals(emailDecrypted)) {
+                            String encryptedName = userSnap.child("fullName").getValue(String.class);
+                            String realName = "Bạn";
+                            if (encryptedName != null && !encryptedName.isEmpty()) {
+                                realName = Encryption.decrypt(encryptedName.trim());
+                            }
+
+                            Calendar calendar = Calendar.getInstance();
+                            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                            String greeting;
+                            if (hour < 11) greeting = "Chào buổi sáng, ";
+                            else if (hour < 13) greeting = "Chào buổi trưa, ";
+                            else if (hour < 18) greeting = "Chào buổi chiều, ";
+                            else greeting = "Chào buổi tối, ";
+
+                            tvGreeting.setText(greeting + realName + "!");
+                            return;
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                tvGreeting.setText("Chào bạn!");
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                tvGreeting.setText("Chào bạn!");
+            }
+        });
     }
 }

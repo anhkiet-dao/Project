@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -27,6 +28,7 @@ import java.util.List;
 public class FavoriteFragment extends Fragment {
 
     private RecyclerView recyclerFavorites;
+    private TextView tvNoFavorites;
     private FavoriteAdapter adapter;
     private final List<FavoriteStory> favoriteList = new ArrayList<>();
     private DatabaseReference favRef;
@@ -42,6 +44,8 @@ public class FavoriteFragment extends Fragment {
         View view = inflater.inflate(R.layout.favorite_activity_favorites, container, false);
 
         recyclerFavorites = view.findViewById(R.id.recyclerFavorites);
+        tvNoFavorites = view.findViewById(R.id.tvNoFavorites);
+
         recyclerFavorites.setLayoutManager(new LinearLayoutManager(getContext()));
 
         auth = FirebaseAuth.getInstance();
@@ -54,6 +58,7 @@ public class FavoriteFragment extends Fragment {
         adapter = new FavoriteAdapter(getContext(), favoriteList);
         recyclerFavorites.setAdapter(adapter);
 
+        // Listener xóa favorite
         adapter.setOnRemoveFavoriteListener((story, position) -> {
             String emailKey = email.replace(".", "_");
 
@@ -72,6 +77,7 @@ public class FavoriteFragment extends Fragment {
                     adapter.notifyItemRemoved(position);
                     adapter.notifyItemRangeChanged(position, favoriteList.size());
                 }
+                checkEmptyState();
                 Toast.makeText(getContext(), "Đã bỏ yêu thích: " + story.getTitle(), Toast.LENGTH_SHORT).show();
             }).addOnFailureListener(e ->
                     Toast.makeText(getContext(), "Lỗi khi bỏ yêu thích: " + e.getMessage(), Toast.LENGTH_LONG).show()
@@ -101,27 +107,15 @@ public class FavoriteFragment extends Fragment {
                     FavoriteStory story = storySnap.getValue(FavoriteStory.class);
 
                     if (story != null) {
-
                         String firebaseKey = storySnap.getKey();
                         story.setStoryId(firebaseKey);
 
                         try {
-                            if (story.getTitle() != null) {
-                                story.setTitle((story.getTitle()));
-                            }
-                            if (story.getAuthor() != null) {
-                                story.setAuthor((story.getAuthor()));
-                            }
-                            if (story.getCategory() != null) {
-                                story.setCategory((story.getCategory()));
-                            }
-                            if (story.getImageUrl() != null) {
-                                story.setImageUrl((story.getImageUrl()));
-                            }
-                            if (story.getReadUrl() != null) {
-                                story.setReadUrl((story.getReadUrl()));
-                            }
-
+                            if (story.getTitle() != null) story.setTitle(story.getTitle());
+                            if (story.getAuthor() != null) story.setAuthor(story.getAuthor());
+                            if (story.getCategory() != null) story.setCategory(story.getCategory());
+                            if (story.getImageUrl() != null) story.setImageUrl(story.getImageUrl());
+                            if (story.getReadUrl() != null) story.setReadUrl(story.getReadUrl());
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -130,6 +124,7 @@ public class FavoriteFragment extends Fragment {
                     }
                 }
                 adapter.notifyDataSetChanged();
+                checkEmptyState();
             }
 
             @Override
@@ -139,6 +134,17 @@ public class FavoriteFragment extends Fragment {
         };
 
         favRef.addValueEventListener(favEventListener);
+    }
+
+    // Kiểm tra nếu danh sách rỗng
+    private void checkEmptyState() {
+        if (favoriteList.isEmpty()) {
+            recyclerFavorites.setVisibility(View.GONE);
+            tvNoFavorites.setVisibility(View.VISIBLE);
+        } else {
+            recyclerFavorites.setVisibility(View.VISIBLE);
+            tvNoFavorites.setVisibility(View.GONE);
+        }
     }
 
     @Override

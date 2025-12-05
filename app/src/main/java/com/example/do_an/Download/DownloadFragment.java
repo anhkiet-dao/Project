@@ -1,33 +1,32 @@
 package com.example.do_an.Download;
 
 import android.os.Bundle;
-
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.example.do_an.R;
+import com.example.do_an.data.AppDatabase;
+import com.example.do_an.data.DownloadedPdfDao;
+import com.example.do_an.data.DownloadedPdfEntity;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.do_an.data.AppDatabase;
-import com.example.do_an.data.DownloadedPdfDao;
-import com.example.do_an.data.DownloadedPdfEntity;
-
-public class DownloadFragment extends Fragment{
+public class DownloadFragment extends Fragment {
     private RecyclerView rvDownloadedPdfs;
+    private TextView tvNoDownloads;
     private DownloadedPdfAdapter adapter;
     private List<File> pdfFiles;
     private DownloadedPdfDao pdfDao;
 
     public DownloadFragment() {
+        // Required empty public constructor
     }
 
     @Override
@@ -38,6 +37,8 @@ public class DownloadFragment extends Fragment{
 
         rvDownloadedPdfs = view.findViewById(R.id.rvDownloadedPdfs);
         rvDownloadedPdfs.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        tvNoDownloads = view.findViewById(R.id.tvNoDownloads);
 
         pdfDao = AppDatabase.getDatabase(requireContext()).downloadedPdfDao();
 
@@ -62,6 +63,7 @@ public class DownloadFragment extends Fragment{
                 }
             }
 
+            // Xoá các entity không còn file
             if (!entitiesToRemove.isEmpty()) {
                 for (DownloadedPdfEntity entity : entitiesToRemove) {
                     pdfDao.delete(entity);
@@ -72,17 +74,23 @@ public class DownloadFragment extends Fragment{
                 pdfFiles = localFiles;
 
                 if (pdfFiles.isEmpty()) {
-                    Toast.makeText(getContext(), "Chưa có file PDF nào đã tải xuống!", Toast.LENGTH_SHORT).show();
-                }
+                    // Không có file: ẩn RecyclerView, hiển thị TextView
+                    rvDownloadedPdfs.setVisibility(View.GONE);
+                    tvNoDownloads.setVisibility(View.VISIBLE);
+                } else {
+                    // Có file: hiển thị RecyclerView, ẩn TextView
+                    rvDownloadedPdfs.setVisibility(View.VISIBLE);
+                    tvNoDownloads.setVisibility(View.GONE);
 
-                adapter = new DownloadedPdfAdapter(requireActivity(), pdfFiles, pdfDao);
-                rvDownloadedPdfs.setAdapter(adapter);
+                    adapter = new DownloadedPdfAdapter(requireActivity(), pdfFiles, pdfDao);
+                    rvDownloadedPdfs.setAdapter(adapter);
+                }
             });
+
         }).start();
     }
 
     private List<DownloadedPdfEntity> getAllDownloadedPdfs(DownloadedPdfDao dao) {
-
         try {
             return dao.getAllPdfs();
         } catch (Exception e) {

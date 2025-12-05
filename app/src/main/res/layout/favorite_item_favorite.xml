@@ -38,11 +38,8 @@
             android:textColor="#555"/>
 
         <TextView
-            android:id="@+id/tvCategory"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Thể loại:"
-            android:textColor="#555"/>
+            android:layout_height="wrap_content" />
 
         <Button
             android:id="@+id/btnRemoveFav"
