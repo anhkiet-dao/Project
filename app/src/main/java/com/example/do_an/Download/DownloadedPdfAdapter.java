@@ -27,11 +27,9 @@ import java.util.List;
 public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdapter.PdfViewHolder> {
 
     private Activity activity;
-    // ⬅️ THAY ĐỔI: Dùng Entity List thay vì File List
     private List<DownloadedPdfEntity> downloadedPdfs;
     private DownloadedPdfDao pdfDao;
 
-    // ⬅️ THAY ĐỔI: Constructor chấp nhận List<DownloadedPdfEntity>
     public DownloadedPdfAdapter(Activity activity, List<DownloadedPdfEntity> downloadedPdfs, DownloadedPdfDao pdfDao) {
         this.activity = activity;
         this.downloadedPdfs = new ArrayList<>(downloadedPdfs);
@@ -47,7 +45,6 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
     @Override
     public void onBindViewHolder(PdfViewHolder holder, int position) {
 
-        // ⬅️ THAY ĐỔI: Lấy Entity trực tiếp
         DownloadedPdfEntity entity = downloadedPdfs.get(position);
 
         final String title = entity.fileName.replace(".pdf", "");
@@ -58,20 +55,16 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
         if (entity.coverImageUrl != null && !entity.coverImageUrl.isEmpty()) {
             Glide.with(activity)
                     .load(entity.coverImageUrl)
-                    // Đảm bảo placeholder_cover và default_cover tồn tại trong drawable
                     .placeholder(R.drawable.ic_launcher_background)
                     .error(R.drawable.ic_launcher_background)
                     .into(holder.imgCover);
         } else {
-            // Dùng ảnh mặc định nếu không có URL
             holder.imgCover.setImageResource(R.drawable.ic_launcher_background);
         }
 
-        // Cập nhật TextView Tên và Tác giả
         holder.txtPdfName.setText(title);
         holder.txtPdfAuthor.setText("Tác giả: " + author);
 
-        // BẤM VÀO ITEM
         holder.itemView.setOnClickListener(v -> {
             Bundle readArgs = new Bundle();
 
@@ -95,12 +88,10 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
             }
         });
 
-        // NÚT XÓA
         holder.btnDelete.setOnClickListener(v -> {
             int adapterPos = holder.getAdapterPosition();
             if (adapterPos == RecyclerView.NO_POSITION) return;
 
-            // Dùng entity để lấy File và gọi dialog
             File fileToDelete = new File(localFilePath);
             showDeleteDialog(fileToDelete, entity, adapterPos);
         });
@@ -111,7 +102,6 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
         return downloadedPdfs.size(); // ⬅️ THAY ĐỔI
     }
 
-    // ⬅️ THAY ĐỔI: Chấp nhận cả Entity để xóa khỏi DB
     private void showDeleteDialog(File fileToDelete, DownloadedPdfEntity entityToDelete, int adapterPos) {
         Dialog dialog = new Dialog(this.activity);
         dialog.setContentView(R.layout.note_item_confirm_delete);
@@ -126,11 +116,9 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
             final String fileNameToDelete = fileToDelete.getName();
 
             new Thread(() -> {
-                // Xóa Entity khỏi Room
                 pdfDao.delete(entityToDelete);
             }).start();
 
-            // Xóa file json
             File jsonFile = new File(
                     fileToDelete.getParent(),
                     fileToDelete.getName().replace(".pdf", ".json")
@@ -138,7 +126,7 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
             if (jsonFile.exists()) jsonFile.delete();
 
             if (deleted) {
-                downloadedPdfs.remove(adapterPos); // Xóa khỏi List Entity
+                downloadedPdfs.remove(adapterPos);
                 notifyItemRemoved(adapterPos);
                 Toast.makeText(this.activity, "Đã xóa " + fileNameToDelete, Toast.LENGTH_SHORT).show();
             } else {

@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-// ⭐ KHẮC PHỤC LỖI CANNOT RESOLVE SYMBOL ⭐
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -39,12 +38,10 @@ public class PdfViewerUtility {
         this.viewPager = viewPager;
     }
 
-    // ⭐ Phương thức loadPdfPreview ⭐
     public void loadPdfPreview(String pdfUrl, int maxPages) {
         new DownloadAndRenderTask(maxPages).execute(pdfUrl);
     }
 
-    // ⭐ Phương thức closeRenderer ⭐
     public void closeRenderer() {
         try {
             if (pdfRenderer != null) {
@@ -58,7 +55,6 @@ public class PdfViewerUtility {
         }
     }
 
-    // AsyncTask để tải và render PDF
     private class DownloadAndRenderTask extends AsyncTask<String, Void, List<Bitmap>> {
         private final int maxPages;
         private File pdfFile;
@@ -74,7 +70,6 @@ public class PdfViewerUtility {
             pdfFile = new File(context.getCacheDir(), "preview.pdf");
 
             try {
-                // 1. Tải file PDF từ URL
                 URL url = new URL(pdfUrl);
                 URLConnection connection = url.openConnection();
                 connection.connect();
@@ -90,18 +85,15 @@ public class PdfViewerUtility {
                 output.close();
                 input.close();
 
-                // 2. Mở PdfRenderer
                 parcelFileDescriptor = ParcelFileDescriptor.open(pdfFile, ParcelFileDescriptor.MODE_READ_ONLY);
                 pdfRenderer = new PdfRenderer(parcelFileDescriptor);
 
                 int pageCount = pdfRenderer.getPageCount();
                 int pagesToRender = Math.min(pageCount, maxPages);
 
-                // 3. Render các trang (Sử dụng tỷ lệ 2x để khắc phục lỗi màn hình trắng do kích thước quá nhỏ)
                 for (int i = 0; i < pagesToRender; i++) {
                     PdfRenderer.Page page = pdfRenderer.openPage(i);
 
-                    // Lấy kích thước gốc và tăng tỷ lệ render
                     int pageWidth = page.getWidth();
                     int pageHeight = page.getHeight();
                     float scale = 2f;
@@ -127,20 +119,17 @@ public class PdfViewerUtility {
         @Override
         protected void onPostExecute(List<Bitmap> bitmaps) {
             if (bitmaps != null && !bitmaps.isEmpty()) {
-                // 4. Thiết lập Adapter cho ViewPager
                 PdfPagerAdapter adapter = new PdfPagerAdapter(bitmaps);
                 viewPager.setAdapter(adapter);
             } else {
                 Toast.makeText(context, "Không thể tải xem trước PDF. Kiểm tra Logcat.", Toast.LENGTH_SHORT).show();
             }
-            // Xóa file tạm thời
             if (pdfFile != null && pdfFile.exists()) {
                 pdfFile.delete();
             }
         }
     }
 
-    // Adapter đơn giản cho ViewPager2 hiển thị Bitmaps
     private static class PdfPagerAdapter extends RecyclerView.Adapter<PdfPagerAdapter.PageViewHolder> {
         private final List<Bitmap> pages;
 
@@ -152,7 +141,6 @@ public class PdfViewerUtility {
         @Override
         public PageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             ImageView imageView = new ImageView(parent.getContext());
-            // Thiết lập LayoutParams để ImageView lấp đầy ViewPager
             imageView.setLayoutParams(new ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT));

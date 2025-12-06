@@ -58,7 +58,6 @@ public class FavoriteFragment extends Fragment {
         adapter = new FavoriteAdapter(getContext(), favoriteList);
         recyclerFavorites.setAdapter(adapter);
 
-        // Listener xóa favorite
         adapter.setOnRemoveFavoriteListener((story, position) -> {
             String emailKey = email.replace(".", "_");
 
@@ -136,7 +135,6 @@ public class FavoriteFragment extends Fragment {
         favRef.addValueEventListener(favEventListener);
     }
 
-    // Kiểm tra nếu danh sách rỗng
     private void checkEmptyState() {
         if (favoriteList.isEmpty()) {
             recyclerFavorites.setVisibility(View.GONE);

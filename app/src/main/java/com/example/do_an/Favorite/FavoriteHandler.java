@@ -43,7 +43,6 @@ public class FavoriteHandler {
                 }
             }
 
-            // Lưu trạng thái và đặt icon
             btnFavorite.setTag(isFavorite);
             if (isFavorite) {
                 btnFavorite.setImageResource(R.drawable.ic_favorite_filled);

@@ -1,7 +1,7 @@
 package com.example.do_an.home;
 
 public class Book {
-    private String id; // ⭐ Đã thêm: Trường để lưu Document ID từ Firestore ⭐
+    private String id;
     private String name;
     private String author;
     private String link;
@@ -10,7 +10,6 @@ public class Book {
 
     public Book() {}
 
-    // ⭐ Đã thêm: Getter và Setter cho ID ⭐
     public String getId() {
         return id;
     }

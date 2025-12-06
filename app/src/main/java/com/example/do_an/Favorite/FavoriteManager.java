@@ -56,7 +56,7 @@ public class FavoriteManager {
 
         Map<String, Object> favoriteData = new HashMap<>();
         favoriteData.put("storyId", storyId);
-        favoriteData.put("title", title); // Lưu cả tên tập để phân biệt
+        favoriteData.put("title", title);
         favoriteData.put("author", author);
         favoriteData.put("category", category);
         favoriteData.put("imageUrl", imageUrl);

@@ -49,7 +49,6 @@ public class DownloadFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // Cập nhật lại danh sách mỗi khi Fragment được hiển thị
         if (pdfDao != null) {
             loadDownloadedPdfs();
         }
@@ -59,7 +58,6 @@ public class DownloadFragment extends Fragment {
         if (getContext() == null) return;
 
         new Thread(() -> {
-            // Lấy TẤT CẢ các Entity từ database
             List<DownloadedPdfEntity> entities = getAllDownloadedPdfs(pdfDao);
 
             List<DownloadedPdfEntity> validEntities = new ArrayList<>(); // List chứa các entity còn file
@@ -68,13 +66,12 @@ public class DownloadFragment extends Fragment {
             for (DownloadedPdfEntity entity : entities) {
                 File pdfFile = new File(entity.localFilePath);
                 if (pdfFile.exists()) {
-                    validEntities.add(entity); // ⬅️ THÊM ENTITY
+                    validEntities.add(entity);
                 } else {
                     entitiesToRemove.add(entity);
                 }
             }
 
-            // Xóa các record bị lỗi
             if (!entitiesToRemove.isEmpty()) {
                 for (DownloadedPdfEntity entity : entitiesToRemove) {
                     pdfDao.delete(entity);
@@ -82,18 +79,15 @@ public class DownloadFragment extends Fragment {
             }
 
             requireActivity().runOnUiThread(() -> {
-                downloadedPdfs = validEntities; // ⬅️ CẬP NHẬT LIST ENTITY
+                downloadedPdfs = validEntities;
 
-                if (downloadedPdfs.isEmpty()) { // ⬅️ DÙNG LIST ENTITY
-                    // Không có file: ẩn RecyclerView, hiển thị TextView
+                if (downloadedPdfs.isEmpty()) {
                     rvDownloadedPdfs.setVisibility(View.GONE);
                     tvNoDownloads.setVisibility(View.VISIBLE);
                 } else {
-                    // Có file: hiển thị RecyclerView, ẩn TextView
                     rvDownloadedPdfs.setVisibility(View.VISIBLE);
                     tvNoDownloads.setVisibility(View.GONE);
 
-                    // TRUYỀN LIST ENTITY VÀO ADAPTER
                     adapter = new DownloadedPdfAdapter(requireActivity(), downloadedPdfs, pdfDao);
                     rvDownloadedPdfs.setAdapter(adapter);
                 }

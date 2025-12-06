@@ -82,12 +82,10 @@ public class HistoryFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 groupList.clear();
 
-                // Định dạng
                 SimpleDateFormat sdfFull = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.getDefault());
                 SimpleDateFormat sdfDay = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
                 SimpleDateFormat sdfTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
 
-                // 1. Lấy và giải mã TẤT CẢ các mục, lưu vào một danh sách tạm
                 ArrayList<HistoryItemWithDate> allHistoryItems = new ArrayList<>();
 
                 for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
@@ -105,7 +103,7 @@ public class HistoryFragment extends Fragment {
                         if (endTimeStr != null) endDate = sdfFull.parse(endTimeStr);
                     } catch (Exception e) {
                         e.printStackTrace();
-                        continue; // Bỏ qua mục bị lỗi thời gian
+                        continue;
                     }
 
                     if (startDate == null) continue;
@@ -122,19 +120,14 @@ public class HistoryFragment extends Fragment {
                             imageUrl
                     );
 
-                    // Thêm vào danh sách tạm, kèm theo Date object để sắp xếp
                     allHistoryItems.add(new HistoryItemWithDate(item, startDate));
                 }
 
-                // 2. Sắp xếp: Mới nhất (thời gian lớn nhất) lên đầu
-                // Sắp xếp giảm dần (mới nhất/thời gian lớn hơn đứng trước)
                 Collections.sort(allHistoryItems, (item1, item2) -> item2.date.compareTo(item1.date));
 
-                // 3. Giới hạn: Lấy 10 mục gần nhất
                 int limit = Math.min(allHistoryItems.size(), 10);
                 List<HistoryItemWithDate> latestItems = allHistoryItems.subList(0, limit);
 
-                // 4. Nhóm 10 mục gần nhất này theo ngày
                 Map<String, ArrayList<HistoryItem>> mapDay = new HashMap<>();
 
                 for (HistoryItemWithDate itemWithDate : latestItems) {
@@ -150,7 +143,7 @@ public class HistoryFragment extends Fragment {
                     try {
                         Date date1 = sdfDay.parse(d1);
                         Date date2 = sdfDay.parse(d2);
-                        return date2.compareTo(date1); // Ngày mới nhất lên đầu
+                        return date2.compareTo(date1);
                     } catch (Exception e) {
                         return 0;
                     }
@@ -161,7 +154,6 @@ public class HistoryFragment extends Fragment {
                     groupList.add(new HistoryGroup(date, mapDay.get(date)));
                 }
 
-                // LOGIC KIỂM TRA VÀ HIỂN THỊ THÔNG BÁO RỖNG
                 if (groupList.isEmpty()) {
                     recyclerView.setVisibility(View.GONE);
                     if (tvEmptyHistory != null) {
@@ -190,12 +182,9 @@ public class HistoryFragment extends Fragment {
         });
     }
 
-    // --- CÁC CLASS MODEL VÀ ADAPTER (Được giữ nguyên) ---
-
-    // 🔹 Class Model TẠM DÙNG CHO SẮP XẾP VÀ GIỚI HẠN
     public static class HistoryItemWithDate {
         final HistoryItem item;
-        final Date date; // Thời gian bắt đầu (startDate) để sắp xếp
+        final Date date;
 
         public HistoryItemWithDate(HistoryItem item, Date date) {
             this.item = item;
@@ -203,7 +192,6 @@ public class HistoryFragment extends Fragment {
         }
     }
 
-    // 🔹 Model HistoryItem
     public static class HistoryItem {
         String title, author, startTime, endTime, imageUrl;
         public HistoryItem(String title, String author, String startTime, String endTime, String imageUrl) {
@@ -215,7 +203,6 @@ public class HistoryFragment extends Fragment {
         }
     }
 
-    // 🔹 Model HistoryGroup
     public static class HistoryGroup {
         String date;
         ArrayList<HistoryItem> items;
@@ -225,7 +212,6 @@ public class HistoryFragment extends Fragment {
         }
     }
 
-    // 🔹 Adapter HistoryGroupAdapter
     public static class HistoryGroupAdapter extends RecyclerView.Adapter<HistoryGroupAdapter.GroupViewHolder> {
 
         private final ArrayList<HistoryGroup> list;
@@ -263,7 +249,6 @@ public class HistoryFragment extends Fragment {
         }
     }
 
-    // 🔹 Adapter HistoryItemAdapter
     public static class HistoryItemAdapter extends RecyclerView.Adapter<HistoryItemAdapter.ViewHolder> {
 
         private final ArrayList<HistoryItem> list;
@@ -281,14 +266,11 @@ public class HistoryFragment extends Fragment {
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             HistoryItem item = list.get(position);
 
-            // HIỂN THỊ TÊN TRUYỆN VÀ TÁC GIẢ Ở 2 DÒNG KHÁC NHAU
             holder.tvTitle.setText(item.title);
             holder.tvAuthor.setText("Tác giả: " + item.author);
 
-            // CHỈ HIỂN THỊ GIỜ BẮT ĐẦU
             holder.tvTime.setText("Bắt đầu: " + item.startTime);
 
-            // HIỂN THỊ ẢNH BÌA
             if (item.imageUrl != null && !item.imageUrl.isEmpty()) {
                 Glide.with(holder.itemView.getContext())
                         .load(item.imageUrl)

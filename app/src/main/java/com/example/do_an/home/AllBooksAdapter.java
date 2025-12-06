@@ -16,7 +16,7 @@ public class AllBooksAdapter extends RecyclerView.Adapter<AllBooksAdapter.BookVi
 
     private final Context context;
     private final List<Book> bookList;
-    private final BookClickListener bookClickListener; // Tái sử dụng interface BookClickListener
+    private final BookClickListener bookClickListener;
 
     public interface BookClickListener {
         void onBookClick(Book book);
@@ -31,7 +31,6 @@ public class AllBooksAdapter extends RecyclerView.Adapter<AllBooksAdapter.BookVi
     @NonNull
     @Override
     public BookViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Sử dụng layout item_book_grid.xml
         View view = LayoutInflater.from(context).inflate(R.layout.home_item_book_grid, parent, false);
         return new BookViewHolder(view);
     }
@@ -42,14 +41,12 @@ public class AllBooksAdapter extends RecyclerView.Adapter<AllBooksAdapter.BookVi
 
         holder.txtTitle.setText(book.getName());
 
-        // Load ảnh bìa
         Glide.with(context)
                 .load(book.getImageUrl())
                 .placeholder(R.drawable.ic_launcher_background)
                 .error(R.drawable.ic_launcher_background)
                 .into(holder.imgCover);
 
-        // Xử lý sự kiện click
         holder.itemView.setOnClickListener(v -> {
             if (bookClickListener != null) {
                 bookClickListener.onBookClick(book);

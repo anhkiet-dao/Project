@@ -322,7 +322,6 @@ public class DownloadManager {
                     } else {
                         Log.d(TAG, "Load PDF: File Room bị mất, đang xóa record và tải lại.");
                         Toast.makeText(context, "File tải xuống bị mất, đang tải lại...", Toast.LENGTH_SHORT).show();
-                        // Chạy tác vụ DB trên luồng phụ
                         new Thread(() -> pdfDao.delete(localPdf)).start();
                         loadPdfFromFirestore(mainStoryTitle, callback, urlConsumer);
                     }

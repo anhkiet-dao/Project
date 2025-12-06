@@ -1,4 +1,4 @@
-package com.example.do_an.home; // Đặt trong UI package
+package com.example.do_an.home;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.do_an.R;
 import com.example.do_an.Series.SeriesFragment;
-import com.example.do_an.application.Encryption; // Cần import Encryption
+import com.example.do_an.application.Encryption;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -28,10 +28,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
-import java.util.Calendar; // Cần import Calendar
+import java.util.Calendar;
 import java.util.List;
 
-// Đặt trong UI package nếu bạn muốn giữ cấu trúc như HomeFragment
 public class AllBooksFragment extends Fragment implements AllBooksAdapter.BookClickListener {
 
     private RecyclerView rvAllBooks;
@@ -49,19 +48,16 @@ public class AllBooksFragment extends Fragment implements AllBooksAdapter.BookCl
         View view = inflater.inflate(R.layout.home_all_books, container, false);
         db = FirebaseFirestore.getInstance();
 
-        // 1. Lấy tham số truyền vào
         if (getArguments() != null) {
             collectionName = getArguments().getString("COLLECTION_NAME");
             title = getArguments().getString("TITLE");
         }
 
-        // 2. Ánh xạ và Cấu hình
         mapping(view);
         setupToolbar(view);
         setupRecyclerView();
-        setupUserGreeting(); // Gọi hàm lấy tên người dùng và lời chào
+        setupUserGreeting();
 
-        // 3. Tải dữ liệu
         if (collectionName != null) {
             loadBooks(collectionName);
         } else {
@@ -74,7 +70,7 @@ public class AllBooksFragment extends Fragment implements AllBooksAdapter.BookCl
     private void mapping(View view) {
         rvAllBooks = view.findViewById(R.id.rv_all_books);
         toolbarTitle = view.findViewById(R.id.toolbar_title);
-        tvGreeting = view.findViewById(R.id.txtGreeting); // Ánh xạ TextView lời chào
+        tvGreeting = view.findViewById(R.id.txtGreeting);
     }
 
     private void setupToolbar(View view) {
@@ -83,7 +79,6 @@ public class AllBooksFragment extends Fragment implements AllBooksAdapter.BookCl
             toolbarTitle.setText(title);
         }
 
-        // Xử lý nút Back
         toolbar.setOnClickListener(v -> {
             if (getActivity() != null) {
                 getActivity().getSupportFragmentManager().popBackStack();
@@ -92,7 +87,6 @@ public class AllBooksFragment extends Fragment implements AllBooksAdapter.BookCl
     }
 
     private void setupRecyclerView() {
-        // Dùng GridLayoutManager để hiển thị sách theo dạng lưới 2 cột
         rvAllBooks.setLayoutManager(new GridLayoutManager(getContext(), 2));
         adapter = new AllBooksAdapter(getContext(), bookList, this);
         rvAllBooks.setAdapter(adapter);
@@ -119,7 +113,6 @@ public class AllBooksFragment extends Fragment implements AllBooksAdapter.BookCl
         });
     }
 
-    // Phương thức lấy tên người dùng và hiển thị lời chào theo thời gian
     private void setupUserGreeting() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null || currentUser.getEmail() == null) {
@@ -171,8 +164,6 @@ public class AllBooksFragment extends Fragment implements AllBooksAdapter.BookCl
         });
     }
 
-
-    // Xử lý sự kiện click vào một cuốn sách
     @Override
     public void onBookClick(Book book) {
         if (getActivity() == null || book == null) return;
