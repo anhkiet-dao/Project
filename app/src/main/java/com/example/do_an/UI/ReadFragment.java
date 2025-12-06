@@ -183,7 +183,7 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
 
             if (userEmail != null && currentStoryId != null) {
                 historyManager.saveStartReadingHistory(
-                        userEmail, currentStoryId, mainStoryTitle, currentTitle, currentAuthor
+                        userEmail, currentStoryId, mainStoryTitle, currentTitle, currentAuthor, currentImageUrl // ⬅️ THÊM currentImageUrl
                 );
             }
         }
@@ -217,7 +217,7 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
 
                     if (userEmail != null && currentStoryId != null) {
                         historyManager.saveStartReadingHistory(
-                                userEmail, currentStoryId, mainStoryTitle, currentTitle, currentAuthor
+                                userEmail, currentStoryId, mainStoryTitle, currentTitle, currentAuthor, currentImageUrl // ⬅️ THÊM currentImageUrl
                         );
                     }
                     hideLoading();

@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -13,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.do_an.R;
 import com.example.do_an.application.Encryption;
 import com.google.firebase.auth.FirebaseAuth;
@@ -83,6 +85,7 @@ public class HistoryFragment extends Fragment {
                     String episodeTitle = Encryption.decrypt(item.child("episodeTitle").getValue(String.class)); // ✅ thêm tên tập
                     String startTimeStr = Encryption.decrypt(item.child("startTime").getValue(String.class));
                     String endTimeStr = Encryption.decrypt(item.child("endTime").getValue(String.class));
+                    String imageUrl = Encryption.decrypt(item.child("imageUrl").getValue(String.class)); // ⬅️ TẢI imageUrl
 
                     Date startDate = new Date();
                     Date endDate = new Date();
@@ -103,7 +106,8 @@ public class HistoryFragment extends Fragment {
                             displayTitle, // ⭐️ dùng displayTitle
                             author != null ? author : "—",
                             sdfTime.format(startDate),
-                            sdfTime.format(endDate)
+                            sdfTime.format(endDate),
+                            imageUrl // ⬅️ THÊM imageUrl vào constructor
                     );
 
                     if (!mapDay.containsKey(dateKey)) mapDay.put(dateKey, new ArrayList<>());
@@ -139,12 +143,13 @@ public class HistoryFragment extends Fragment {
 
     // 🔹 Model
     public static class HistoryItem {
-        String title, author, startTime, endTime;
-        public HistoryItem(String title, String author, String startTime, String endTime) {
+        String title, author, startTime, endTime, imageUrl; // ⬅️ THÊM imageUrl
+        public HistoryItem(String title, String author, String startTime, String endTime, String imageUrl) { // ⬅️ Cập nhật Constructor
             this.title = title;
             this.author = author;
             this.startTime = startTime;
             this.endTime = endTime;
+            this.imageUrl = imageUrl; // ⬅️ LƯU imageUrl
         }
     }
 
@@ -210,19 +215,39 @@ public class HistoryFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             HistoryItem item = list.get(position);
-            holder.tvTitleAuthor.setText(item.title + " - " + item.author);
-            holder.tvTime.setText("Bắt đầu: " + item.startTime + "\nKết thúc: " + item.endTime);
+            // ⬅️ HIỂN THỊ TÊN TRUYỆN VÀ TÁC GIẢ Ở 2 DÒNG KHÁC NHAU
+            holder.tvTitle.setText(item.title);
+            holder.tvAuthor.setText("Tác giả: " + item.author);
+
+            // ⬅️ CHỈ HIỂN THỊ GIỜ BẮT ĐẦU
+            holder.tvTime.setText("Bắt đầu: " + item.startTime);
+
+            // ⬅️ HIỂN THỊ ẢNH BÌA
+            if (item.imageUrl != null && !item.imageUrl.isEmpty()) {
+                // SỬ DỤNG GLIDE ĐỂ TẢI ẢNH TỪ URL
+                // Thay thế R.drawable.ic_default_cover bằng drawable mặc định của bạn.
+                Glide.with(holder.itemView.getContext())
+                        .load(item.imageUrl)
+                        .placeholder(R.drawable.loading) // Ảnh tạm thời khi đang tải
+                        .error(R.drawable.ic_launcher_background) // Ảnh khi có lỗi
+                        .into(holder.ivCoverImage);
+            } else {
+                holder.ivCoverImage.setImageResource(R.drawable.ic_launcher_background); // Nếu không có URL
+            }
         }
 
         @Override
         public int getItemCount() { return list.size(); }
 
         static class ViewHolder extends RecyclerView.ViewHolder {
-            TextView tvTitleAuthor, tvTime;
+            TextView tvTitle, tvAuthor, tvTime; // ⬅️ Đổi tvTitleAuthor thành tvTitle, thêm tvAuthor
+            ImageView ivCoverImage;
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
-                tvTitleAuthor = itemView.findViewById(R.id.tvTitleAuthor);
+                tvTitle = itemView.findViewById(R.id.tvTitle); // ⬅️ Ánh xạ ID mới
+                tvAuthor = itemView.findViewById(R.id.tvAuthor); // ⬅️ Ánh xạ ID mới
                 tvTime = itemView.findViewById(R.id.tvTime);
+                ivCoverImage = itemView.findViewById(R.id.ivCoverImage); // Giữ nguyên cho ảnh bìa
             }
         }
     }

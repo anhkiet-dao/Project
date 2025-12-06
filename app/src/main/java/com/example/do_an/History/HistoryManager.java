@@ -19,7 +19,7 @@ public class HistoryManager {
     }
 
     public void saveStartReadingHistory(String userEmail, String storyId, String mainStoryTitle,
-                                        String currentTitle, String author) {
+                                        String currentTitle, String author, String imageUrl) { // ⬅️ THÊM imageUrl
         if (userEmail == null || storyId == null) return;
 
         String currentEpisodeTitle = (currentTitle.equals(mainStoryTitle)) ? "" : currentTitle;
@@ -30,11 +30,12 @@ public class HistoryManager {
         String startTime = sdf.format(new Date());
 
         HashMap<String, Object> historyData = new HashMap<>();
-         historyData.put("title", Encryption.encrypt(titleForHistory));
-         historyData.put("author", Encryption.encrypt(author));
-         historyData.put("episodeTitle", Encryption.encrypt(currentEpisodeTitle));
-         historyData.put("startTime", Encryption.encrypt(startTime));
-         historyData.put("storyId", Encryption.encrypt(storyId));
+        historyData.put("title", Encryption.encrypt(titleForHistory));
+        historyData.put("author", Encryption.encrypt(author));
+        historyData.put("episodeTitle", Encryption.encrypt(currentEpisodeTitle));
+        historyData.put("startTime", Encryption.encrypt(startTime));
+        historyData.put("storyId", Encryption.encrypt(storyId));
+        historyData.put("imageUrl", Encryption.encrypt(imageUrl != null ? imageUrl : "")); // ⬅️ LƯU imageUrl
 
 
         DatabaseReference dbRef = FirebaseDatabase.getInstance()
@@ -54,7 +55,7 @@ public class HistoryManager {
         sdf.setTimeZone(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
         String endTime = sdf.format(new Date());
 
-         String encryptedEndTime = Encryption.encrypt(endTime);
+        String encryptedEndTime = Encryption.encrypt(endTime);
 
         DatabaseReference dbRef = FirebaseDatabase.getInstance()
                 .getReference("History")
