@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone; // Thêm import này cho xử lý múi giờ
 
 public class HistoryFragment extends Fragment {
 
@@ -40,6 +41,7 @@ public class HistoryFragment extends Fragment {
     private HistoryGroupAdapter adapter;
     private ArrayList<HistoryGroup> groupList = new ArrayList<>();
     private Button btnBack;
+    private TextView tvEmptyHistory; // ⬅️ THÊM: Biến cho trạng thái rỗng
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -47,6 +49,7 @@ public class HistoryFragment extends Fragment {
         View view = inflater.inflate(R.layout.history_activity_history, container, false);
 
         recyclerView = view.findViewById(R.id.recyclerHistory);
+        tvEmptyHistory = view.findViewById(R.id.tvEmptyHistory); // ⬅️ THÊM: Ánh xạ TextView
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         adapter = new HistoryGroupAdapter(groupList);
@@ -61,6 +64,12 @@ public class HistoryFragment extends Fragment {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
             Toast.makeText(requireContext(), "Bạn chưa đăng nhập!", Toast.LENGTH_SHORT).show();
+            // ⬅️ XỬ LÝ: Không đăng nhập
+            if (tvEmptyHistory != null) {
+                recyclerView.setVisibility(View.GONE);
+                tvEmptyHistory.setText("Bạn chưa đăng nhập!");
+                tvEmptyHistory.setVisibility(View.VISIBLE);
+            }
             return;
         }
 
@@ -75,6 +84,7 @@ public class HistoryFragment extends Fragment {
                 groupList.clear();
                 Map<String, ArrayList<HistoryItem>> mapDay = new HashMap<>();
 
+                // Định dạng đầy đủ (HH:mm:ss dd/MM/yyyy)
                 SimpleDateFormat sdfFull = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.getDefault());
                 SimpleDateFormat sdfDay = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
                 SimpleDateFormat sdfTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
@@ -90,7 +100,14 @@ public class HistoryFragment extends Fragment {
                     Date startDate = new Date();
                     Date endDate = new Date();
                     try {
-                        if (startTimeStr != null) startDate = sdfFull.parse(startTimeStr);
+                        if (startTimeStr != null) {
+                            // 💡 Gợi ý xử lý múi giờ: Nếu giờ sai (ví dụ lệch 7 tiếng), bạn có thể
+                            // đặt TimeZone cho sdfFull trước khi parse, ví dụ:
+                            // sdfFull.setTimeZone(TimeZone.getTimeZone("UTC"));
+                            startDate = sdfFull.parse(startTimeStr);
+                            // Nếu đã đặt TimeZone, nên đặt lại về TimeZone mặc định của thiết bị:
+                            // sdfFull.setTimeZone(TimeZone.getDefault());
+                        }
                         if (endTimeStr != null) endDate = sdfFull.parse(endTimeStr);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -130,26 +147,45 @@ public class HistoryFragment extends Fragment {
                     groupList.add(new HistoryGroup(date, mapDay.get(date)));
                 }
 
-                adapter.notifyDataSetChanged();
+                // ⬅️ THÊM: LOGIC KIỂM TRA VÀ HIỂN THỊ THÔNG BÁO RỖNG
+                if (groupList.isEmpty()) {
+                    recyclerView.setVisibility(View.GONE);
+                    if (tvEmptyHistory != null) {
+                        tvEmptyHistory.setText("Chưa có lịch sử xem.");
+                        tvEmptyHistory.setVisibility(View.VISIBLE);
+                    }
+                } else {
+                    if (tvEmptyHistory != null) {
+                        tvEmptyHistory.setVisibility(View.GONE);
+                    }
+                    recyclerView.setVisibility(View.VISIBLE);
+                    adapter.notifyDataSetChanged();
+                }
             }
 
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Toast.makeText(requireContext(), "Lỗi tải dữ liệu!", Toast.LENGTH_SHORT).show();
+                // ⬅️ XỬ LÝ: Có lỗi tải dữ liệu
+                if (tvEmptyHistory != null) {
+                    tvEmptyHistory.setText("Lỗi tải dữ liệu. Vui lòng kiểm tra kết nối.");
+                    tvEmptyHistory.setVisibility(View.VISIBLE);
+                    recyclerView.setVisibility(View.GONE);
+                }
             }
         });
     }
 
-    // 🔹 Model
+    // 🔹 Model (Giữ nguyên)
     public static class HistoryItem {
-        String title, author, startTime, endTime, imageUrl; // ⬅️ THÊM imageUrl
-        public HistoryItem(String title, String author, String startTime, String endTime, String imageUrl) { // ⬅️ Cập nhật Constructor
+        String title, author, startTime, endTime, imageUrl;
+        public HistoryItem(String title, String author, String startTime, String endTime, String imageUrl) {
             this.title = title;
             this.author = author;
             this.startTime = startTime;
             this.endTime = endTime;
-            this.imageUrl = imageUrl; // ⬅️ LƯU imageUrl
+            this.imageUrl = imageUrl;
         }
     }
 
@@ -215,24 +251,23 @@ public class HistoryFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             HistoryItem item = list.get(position);
-            // ⬅️ HIỂN THỊ TÊN TRUYỆN VÀ TÁC GIẢ Ở 2 DÒNG KHÁC NHAU
+
+            // HIỂN THỊ TÊN TRUYỆN VÀ TÁC GIẢ Ở 2 DÒNG KHÁC NHAU
             holder.tvTitle.setText(item.title);
             holder.tvAuthor.setText("Tác giả: " + item.author);
 
-            // ⬅️ CHỈ HIỂN THỊ GIỜ BẮT ĐẦU
+            // CHỈ HIỂN THỊ GIỜ BẮT ĐẦU
             holder.tvTime.setText("Bắt đầu: " + item.startTime);
 
-            // ⬅️ HIỂN THỊ ẢNH BÌA
+            // HIỂN THỊ ẢNH BÌA
             if (item.imageUrl != null && !item.imageUrl.isEmpty()) {
-                // SỬ DỤNG GLIDE ĐỂ TẢI ẢNH TỪ URL
-                // Thay thế R.drawable.ic_default_cover bằng drawable mặc định của bạn.
                 Glide.with(holder.itemView.getContext())
                         .load(item.imageUrl)
-                        .placeholder(R.drawable.loading) // Ảnh tạm thời khi đang tải
-                        .error(R.drawable.ic_launcher_background) // Ảnh khi có lỗi
+                        .placeholder(R.drawable.loading)
+                        .error(R.drawable.ic_launcher_background)
                         .into(holder.ivCoverImage);
             } else {
-                holder.ivCoverImage.setImageResource(R.drawable.ic_launcher_background); // Nếu không có URL
+                holder.ivCoverImage.setImageResource(R.drawable.ic_launcher_background);
             }
         }
 
@@ -240,14 +275,14 @@ public class HistoryFragment extends Fragment {
         public int getItemCount() { return list.size(); }
 
         static class ViewHolder extends RecyclerView.ViewHolder {
-            TextView tvTitle, tvAuthor, tvTime; // ⬅️ Đổi tvTitleAuthor thành tvTitle, thêm tvAuthor
+            TextView tvTitle, tvAuthor, tvTime;
             ImageView ivCoverImage;
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
-                tvTitle = itemView.findViewById(R.id.tvTitle); // ⬅️ Ánh xạ ID mới
-                tvAuthor = itemView.findViewById(R.id.tvAuthor); // ⬅️ Ánh xạ ID mới
+                tvTitle = itemView.findViewById(R.id.tvTitle);
+                tvAuthor = itemView.findViewById(R.id.tvAuthor);
                 tvTime = itemView.findViewById(R.id.tvTime);
-                ivCoverImage = itemView.findViewById(R.id.ivCoverImage); // Giữ nguyên cho ảnh bìa
+                ivCoverImage = itemView.findViewById(R.id.ivCoverImage);
             }
         }
     }
