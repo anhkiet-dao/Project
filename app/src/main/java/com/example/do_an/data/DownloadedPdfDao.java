@@ -17,6 +17,10 @@ public interface DownloadedPdfDao {
     @Query("SELECT * FROM downloaded_pdfs WHERE storyDocumentId = :storyId LIMIT 1")
     DownloadedPdfEntity getPdfByStoryId(String storyId);
 
+    // ⬅️ THÊM PHƯƠNG THỨC MỚI ĐỂ GIẢI QUYẾT LỖI 'Cannot resolve method getPdfByUrl'
+    @Query("SELECT * FROM downloaded_pdfs WHERE pdfUrl = :pdfUrl LIMIT 1")
+    DownloadedPdfEntity getPdfByUrl(String pdfUrl);
+
     @Delete
     void delete(DownloadedPdfEntity pdf);
 

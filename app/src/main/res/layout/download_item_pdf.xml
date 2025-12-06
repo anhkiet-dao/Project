@@ -8,11 +8,20 @@
     android:background="@drawable/bg_pdf_item"
     android:gravity="center_vertical">
 
-    <!-- Tên PDF -->
+    <ImageView
+        android:id="@+id/imgCover"
+        android:layout_width="90dp"
+        android:layout_height="100dp"
+        android:scaleType="centerCrop"
+        android:layout_marginEnd="16dp"
+        android:contentDescription="Ảnh bìa"
+    />
+
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
         android:layout_weight="1"
         android:paddingStart="12dp">
 
@@ -32,28 +41,30 @@
             android:id="@+id/txtPdfAuthor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:text="Tác giả: ???"
-            android:textSize="13sp"
+            android:textSize="15sp"
             android:textColor="#777777"
             android:maxLines="1"
             android:ellipsize="end"/>
 
-    </LinearLayout>
+        <!-- Nút Xóa -->
+        <TextView
+            android:id="@+id/btnDelete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="6dp"
+            android:layout_marginTop="10dp"
+            android:text="Xóa"
+            android:textSize="15sp"
+            android:textColor="@android:color/white"
+            android:background="@drawable/bg_button"
+            android:gravity="center_horizontal"
+            android:clickable="true"
+            android:focusable="true"
+            />
 
-    <!-- Nút Xóa -->
-    <TextView
-        android:id="@+id/btnDelete"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingHorizontal="14dp"
-        android:paddingVertical="6dp"
-        android:text="Xóa"
-        android:textSize="14sp"
-        android:textColor="@android:color/white"
-        android:background="@drawable/bg_button"
-        android:gravity="center"
-        android:clickable="true"
-        android:focusable="true"
-        />
+    </LinearLayout>
 
 </LinearLayout>

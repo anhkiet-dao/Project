@@ -87,7 +87,6 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
-            // Gán Activity cho listener
             navigationListener = (NavigationListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString()
@@ -336,7 +335,8 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
                     currentReadUrl,
                     fullFileName,
                     currentStoryId,
-                    currentAuthor
+                    currentAuthor,
+                    currentImageUrl
             );
         });
 
@@ -471,7 +471,7 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
     public void onDestroy() {
         super.onDestroy();
         if (pdfViewerController != null) {
-            try { // ⬅️ Bảo vệ cả ở đây
+            try {
                 pdfViewerController.closeRenderer();
             } catch (Exception e) {
                 Log.e(TAG, "Lỗi khi đóng PdfRenderer trong onDestroy: " + e.getMessage());

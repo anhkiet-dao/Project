@@ -15,5 +15,6 @@ public class DownloadedPdfEntity {
     public String localFilePath;
     public String pdfUrl;
     public String author;
+    public String coverImageUrl;
     public DownloadedPdfEntity() {}
 }

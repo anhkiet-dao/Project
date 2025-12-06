@@ -6,112 +6,113 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView; // ⬅️ IMPORT MỚI
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.io.File;
-import java.io.FileReader; // Không cần thiết nữa, nhưng giữ lại nếu cần
-import java.util.ArrayList;
-import java.util.List;
-
+import com.bumptech.glide.Glide; // ⬅️ IMPORT GLIDE MỚI
 import com.example.do_an.R;
 import com.example.do_an.UI.ReadFragment;
 import com.example.do_an.data.DownloadedPdfDao;
-import com.example.do_an.data.DownloadedPdfEntity; // Cần import Entity
+import com.example.do_an.data.DownloadedPdfEntity;
 
-import org.json.JSONObject; // Không cần thiết nữa, nhưng giữ lại nếu cần
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdapter.PdfViewHolder> {
 
     private Activity activity;
-    private List<File> pdfFiles;
+    // ⬅️ THAY ĐỔI: Dùng Entity List thay vì File List
+    private List<DownloadedPdfEntity> downloadedPdfs;
     private DownloadedPdfDao pdfDao;
 
-    public DownloadedPdfAdapter(Activity activity, List<File> pdfFiles, DownloadedPdfDao pdfDao) {
+    // ⬅️ THAY ĐỔI: Constructor chấp nhận List<DownloadedPdfEntity>
+    public DownloadedPdfAdapter(Activity activity, List<DownloadedPdfEntity> downloadedPdfs, DownloadedPdfDao pdfDao) {
         this.activity = activity;
-        this.pdfFiles = new ArrayList<>(pdfFiles);
+        this.downloadedPdfs = new ArrayList<>(downloadedPdfs);
         this.pdfDao = pdfDao;
     }
 
     @Override
     public PdfViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.pdf_item_pdf, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.download_item_pdf, parent, false);
         return new PdfViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(PdfViewHolder holder, int position) {
 
-        File pdf = pdfFiles.get(position);
+        // ⬅️ THAY ĐỔI: Lấy Entity trực tiếp
+        DownloadedPdfEntity entity = downloadedPdfs.get(position);
 
-        final String pdfFileName = pdf.getName();
+        final String title = entity.fileName.replace(".pdf", "");
+        final String author = entity.author != null && !entity.author.isEmpty() ? entity.author : "Đang cập nhật";
+        final String localFilePath = entity.localFilePath;
 
-        String defaultTitle = pdfFileName.replace(".pdf", "");
-        holder.txtPdfName.setText(defaultTitle);
-        holder.txtPdfAuthor.setText("Tác giả: Tác giả ẩn danh (Đang tải...)");
+        // HIỂN THỊ ẢNH BÌA
+        if (entity.coverImageUrl != null && !entity.coverImageUrl.isEmpty()) {
+            Glide.with(activity)
+                    .load(entity.coverImageUrl)
+                    // Đảm bảo placeholder_cover và default_cover tồn tại trong drawable
+                    .placeholder(R.drawable.ic_launcher_background)
+                    .error(R.drawable.ic_launcher_background)
+                    .into(holder.imgCover);
+        } else {
+            // Dùng ảnh mặc định nếu không có URL
+            holder.imgCover.setImageResource(R.drawable.ic_launcher_background);
+        }
 
-        new Thread(() -> {
-            DownloadedPdfEntity entity = pdfDao.getPdfByFileName(pdfFileName);
+        // Cập nhật TextView Tên và Tác giả
+        holder.txtPdfName.setText(title);
+        holder.txtPdfAuthor.setText("Tác giả: " + author);
 
-            activity.runOnUiThread(() -> {
-                String title;
-                String author;
+        // BẤM VÀO ITEM
+        holder.itemView.setOnClickListener(v -> {
+            Bundle readArgs = new Bundle();
 
-                if (entity != null) {
-                    title = entity.fileName.replace(".pdf", "");
-                    author = entity.author != null && !entity.author.isEmpty() ? entity.author : "Đang cập nhật";
-                } else {
-                    title = defaultTitle;
-                    author = "Không tìm thấy";
-                    Toast.makeText(activity, "Lỗi: Không tìm thấy thông tin Room cho " + defaultTitle, Toast.LENGTH_SHORT).show();
-                }
+            readArgs.putString("STORY_TITLE", title);
+            readArgs.putString("STORY_AUTHOR", author);
+            readArgs.putString("PDF_PATH", localFilePath);
+            // ⬅️ TRUYỀN THÊM IMAGE URL (cho ReadFragment nếu cần)
+            readArgs.putString("STORY_IMAGE_URL", entity.coverImageUrl);
 
-                holder.txtPdfName.setText(title);
-                holder.txtPdfAuthor.setText("Tác giả: " + author);
+            if (activity instanceof AppCompatActivity) {
+                AppCompatActivity appCompatActivity = (AppCompatActivity) activity;
+                ReadFragment readFragment = ReadFragment.newInstance(readArgs);
 
-                final String finalTitle = title;
-                final String finalAuthor = author;
+                appCompatActivity.getSupportFragmentManager()
+                        .beginTransaction()
+                        .add(R.id.fragment_container, readFragment)
+                        .addToBackStack(null)
+                        .commit();
+            } else {
+                Toast.makeText(activity, "Không thể mở file!", Toast.LENGTH_SHORT).show();
+            }
+        });
 
-                holder.itemView.setOnClickListener(v -> {
-                    Bundle readArgs = new Bundle();
-
-                    readArgs.putString("STORY_TITLE", finalTitle);
-                    readArgs.putString("STORY_AUTHOR", finalAuthor);
-                    readArgs.putString("PDF_PATH", pdf.getAbsolutePath());
-
-                    if (activity instanceof AppCompatActivity) {
-                        AppCompatActivity appCompatActivity = (AppCompatActivity) activity;
-                        ReadFragment readFragment = ReadFragment.newInstance(readArgs);
-
-                        appCompatActivity.getSupportFragmentManager()
-                                .beginTransaction()
-                                .add(R.id.fragment_container, readFragment)
-                                .addToBackStack(null)
-                                .commit();
-                    } else {
-                        Toast.makeText(activity, "Không thể mở file!", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            });
-        }).start();
-
+        // NÚT XÓA
         holder.btnDelete.setOnClickListener(v -> {
             int adapterPos = holder.getAdapterPosition();
             if (adapterPos == RecyclerView.NO_POSITION) return;
-            File fileToDelete = pdfFiles.get(adapterPos);
-            showDeleteDialog(fileToDelete, adapterPos);
+
+            // Dùng entity để lấy File và gọi dialog
+            File fileToDelete = new File(localFilePath);
+            showDeleteDialog(fileToDelete, entity, adapterPos);
         });
     }
 
     @Override
     public int getItemCount() {
-        return pdfFiles.size();
+        return downloadedPdfs.size(); // ⬅️ THAY ĐỔI
     }
 
-    private void showDeleteDialog(File fileToDelete, int adapterPos) {
+    // ⬅️ THAY ĐỔI: Chấp nhận cả Entity để xóa khỏi DB
+    private void showDeleteDialog(File fileToDelete, DownloadedPdfEntity entityToDelete, int adapterPos) {
         Dialog dialog = new Dialog(this.activity);
         dialog.setContentView(R.layout.note_item_confirm_delete);
         dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
@@ -125,10 +126,11 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
             final String fileNameToDelete = fileToDelete.getName();
 
             new Thread(() -> {
-                DownloadedPdfEntity entity = pdfDao.getPdfByFileName(fileNameToDelete);
-                if (entity != null) pdfDao.delete(entity);
+                // Xóa Entity khỏi Room
+                pdfDao.delete(entityToDelete);
             }).start();
 
+            // Xóa file json
             File jsonFile = new File(
                     fileToDelete.getParent(),
                     fileToDelete.getName().replace(".pdf", ".json")
@@ -136,7 +138,7 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
             if (jsonFile.exists()) jsonFile.delete();
 
             if (deleted) {
-                pdfFiles.remove(adapterPos);
+                downloadedPdfs.remove(adapterPos); // Xóa khỏi List Entity
                 notifyItemRemoved(adapterPos);
                 Toast.makeText(this.activity, "Đã xóa " + fileNameToDelete, Toast.LENGTH_SHORT).show();
             } else {
@@ -152,12 +154,14 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
 
     static class PdfViewHolder extends RecyclerView.ViewHolder {
         TextView txtPdfName, txtPdfAuthor, btnDelete;
+        ImageView imgCover; // ⬅️ KHAI BÁO MỚI
 
         public PdfViewHolder(View itemView) {
             super(itemView);
             txtPdfName = itemView.findViewById(R.id.txtPdfName);
-            txtPdfAuthor = itemView.findViewById(R.id.txtPdfAuthor); // LẤY VIEW TÁC GIẢ
+            txtPdfAuthor = itemView.findViewById(R.id.txtPdfAuthor);
             btnDelete = itemView.findViewById(R.id.btnDelete);
+            imgCover = itemView.findViewById(R.id.imgCover); // ⬅️ ÁNH XẠ MỚI
         }
     }
 }

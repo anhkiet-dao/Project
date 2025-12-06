@@ -1,329 +1,340 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
+    android:orientation="vertical"
     android:background="@android:color/white">
 
-    <LinearLayout
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="10dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp">
 
-        <androidx.cardview.widget.CardView
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginTop="10dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <ImageView
+                android:id="@+id/imgAvatar"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/avatar_circle_bg"
+                android:clipToOutline="true"
+                android:outlineProvider="background"
+                android:scaleType="centerCrop"
+                android:src="@drawable/avatar"
+                android:contentDescription="Avatar người dùng" />
+
+            <TextView
+                android:id="@+id/txtGreeting"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center|center_vertical"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="0dp"
+                android:text="Xin chào, Tên!"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="8dp"
+        android:background="#E0E0E0"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_book"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_marginTop="0dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="6dp"
+                app:cardUseCompatPadding="true">
+
+                <ImageView
+                    android:id="@+id/rounded_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/common_google_signin_btn_icon_light"
+                    android:contentDescription="Ảnh truyện"/>
+            </androidx.cardview.widget.CardView>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingTop="5dp"
-                android:paddingBottom="5dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp">
 
-                <ImageView
-                    android:id="@+id/imgAvatar"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/avatar_circle_bg"
-                    android:clipToOutline="true"
-                    android:outlineProvider="background"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/avatar"
-                    android:contentDescription="Avatar người dùng" />
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Xem truyện trước"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    android:ellipsize="end"/>
 
                 <TextView
-                    android:id="@+id/txtGreeting"
-                    android:layout_width="match_parent"
+                    android:id="@+id/detail"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:gravity="center|center_vertical"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="0dp"
-                    android:text="Xin chào, Tên!"
-                    android:textColor="@color/black"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="Chi tiết >"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/darker_gray"
+                    android:gravity="end"
+                    android:maxLines="1"
+                    android:ellipsize="end"/>
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/card_book"
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:layout_marginTop="0dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            app:cardCornerRadius="14dp"
-            app:cardElevation="6dp"
-            app:cardUseCompatPadding="true">
-
-            <ImageView
-                android:id="@+id/rounded_image"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_books"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@drawable/common_google_signin_btn_icon_light"
-                android:contentDescription="Ảnh truyện"/>
-        </androidx.cardview.widget.CardView>
+                android:layout_height="160dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:clipToPadding="false"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp">
-
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Xem truyện trước"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:maxLines="1"
-                android:ellipsize="end"/>
-
-            <TextView
-                android:id="@+id/detail"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:text="Chi tiết >"
-                android:textSize="14sp"
-                android:textColor="@android:color/darker_gray"
-                android:gravity="end"
-                android:maxLines="1"
-                android:ellipsize="end"/>
-        </LinearLayout>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_books"
-            android:layout_width="match_parent"
-            android:layout_height="160dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:clipToPadding="false"/>
-
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/pdfViewPager"
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginTop="10dp" />
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:padding="12dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:background="@drawable/bg_item"
-            android:gravity="center_vertical">
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/pdfViewPager"
+                android:layout_width="match_parent"
+                android:layout_height="400dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="10dp" />
 
             <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:paddingStart="12dp">
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:padding="12dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:background="@drawable/bg_item"
+                android:gravity="center_vertical">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:paddingStart="12dp">
+
+                    <TextView
+                        android:id="@+id/txtPdfName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tên PDF"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="#FFFFFF"
+                        android:maxLines="1"
+                        android:ellipsize="end"/>
+
+                    <TextView
+                        android:id="@+id/txtPdfAuthor"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tác giả: ???"
+                        android:textSize="13sp"
+                        android:textColor="#FFFFFF"
+                        android:maxLines="1"
+                        android:ellipsize="end"/>
+                </LinearLayout>
 
                 <TextView
-                    android:id="@+id/txtPdfName"
+                    android:id="@+id/btnDetail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Tên PDF"
-                    android:textStyle="bold"
-                    android:textSize="16sp"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="6dp"
+                    android:text=">"
+                    android:textSize="20sp"
                     android:textColor="#FFFFFF"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true"
+                    />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <TextView
+                    android:id="@+id/title1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Truyện mới"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
                     android:maxLines="1"
                     android:ellipsize="end"/>
 
                 <TextView
-                    android:id="@+id/txtPdfAuthor"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/detail1"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Tác giả: ???"
-                    android:textSize="13sp"
-                    android:textColor="#FFFFFF"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="Chi tiết >"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/darker_gray"
+                    android:gravity="end"
                     android:maxLines="1"
                     android:ellipsize="end"/>
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/btnDetail"
-                android:layout_width="wrap_content"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_books1"
+                android:layout_width="match_parent"
+                android:layout_height="160dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:clipToPadding="false"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="14dp"
-                android:paddingVertical="6dp"
-                android:text=">"
-                android:textSize="20sp"
-                android:textColor="#FFFFFF"
-                android:gravity="center"
-                android:clickable="true"
-                android:focusable="true"
-                />
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <TextView
+                    android:id="@+id/title2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Truyện phổ biến"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    android:ellipsize="end"/>
+
+                <TextView
+                    android:id="@+id/detail2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="Chi tiết >"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/darker_gray"
+                    android:gravity="end"
+                    android:maxLines="1"
+                    android:ellipsize="end"/>
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_books2"
+                android:layout_width="match_parent"
+                android:layout_height="160dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:clipToPadding="false"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <TextView
+                    android:id="@+id/title3"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Xu hướng đọc"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    android:ellipsize="end"/>
+
+                <TextView
+                    android:id="@+id/detail3"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="Chi tiết >"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/darker_gray"
+                    android:gravity="end"
+                    android:maxLines="1"
+                    android:ellipsize="end"/>
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_books3"
+                android:layout_width="match_parent"
+                android:layout_height="160dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:clipToPadding="false"
+                android:layout_marginBottom="24dp"/>
 
         </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp">
-
-            <TextView
-                android:id="@+id/title1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Truyện mới"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:maxLines="1"
-                android:ellipsize="end"/>
-
-            <TextView
-                android:id="@+id/detail1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:text="Chi tiết >"
-                android:textSize="14sp"
-                android:textColor="@android:color/darker_gray"
-                android:gravity="end"
-                android:maxLines="1"
-                android:ellipsize="end"/>
-        </LinearLayout>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_books1"
-            android:layout_width="match_parent"
-            android:layout_height="160dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:clipToPadding="false"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp">
-
-            <TextView
-                android:id="@+id/title2"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Truyện phổ biến"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:maxLines="1"
-                android:ellipsize="end"/>
-
-            <TextView
-                android:id="@+id/detail2"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:text="Chi tiết >"
-                android:textSize="14sp"
-                android:textColor="@android:color/darker_gray"
-                android:gravity="end"
-                android:maxLines="1"
-                android:ellipsize="end"/>
-        </LinearLayout>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_books2"
-            android:layout_width="match_parent"
-            android:layout_height="160dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:clipToPadding="false"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp">
-
-            <TextView
-                android:id="@+id/title3"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Xu hướng đọc"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:maxLines="1"
-                android:ellipsize="end"/>
-
-            <TextView
-                android:id="@+id/detail3"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:text="Chi tiết >"
-                android:textSize="14sp"
-                android:textColor="@android:color/darker_gray"
-                android:gravity="end"
-                android:maxLines="1"
-                android:ellipsize="end"/>
-        </LinearLayout>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_books3"
-            android:layout_width="match_parent"
-            android:layout_height="160dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:clipToPadding="false"
-            android:layout_marginBottom="24dp"/> </LinearLayout>
-</ScrollView>
+    </ScrollView>
+</LinearLayout>

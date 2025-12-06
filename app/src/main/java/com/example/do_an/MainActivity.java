@@ -1,7 +1,7 @@
 package com.example.do_an;
 
 import android.os.Bundle;
-import android.view.View;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -9,9 +9,8 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.do_an.UI.AccountFragment;
 import com.example.do_an.UI.MyListFragment;
 import com.example.do_an.UI.ReadFragment;
-import com.example.do_an.UI.discoverFragment;
+import com.example.do_an.UI.HomeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import android.util.Log;
 
 public class MainActivity extends AppCompatActivity implements ReadFragment.NavigationListener {
 
@@ -50,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements ReadFragment.Navi
         if (savedInstanceState == null) {
             myListFragment = new MyListFragment();
             accountFragment = new AccountFragment();
-            discoverFragment = new discoverFragment();
+            discoverFragment = new HomeFragment();
 
             fm.beginTransaction()
                     // Thêm tất cả Fragment
@@ -181,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements ReadFragment.Navi
                 newFragment = new AccountFragment();
                 accountFragment = newFragment; // Cập nhật tham chiếu
             } else { // discoverFragment
-                newFragment = new discoverFragment();
+                newFragment = new HomeFragment();
                 discoverFragment = newFragment; // Cập nhật tham chiếu
             }
 

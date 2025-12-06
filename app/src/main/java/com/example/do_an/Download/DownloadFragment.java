@@ -22,11 +22,11 @@ public class DownloadFragment extends Fragment {
     private RecyclerView rvDownloadedPdfs;
     private TextView tvNoDownloads;
     private DownloadedPdfAdapter adapter;
-    private List<File> pdfFiles;
+    // ĐỔI TỪ List<File> sang List<DownloadedPdfEntity>
+    private List<DownloadedPdfEntity> downloadedPdfs; // ⬅️ THAY ĐỔI
     private DownloadedPdfDao pdfDao;
 
     public DownloadFragment() {
-        // Required empty public constructor
     }
 
     @Override
@@ -40,30 +40,41 @@ public class DownloadFragment extends Fragment {
 
         tvNoDownloads = view.findViewById(R.id.tvNoDownloads);
 
-        pdfDao = AppDatabase.getDatabase(requireContext()).downloadedPdfDao();
-
-        loadDownloadedPdfs();
+        pdfDao = AppDatabase.getDatabase(getContext()).downloadedPdfDao();
+        loadDownloadedPdfs(); // Gọi hàm tải dữ liệu
 
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Cập nhật lại danh sách mỗi khi Fragment được hiển thị
+        if (pdfDao != null) {
+            loadDownloadedPdfs();
+        }
+    }
+
     private void loadDownloadedPdfs() {
+        if (getContext() == null) return;
+
         new Thread(() -> {
+            // Lấy TẤT CẢ các Entity từ database
+            List<DownloadedPdfEntity> entities = getAllDownloadedPdfs(pdfDao);
 
-            List<DownloadedPdfEntity> downloadedEntities = getAllDownloadedPdfs(pdfDao);
-            List<File> localFiles = new ArrayList<>();
-            List<DownloadedPdfEntity> entitiesToRemove = new ArrayList<>();
+            List<DownloadedPdfEntity> validEntities = new ArrayList<>(); // List chứa các entity còn file
+            List<DownloadedPdfEntity> entitiesToRemove = new ArrayList<>(); // List chứa các entity bị mất file
 
-            for (DownloadedPdfEntity entity : downloadedEntities) {
+            for (DownloadedPdfEntity entity : entities) {
                 File pdfFile = new File(entity.localFilePath);
                 if (pdfFile.exists()) {
-                    localFiles.add(pdfFile);
+                    validEntities.add(entity); // ⬅️ THÊM ENTITY
                 } else {
                     entitiesToRemove.add(entity);
                 }
             }
 
-            // Xoá các entity không còn file
+            // Xóa các record bị lỗi
             if (!entitiesToRemove.isEmpty()) {
                 for (DownloadedPdfEntity entity : entitiesToRemove) {
                     pdfDao.delete(entity);
@@ -71,9 +82,9 @@ public class DownloadFragment extends Fragment {
             }
 
             requireActivity().runOnUiThread(() -> {
-                pdfFiles = localFiles;
+                downloadedPdfs = validEntities; // ⬅️ CẬP NHẬT LIST ENTITY
 
-                if (pdfFiles.isEmpty()) {
+                if (downloadedPdfs.isEmpty()) { // ⬅️ DÙNG LIST ENTITY
                     // Không có file: ẩn RecyclerView, hiển thị TextView
                     rvDownloadedPdfs.setVisibility(View.GONE);
                     tvNoDownloads.setVisibility(View.VISIBLE);
@@ -82,7 +93,8 @@ public class DownloadFragment extends Fragment {
                     rvDownloadedPdfs.setVisibility(View.VISIBLE);
                     tvNoDownloads.setVisibility(View.GONE);
 
-                    adapter = new DownloadedPdfAdapter(requireActivity(), pdfFiles, pdfDao);
+                    // TRUYỀN LIST ENTITY VÀO ADAPTER
+                    adapter = new DownloadedPdfAdapter(requireActivity(), downloadedPdfs, pdfDao);
                     rvDownloadedPdfs.setAdapter(adapter);
                 }
             });

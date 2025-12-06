@@ -40,7 +40,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-public class discoverFragment extends Fragment {
+public class HomeFragment extends Fragment {
 
     private androidx.appcompat.widget.SearchView searchView;
     private CardView cardBook;

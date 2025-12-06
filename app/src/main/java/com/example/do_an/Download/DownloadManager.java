@@ -69,60 +69,88 @@ public class DownloadManager {
         if (loadingListener != null) runOnUiThread(() -> loadingListener.hideLoading());
     }
 
-    public void downloadPdfWithOkHttp(String pdfUrl, String fileName, String storyDocumentId, String author) {
-        runOnUiThread(() -> Toast.makeText(context, "Bắt đầu tải xuống ...", Toast.LENGTH_SHORT).show());
+    private void handleDownloadError(Exception e, Call call) {
+        if (!isActivityDestroyed && !call.isCanceled()) {
+            e.printStackTrace();
+            runOnUiThread(() -> Toast.makeText(context, "Lỗi tải PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+        }
+    }
 
-        final String downloadUrl = pdfUrl;
+    /**
+     * Tải PDF và lưu thông tin vào Room, bao gồm URL ảnh bìa.
+     * @param pdfUrl URL của file PDF.
+     * @param fileName Tên file để lưu.
+     * @param storyDocumentId ID của truyện.
+     * @param author Tác giả.
+     * @param coverImageUrl URL ảnh bìa. ⬅️ ĐÃ THÊM THAM SỐ THỨ 5
+     */
+    public void downloadPdfWithOkHttp(final String pdfUrl, final String fileName, final String storyDocumentId, final String author, final String coverImageUrl) {
 
-        OkHttpClient client = new OkHttpClient.Builder()
-                .retryOnConnectionFailure(true)
-                .connectTimeout(60, TimeUnit.SECONDS)
-                .readTimeout(60, TimeUnit.SECONDS)
-                .writeTimeout(60, TimeUnit.SECONDS)
-                .build();
+        new Thread(() -> {
+            DownloadedPdfEntity existingPdf = pdfDao.getPdfByUrl(pdfUrl);
 
-        Request request = new Request.Builder().url(downloadUrl).build();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                e.printStackTrace();
+            if (existingPdf != null) {
                 runOnUiThread(() -> {
-                    Toast.makeText(context, "Lỗi tải PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "File đã được tải xuống trước đó.", Toast.LENGTH_SHORT).show();
                     if (loadingListener != null) loadingListener.hideDownloadProgress();
                 });
+                return;
             }
 
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                InputStream is = null;
-                FileOutputStream fos = null;
-                File pdfFile = null;
+            runOnUiThread(() -> Toast.makeText(context, "Bắt đầu tải xuống ...", Toast.LENGTH_SHORT).show());
 
-                try {
-                    if (!response.isSuccessful() || response.body() == null) {
-                        runOnUiThread(() -> Toast.makeText(context, "Không tải được PDF!", Toast.LENGTH_SHORT).show());
-                        return;
-                    }
+            final String downloadUrl = pdfUrl;
 
-                    is = response.body().byteStream();
-                    File pdfDir = new File(context.getExternalFilesDir(null), "PDF");
-                    if (!pdfDir.exists()) pdfDir.mkdirs();
-                    pdfFile = new File(pdfDir, fileName);
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .retryOnConnectionFailure(true)
+                    .connectTimeout(60, TimeUnit.SECONDS)
+                    .readTimeout(60, TimeUnit.SECONDS)
+                    .writeTimeout(60, TimeUnit.SECONDS)
+                    .build();
 
-                    fos = new FileOutputStream(pdfFile);
-                    byte[] buffer = new byte[OPTIMIZED_BUFFER_SIZE];
-                    int len;
-                    while ((len = is.read(buffer)) != -1) fos.write(buffer, 0, len);
-                    fos.flush();
+            Request request = new Request.Builder().url(downloadUrl).build();
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    handleDownloadError(e, call);
+                    runOnUiThread(() -> {
+                        if (loadingListener != null) loadingListener.hideDownloadProgress();
+                    });
+                }
 
-                    final File finalPdfFile = pdfFile;
-                    new Thread(() -> {
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    InputStream is = null;
+                    FileOutputStream fos = null;
+                    File pdfFile = null;
+
+                    try {
+                        if (!response.isSuccessful() || response.body() == null) {
+                            runOnUiThread(() -> Toast.makeText(context, "Không tải được PDF!", Toast.LENGTH_SHORT).show());
+                            return;
+                        }
+
+                        is = response.body().byteStream();
+                        File pdfDir = new File(context.getExternalFilesDir(null), "PDF");
+                        if (!pdfDir.exists()) pdfDir.mkdirs();
+                        pdfFile = new File(pdfDir, fileName);
+
+                        fos = new FileOutputStream(pdfFile);
+                        byte[] buffer = new byte[OPTIMIZED_BUFFER_SIZE];
+                        int len;
+                        while ((len = is.read(buffer)) != -1) fos.write(buffer, 0, len);
+                        fos.flush();
+
+                        final File finalPdfFile = pdfFile;
+
+                        // LƯU ENTITY VÀO ROOM
                         DownloadedPdfEntity entity = new DownloadedPdfEntity();
                         entity.storyDocumentId = storyDocumentId;
                         entity.fileName = fileName;
                         entity.pdfUrl = pdfUrl;
                         entity.localFilePath = finalPdfFile.getAbsolutePath();
                         entity.author = author;
+                        entity.coverImageUrl = coverImageUrl; // ⬅️ LƯU THÔNG TIN ẢNH BÌA
 
                         pdfDao.insert(entity);
 
@@ -130,23 +158,22 @@ public class DownloadManager {
                             Toast.makeText(context, "Tải xuống thành công và lưu CSDL!", Toast.LENGTH_SHORT).show();
                             if (loadingListener != null) loadingListener.hideDownloadProgress();
                         });
-                    }).start();
 
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    runOnUiThread(() -> {
-                        Toast.makeText(context, "Lỗi tải PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        if (loadingListener != null) loadingListener.hideDownloadProgress();
-                    });
-                } finally {
-                    try { if (fos != null) fos.close(); if (is != null) is.close(); if (response != null) response.close(); }
-                    catch (IOException ignored) {}
+                    } catch (Exception e) {
+                        handleDownloadError(e, call);
+                        runOnUiThread(() -> {
+                            if (loadingListener != null) loadingListener.hideDownloadProgress();
+                        });
+                    } finally {
+                        try { if (fos != null) fos.close(); if (is != null) is.close(); if (response != null) response.close(); }
+                        catch (IOException ignored) {}
+                    }
                 }
-            }
-        });
+            });
+        }).start();
     }
 
-    private Call downloadPdfToCache(String pdfUrl, String fileName, PdfSetupCallback callback) {
+    private Call downloadPdfToCache(final String pdfUrl, final String fileName, final PdfSetupCallback callback) {
         if (loadingListener != null) loadingListener.showLoading();
 
         OkHttpClient client = new OkHttpClient.Builder()
@@ -180,7 +207,9 @@ public class DownloadManager {
                     is = response.body().byteStream();
                     File cacheDir = new File(context.getCacheDir(), "PDF");
                     if (!cacheDir.exists()) cacheDir.mkdirs();
-                    pdfFile = new File(cacheDir, fileName);
+
+                    final File finalPdfFileReference = new File(cacheDir, fileName);
+                    pdfFile = finalPdfFileReference;
 
                     fos = new FileOutputStream(pdfFile);
                     byte[] buffer = new byte[OPTIMIZED_BUFFER_SIZE];
@@ -194,6 +223,7 @@ public class DownloadManager {
                         fos.write(buffer, 0, len);
                     }
                     fos.flush();
+
                     final File finalPdfFile = pdfFile;
 
                     runOnUiThread(() -> {
@@ -216,14 +246,7 @@ public class DownloadManager {
         return downloadCall;
     }
 
-    private void handleDownloadError(Exception e, Call call) {
-        if (!isActivityDestroyed && !call.isCanceled()) {
-            e.printStackTrace();
-            runOnUiThread(() -> Toast.makeText(context, "Lỗi tải PDF!", Toast.LENGTH_SHORT).show());
-        }
-    }
-
-    private void loadPdfFromFirestore(String storyDocumentId, PdfSetupCallback callback, StringConsumer urlConsumer) {
+    private void loadPdfFromFirestore(final String storyDocumentId, final PdfSetupCallback callback, final StringConsumer urlConsumer) {
         db.collection("Truyentranh").document(storyDocumentId)
                 .get()
                 .addOnSuccessListener(doc -> {
@@ -252,18 +275,18 @@ public class DownloadManager {
                         }));
     }
 
-    public Call loadAndSetupPdf(String episodePdfLink, String pdfPath, String mainStoryTitle,
-                                PdfSetupCallback callback, StringConsumer urlConsumer) {
+    public Call loadAndSetupPdf(final String episodePdfLink, final String pdfPath, final String mainStoryTitle,
+                                final PdfSetupCallback callback, final StringConsumer urlConsumer) {
 
         if (loadingListener != null) loadingListener.showLoading();
 
         if (pdfPath != null) {
-            File pdfFile = new File(pdfPath);
+            final File pdfFile = new File(pdfPath);
             if (pdfFile.exists()) {
                 Log.d(TAG, "Load PDF: Đọc từ đường dẫn cục bộ (pdfPath).");
                 callback.setup(pdfFile);
                 if (loadingListener != null) runOnUiThread(() -> loadingListener.hideLoading());
-                findAndSetCurrentReadUrl(mainStoryTitle, urlConsumer); // Cố gắng lấy URL gốc để hỗ trợ Download
+                findAndSetCurrentReadUrl(mainStoryTitle, urlConsumer);
                 return null;
             } else {
                 Log.e(TAG, "Load PDF: File đã tải xuống bị mất tại đường dẫn: " + pdfPath);
@@ -279,15 +302,15 @@ public class DownloadManager {
         if (episodePdfLink != null && !episodePdfLink.isEmpty()) {
             Log.d(TAG, "Load PDF: Tải file từ Link Tập (episodePdfLink).");
             urlConsumer.set(episodePdfLink);
-            return downloadPdfToCache(episodePdfLink, "temp_episode.pdf", callback); // Hàm này tự ẩn loading
+            return downloadPdfToCache(episodePdfLink, "temp_episode.pdf", callback);
         }
 
         new Thread(() -> {
-            DownloadedPdfEntity localPdf = pdfDao.getPdfByStoryId(mainStoryTitle);
+            final DownloadedPdfEntity localPdf = pdfDao.getPdfByStoryId(mainStoryTitle);
 
             runOnUiThread(() -> {
                 if (localPdf != null) {
-                    File pdfFile = new File(localPdf.localFilePath);
+                    final File pdfFile = new File(localPdf.localFilePath);
 
                     if (pdfFile.exists()) {
                         Log.d(TAG, "Load PDF: Đọc từ Room (File tồn tại).");
@@ -299,12 +322,13 @@ public class DownloadManager {
                     } else {
                         Log.d(TAG, "Load PDF: File Room bị mất, đang xóa record và tải lại.");
                         Toast.makeText(context, "File tải xuống bị mất, đang tải lại...", Toast.LENGTH_SHORT).show();
+                        // Chạy tác vụ DB trên luồng phụ
                         new Thread(() -> pdfDao.delete(localPdf)).start();
                         loadPdfFromFirestore(mainStoryTitle, callback, urlConsumer);
                     }
                 } else {
                     Log.d(TAG, "Load PDF: Không tìm thấy trong Room hay Link Tập. Tải từ Firestore (link chính).");
-                    loadPdfFromFirestore(mainStoryTitle, callback, urlConsumer); // Hàm này tự ẩn loading
+                    loadPdfFromFirestore(mainStoryTitle, callback, urlConsumer);
                 }
             });
         }).start();
