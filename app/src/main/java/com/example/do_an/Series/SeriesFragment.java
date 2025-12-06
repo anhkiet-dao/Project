@@ -1,9 +1,11 @@
 package com.example.do_an.Series;
 
 import android.os.Bundle;
+import android.util.Log; // Thêm import Log
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -13,18 +15,29 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.do_an.R;
-
 import com.example.do_an.UI.ReadFragment;
+// Thêm các thư viện cần thiết để lấy thông tin người dùng
+import com.example.do_an.application.Encryption; // Cần có lớp Encryption
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.Calendar; // Cần import Calendar
 import java.util.List;
 
 public class SeriesFragment extends Fragment {
 
     private RecyclerView recyclerView;
+    private TextView tvNoSeries;
+    private TextView txtGreeting;
     private SeriesAdapter adapter;
     private final List<Series> seriesList = new ArrayList<>();
     private FirebaseFirestore db;
@@ -42,6 +55,10 @@ public class SeriesFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        txtGreeting = view.findViewById(R.id.txtGreeting);
+
+        setupUserGreeting();
 
         Bundle args = getArguments();
         if (args != null) {
@@ -70,6 +87,7 @@ public class SeriesFragment extends Fragment {
         });
 
         recyclerView = view.findViewById(R.id.recyclerSeries);
+        tvNoSeries = view.findViewById(R.id.tvNoSeries);
         int numberOfColumns = 3;
 
         if (getContext() != null) {
@@ -107,6 +125,64 @@ public class SeriesFragment extends Fragment {
         loadSeries();
     }
 
+    private void setupUserGreeting() {
+        if (txtGreeting == null) return;
+
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null || currentUser.getEmail() == null) {
+            txtGreeting.setText("Chào bạn!");
+            return;
+        }
+
+        final String userEmail = currentUser.getEmail();
+        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("Users");
+
+        usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!isAdded() || getContext() == null) return;
+
+                String defaultName = "Bạn";
+                String realName = defaultName;
+
+                for (DataSnapshot userSnap : snapshot.getChildren()) {
+                    String encryptedEmail = userSnap.child("email").getValue(String.class);
+                    if (encryptedEmail == null) continue;
+
+                    try {
+                        String emailDecrypted = Encryption.decrypt(encryptedEmail.trim());
+                        if (userEmail.equals(emailDecrypted)) {
+                            String encryptedName = userSnap.child("fullName").getValue(String.class);
+                            if (encryptedName != null && !encryptedName.isEmpty()) {
+                                realName = Encryption.decrypt(encryptedName.trim());
+                            }
+                            break; // Đã tìm thấy tên, thoát vòng lặp
+                        }
+                    } catch (Exception e) {
+                        Log.e("SeriesFragment", "Lỗi giải mã email/tên: " + e.getMessage());
+                    }
+                }
+
+                Calendar calendar = Calendar.getInstance();
+                int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                String greeting;
+                if (hour < 11) greeting = "Chào buổi sáng, ";
+                else if (hour < 13) greeting = "Chào buổi trưa, ";
+                else if (hour < 18) greeting = "Chào buổi chiều, ";
+                else greeting = "Chào buổi tối, ";
+
+                txtGreeting.setText(greeting + realName + "!");
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                if (!isAdded() || getContext() == null) return;
+                Log.e("SeriesFragment", "Lỗi tải dữ liệu user: " + error.getMessage());
+                txtGreeting.setText("Chào bạn!");
+            }
+        });
+    }
+
     private void loadSeries() {
         if (storyId == null || db == null) return;
 
@@ -130,13 +206,29 @@ public class SeriesFragment extends Fragment {
                     if (adapter != null) {
                         adapter.notifyDataSetChanged();
                     }
+
                     if (seriesList.isEmpty()) {
-                        Toast.makeText(getContext(), "Chưa có tập nào!", Toast.LENGTH_LONG).show();
+                        if (tvNoSeries != null) {
+                            tvNoSeries.setText("Không có tập nào");
+                            tvNoSeries.setVisibility(View.VISIBLE);
+                            recyclerView.setVisibility(View.GONE);
+                        }
+                    } else {
+                        if (tvNoSeries != null) {
+                            tvNoSeries.setVisibility(View.GONE);
+                            recyclerView.setVisibility(View.VISIBLE);
+                        }
                     }
                 })
                 .addOnFailureListener(e -> {
                     if (getContext() != null && isAdded()) {
-                        Toast.makeText(getContext(), "Lỗi tải dữ liệu!", Toast.LENGTH_SHORT).show();
+                        if (tvNoSeries != null && seriesList.isEmpty()) {
+                            tvNoSeries.setText("Lỗi tải dữ liệu!");
+                            tvNoSeries.setVisibility(View.VISIBLE);
+                            recyclerView.setVisibility(View.GONE);
+                        } else {
+                            Toast.makeText(getContext(), "Lỗi tải dữ liệu!", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
     }

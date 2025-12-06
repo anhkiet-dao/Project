@@ -25,7 +25,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.do_an.R;
-import com.example.do_an.Statistic.StatisticFragment;
+// [ĐÃ XÓA] import com.example.do_an.Statistic.StatisticFragment;
 import com.example.do_an.application.Encryption;
 import com.example.do_an.application.InforAppFragment;
 import com.example.do_an.auth.LoginActivity;
@@ -36,7 +36,8 @@ import com.google.firebase.database.*;
 
 public class AccountFragment extends Fragment {
 
-    private TextView tvProfile, tvSettings, tvAnalytics, tvInformation, tvUsername;
+    // [ĐÃ SỬA] Xóa tvAnalytics
+    private TextView tvProfile, tvSettings, tvInformation, tvUsername;
     private Button btnLogout;
     private ImageView imgAvatar;
 
@@ -58,7 +59,7 @@ public class AccountFragment extends Fragment {
         imgAvatar = view.findViewById(R.id.imgAvatar);
         tvProfile = view.findViewById(R.id.tvProfile);
         tvSettings = view.findViewById(R.id.tvSettings);
-        tvAnalytics = view.findViewById(R.id.tvAnalytics);
+        // [ĐÃ XÓA] tvAnalytics = view.findViewById(R.id.tvAnalytics);
         tvInformation = view.findViewById(R.id.tvInformation);
         btnLogout = view.findViewById(R.id.btnLogout);
         tvUsername = view.findViewById(R.id.tvUsername);
@@ -89,7 +90,7 @@ public class AccountFragment extends Fragment {
 
         tvProfile.setOnClickListener(v -> openChildFragment(new ProfileFragment()));
         tvInformation.setOnClickListener(v -> openChildFragment(new InforAppFragment()));
-        tvAnalytics.setOnClickListener(v -> openChildFragment(new StatisticFragment()));
+        // [ĐÃ XÓA] tvAnalytics.setOnClickListener(v -> openChildFragment(new StatisticFragment()));
 
         btnLogout.setOnClickListener(v -> {
             auth.signOut();

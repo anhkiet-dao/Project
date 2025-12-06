@@ -236,7 +236,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_books1"
                 android:layout_width="match_parent"
-                android:layout_height="160dp"
+                android:layout_height="190dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
@@ -281,7 +281,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_books2"
                 android:layout_width="match_parent"
-                android:layout_height="160dp"
+                android:layout_height="190dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
@@ -326,14 +326,13 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_books3"
                 android:layout_width="match_parent"
-                android:layout_height="160dp"
+                android:layout_height="190dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
                 android:paddingStart="8dp"
-                android:paddingEnd="8dp"
                 android:clipToPadding="false"
-                android:layout_marginBottom="24dp"/>
+                android:layout_marginBottom="35dp"/>
 
         </LinearLayout>
     </ScrollView>

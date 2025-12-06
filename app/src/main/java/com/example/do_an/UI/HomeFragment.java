@@ -14,6 +14,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
@@ -26,6 +28,7 @@ import com.example.do_an.home.Book;
 import com.example.do_an.home.BookHomeAdapter;
 import com.example.do_an.home.BookImageAdapter;
 import com.example.do_an.home.PdfViewerUtility;
+import com.example.do_an.home.AllBooksFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -72,9 +75,12 @@ public class HomeFragment extends Fragment {
     private final List<Book> listPopular = new ArrayList<>();
     private final List<Book> listTrend = new ArrayList<>();
     private FirebaseFirestore db;
-
-    // TextView hiển thị lời chào người dùng
     private TextView tvGreeting;
+    private TextView detailPreview;
+    private TextView detailNewBooks, detailPopularBooks, detailTrendBooks;
+
+    // Biến mới: Giữ tham chiếu đến adapter của danh sách xem trước
+    private BookImageAdapter previewAdapter;
 
     @Nullable
     @Override
@@ -87,7 +93,8 @@ public class HomeFragment extends Fragment {
         mapping(view);
         setupRecycler();
         loadAllData();
-        setupUserGreeting(); // Lời chào người dùng
+        setupUserGreeting();
+        setupDetailClickListeners();
 
         return view;
     }
@@ -116,13 +123,19 @@ public class HomeFragment extends Fragment {
         txtPdfAuthor = view.findViewById(R.id.txtPdfAuthor);
         btnDetail = view.findViewById(R.id.btnDetail);
 
-        tvGreeting = view.findViewById(R.id.txtGreeting); // TextView hiển thị lời chào
+        tvGreeting = view.findViewById(R.id.txtGreeting);
 
         if (txtPdfName != null && txtPdfName.getParent() != null) {
             pdfInfoContainer = (View) txtPdfName.getParent().getParent();
         }
 
         pdfViewerUtility = new PdfViewerUtility(getContext(), pdfViewPager);
+
+        detailPreview = view.findViewById(R.id.detail);
+
+        detailNewBooks = view.findViewById(R.id.detail1);
+        detailPopularBooks = view.findViewById(R.id.detail2);
+        detailTrendBooks = view.findViewById(R.id.detail3);
     }
 
     private void setupRecycler() {
@@ -133,10 +146,47 @@ public class HomeFragment extends Fragment {
     }
 
     private void loadAllData() {
-        loadCategory("newBooks", listPreview, rvPreview, true);
+        loadCategory("reviewBooks", listPreview, rvPreview, true);
+
+        // Giữ nguyên các danh mục khác
         loadCategory("newBooks", listNew, rvNewBooks, false);
         loadCategory("popularBooks", listPopular, rvPopularBooks, false);
         loadCategory("trendBooks", listTrend, rvTrendBooks, false);
+    }
+
+    private void setupDetailClickListeners() {
+        if (detailNewBooks != null) {
+            detailNewBooks.setOnClickListener(v -> navigateToAllBooksFragment("newBooks", "Truyện mới"));
+        }
+
+        if (detailPopularBooks != null) {
+            detailPopularBooks.setOnClickListener(v -> navigateToAllBooksFragment("popularBooks", "Truyện phổ biến"));
+        }
+
+        if (detailTrendBooks != null) {
+            detailTrendBooks.setOnClickListener(v -> navigateToAllBooksFragment("trendBooks", "Xu hướng đọc"));
+        }
+    }
+
+    private void navigateToAllBooksFragment(String collectionName, String title) {
+        if (getActivity() == null) return;
+
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+
+        AllBooksFragment allBooksFragment = new AllBooksFragment();
+        Bundle args = new Bundle();
+        args.putString("COLLECTION_NAME", collectionName);
+        args.putString("TITLE", title);
+        allBooksFragment.setArguments(args);
+
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+        transaction.hide(this);
+
+        transaction.add(R.id.fragment_container, allBooksFragment, "AllBooksFragment");
+        transaction.addToBackStack(null);
+
+        transaction.commit();
     }
 
     private void loadImageToImageView(String url) {
@@ -172,7 +222,9 @@ public class HomeFragment extends Fragment {
     private void loadCategory(String collectionName, List<Book> list, RecyclerView recyclerView, boolean onlyImage) {
         db.collection(collectionName).get().addOnSuccessListener(snap -> {
             list.clear();
-            boolean isPreviewList = (collectionName.equals("newBooks") && list == listPreview);
+
+            boolean isPreviewList = (list == listPreview);
+
             if (isPreviewList) {
                 stopImageSwitcher();
                 imageUrls.clear();
@@ -195,6 +247,19 @@ public class HomeFragment extends Fragment {
                     currentViewingBook = list.get(0);
                     showPdfPreview(currentViewingBook);
 
+                    // Khởi tạo và lưu tham chiếu của BookImageAdapter
+                    previewAdapter = new BookImageAdapter(getContext(), list, this::onBookClick);
+                    recyclerView.setAdapter(previewAdapter);
+
+                    // Thiết lập item đầu tiên là item được chọn mặc định
+                    previewAdapter.setSelectedBookId(currentViewingBook.getId());
+                    previewAdapter.notifyDataSetChanged();
+
+
+                    if (detailPreview != null) {
+                        detailPreview.setOnClickListener(v -> navigateToAllBooksFragment("reviewBooks", "Truyện xem trước"));
+                    }
+
                     if (btnDetail != null) {
                         btnDetail.setOnClickListener(v -> onBookClickOpenReadFragment(currentViewingBook));
                     }
@@ -205,10 +270,12 @@ public class HomeFragment extends Fragment {
                 Toast.makeText(getContext(), collectionName + " trống hoặc lỗi.", Toast.LENGTH_SHORT).show();
                 recyclerView.setAdapter(null);
             } else {
-                if (onlyImage) {
-                    recyclerView.setAdapter(new BookImageAdapter(getContext(), list, this::onBookClick));
-                } else {
-                    recyclerView.setAdapter(new BookHomeAdapter(getContext(), list, this::onBookClickOpenReadFragment));
+                if (!isPreviewList) { // Chỉ gán adapter cho các danh sách không phải review
+                    if (onlyImage) {
+                        recyclerView.setAdapter(new BookImageAdapter(getContext(), list, this::onBookClick));
+                    } else {
+                        recyclerView.setAdapter(new BookHomeAdapter(getContext(), list, this::onBookClickOpenReadFragment));
+                    }
                 }
             }
 
@@ -250,6 +317,13 @@ public class HomeFragment extends Fragment {
         currentViewingBook = book;
         showPdfPreview(book);
 
+        // --- LOGIC HIGHLIGHT MỚI ---
+        if (previewAdapter != null) {
+            previewAdapter.setSelectedBookId(book.getId());
+            previewAdapter.notifyDataSetChanged(); // Thông báo cho adapter vẽ lại
+        }
+        // --- KẾT THÚC LOGIC HIGHLIGHT MỚI ---
+
         if (btnDetail != null) {
             btnDetail.setOnClickListener(v -> onBookClickOpenReadFragment(book));
         }
@@ -264,7 +338,6 @@ public class HomeFragment extends Fragment {
         pdfViewerUtility.loadPdfPreview(book.getLink(), 5);
     }
 
-    // --- Thêm lời chào người dùng ---
     private void setupUserGreeting() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null || currentUser.getEmail() == null) {

@@ -64,17 +64,19 @@
                     android:layout_marginEnd="8dp"
                     android:layout_weight="1"
                     app:cardCornerRadius="20dp"
-                    app:cardElevation="0dp"> <TextView
-                    android:id="@+id/tvProfile"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:gravity="center"
-                    android:text="Xem hồ sơ"
-                    android:textColor="#1E88E5"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:background="?attr/selectableItemBackground" />
+                    app:cardElevation="0dp">
+
+                    <TextView
+                        android:id="@+id/tvProfile"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp"
+                        android:gravity="center"
+                        android:text="Xem hồ sơ"
+                        android:textColor="#1E88E5"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:background="?attr/selectableItemBackground" />
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
@@ -83,17 +85,19 @@
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     app:cardCornerRadius="20dp"
-                    app:cardElevation="0dp"> <TextView
-                    android:id="@+id/tvSettings"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:gravity="center"
-                    android:text="Cài đặt"
-                    android:textColor="#1E88E5"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:background="?attr/selectableItemBackground" />
+                    app:cardElevation="0dp">
+
+                    <TextView
+                        android:id="@+id/tvSettings"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp"
+                        android:gravity="center"
+                        android:text="Cài đặt"
+                        android:textColor="#1E88E5"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:background="?attr/selectableItemBackground" />
                 </androidx.cardview.widget.CardView>
 
             </LinearLayout>
@@ -108,20 +112,22 @@
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     app:cardCornerRadius="20dp"
-                    app:cardElevation="0dp"> <TextView
-                    android:id="@+id/tvAnalytics"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:gravity="center"
-                    android:text="Thống kê"
-                    android:textColor="#1E88E5"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:background="?attr/selectableItemBackground" />
+                    app:cardElevation="0dp">
+
+                    <TextView
+                        android:id="@+id/tvInformation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp"
+                        android:gravity="center"
+                        android:text="Thông tin"
+                        android:textColor="#1E88E5"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:background="?attr/selectableItemBackground" />
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
@@ -130,17 +136,19 @@
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     app:cardCornerRadius="20dp"
-                    app:cardElevation="0dp"> <TextView
-                    android:id="@+id/tvInformation"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:gravity="center"
-                    android:text="Thông tin"
-                    android:textColor="#1E88E5"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:background="?attr/selectableItemBackground" />
+                    app:cardElevation="0dp">
+
+                    <TextView
+                        android:id="@+id/tvChat"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp"
+                        android:gravity="center"
+                        android:text="Chat với Bot"
+                        android:textColor="#1E88E5"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:background="?attr/selectableItemBackground" />
                 </androidx.cardview.widget.CardView>
 
             </LinearLayout>
