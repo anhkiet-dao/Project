@@ -34,7 +34,7 @@ public class DownloadManager {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final DownloadedPdfDao pdfDao;
     private boolean isActivityDestroyed = false;
-    private final int OPTIMIZED_BUFFER_SIZE = 256 * 1024;
+    private final int OPTIMIZED_BUFFER_SIZE = 1024 * 1024;
     private final Handler uiHandler = new Handler(Looper.getMainLooper());
     private TextView txtPageIndicator;
 
@@ -76,28 +76,28 @@ public class DownloadManager {
         }
     }
 
-    /**
-     * Tải PDF và lưu thông tin vào Room, bao gồm URL ảnh bìa.
-     * @param pdfUrl URL của file PDF.
-     * @param fileName Tên file để lưu.
-     * @param storyDocumentId ID của truyện.
-     * @param author Tác giả.
-     * @param coverImageUrl URL ảnh bìa. ⬅️ ĐÃ THÊM THAM SỐ THỨ 5
-     */
     public void downloadPdfWithOkHttp(final String pdfUrl, final String fileName, final String storyDocumentId, final String author, final String coverImageUrl) {
 
         new Thread(() -> {
-            DownloadedPdfEntity existingPdf = pdfDao.getPdfByUrl(pdfUrl);
+            DownloadedPdfEntity existingPdf = pdfDao.getPdfByFileName(fileName);
 
             if (existingPdf != null) {
-                runOnUiThread(() -> {
-                    Toast.makeText(context, "File đã được tải xuống trước đó.", Toast.LENGTH_SHORT).show();
-                    if (loadingListener != null) loadingListener.hideDownloadProgress();
-                });
-                return;
+                File localFile = new File(existingPdf.localFilePath);
+                if (localFile.exists()) {
+                    runOnUiThread(() -> {
+                        Toast.makeText(context, "File '" + fileName.replace(".pdf", "") + "' đã được tải xuống trước đó.", Toast.LENGTH_LONG).show();
+                        if (loadingListener != null) loadingListener.hideDownloadProgress();
+                    });
+                    return;
+                } else {
+                    pdfDao.delete(existingPdf);
+                    Log.d(TAG, "Entity tồn tại nhưng file bị mất, đang xóa Entity và tiến hành tải lại.");
+                }
             }
 
-            runOnUiThread(() -> Toast.makeText(context, "Bắt đầu tải xuống ...", Toast.LENGTH_SHORT).show());
+            runOnUiThread(() ->
+                    Toast.makeText(context, "Bắt đầu tải xuống", Toast.LENGTH_SHORT).show()
+            );
 
             final String downloadUrl = pdfUrl;
 
@@ -127,6 +127,7 @@ public class DownloadManager {
                     try {
                         if (!response.isSuccessful() || response.body() == null) {
                             runOnUiThread(() -> Toast.makeText(context, "Không tải được PDF!", Toast.LENGTH_SHORT).show());
+                            if (loadingListener != null) loadingListener.hideDownloadProgress();
                             return;
                         }
 
@@ -134,6 +135,14 @@ public class DownloadManager {
                         File pdfDir = new File(context.getExternalFilesDir(null), "PDF");
                         if (!pdfDir.exists()) pdfDir.mkdirs();
                         pdfFile = new File(pdfDir, fileName);
+
+                        if (pdfFile.exists()) {
+                            runOnUiThread(() -> {
+                                Toast.makeText(context, "File đã tồn tại trước.", Toast.LENGTH_SHORT).show();
+                                if (loadingListener != null) loadingListener.hideDownloadProgress();
+                            });
+                            return;
+                        }
 
                         fos = new FileOutputStream(pdfFile);
                         byte[] buffer = new byte[OPTIMIZED_BUFFER_SIZE];
@@ -143,19 +152,18 @@ public class DownloadManager {
 
                         final File finalPdfFile = pdfFile;
 
-                        // LƯU ENTITY VÀO ROOM
                         DownloadedPdfEntity entity = new DownloadedPdfEntity();
                         entity.storyDocumentId = storyDocumentId;
                         entity.fileName = fileName;
                         entity.pdfUrl = pdfUrl;
                         entity.localFilePath = finalPdfFile.getAbsolutePath();
                         entity.author = author;
-                        entity.coverImageUrl = coverImageUrl; // ⬅️ LƯU THÔNG TIN ẢNH BÌA
+                        entity.coverImageUrl = coverImageUrl;
 
                         pdfDao.insert(entity);
 
                         runOnUiThread(() -> {
-                            Toast.makeText(context, "Tải xuống thành công và lưu CSDL!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "Tải xuống thành công", Toast.LENGTH_SHORT).show();
                             if (loadingListener != null) loadingListener.hideDownloadProgress();
                         });
 

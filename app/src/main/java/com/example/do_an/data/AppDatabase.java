@@ -6,10 +6,11 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-@Database(entities = {DownloadedPdfEntity.class}, version = 3, exportSchema = false)
+@Database(entities = {DownloadedPdfEntity.class, CachePdfEntity.class}, version = 4, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract DownloadedPdfDao downloadedPdfDao();
+    public abstract CachePdfDao cachePdfDao();
 
     private static volatile AppDatabase INSTANCE;
     private static final String DATABASE_NAME = "MyStoryApp_DB";

@@ -44,15 +44,12 @@ import java.util.Calendar;
 import java.util.List;
 
 public class HomeFragment extends Fragment {
-
-    private androidx.appcompat.widget.SearchView searchView;
     private CardView cardBook;
     private ImageView roundedImage;
     private final List<String> imageUrls = new ArrayList<>();
     private int currentImageIndex = 0;
     private final Handler handler = new Handler();
-    private final long DELAY_TIME = 3000;
-
+    private final long DELAY_TIME = 3000; // thoi gian chuyen anh
     private final Runnable imageSwitcherRunnable = new Runnable() {
         @Override
         public void run() {
@@ -63,7 +60,6 @@ public class HomeFragment extends Fragment {
             handler.postDelayed(this, DELAY_TIME);
         }
     };
-
     private RecyclerView rvPreview, rvNewBooks, rvPopularBooks, rvTrendBooks;
     private ViewPager2 pdfViewPager;
     private TextView txtPdfName, txtPdfAuthor, btnDetail;
@@ -107,7 +103,6 @@ public class HomeFragment extends Fragment {
     }
 
     private void mapping(View view) {
-        searchView = view.findViewById(R.id.search_view);
         cardBook = view.findViewById(R.id.card_book);
         roundedImage = view.findViewById(R.id.rounded_image);
 
@@ -257,7 +252,7 @@ public class HomeFragment extends Fragment {
                     }
 
                     if (btnDetail != null) {
-                        btnDetail.setOnClickListener(v -> onBookClickOpenReadFragment(currentViewingBook));
+                        btnDetail.setOnClickListener(v -> openReadFragmentDirectly(currentViewingBook));
                     }
                 }
             }
@@ -267,6 +262,7 @@ public class HomeFragment extends Fragment {
                 recyclerView.setAdapter(null);
             } else {
                 if (!isPreviewList) {
+                    // Giữ nguyên onBookClickOpenReadFragment (chuyển qua màn hình chi tiết Series) cho các danh sách khác
                     if (onlyImage) {
                         recyclerView.setAdapter(new BookImageAdapter(getContext(), list, this::onBookClick));
                     } else {
@@ -298,10 +294,36 @@ public class HomeFragment extends Fragment {
 
         getActivity().getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container, seriesFragment)
+                .add(R.id.fragment_container, seriesFragment)
                 .addToBackStack(null)
                 .commit();
     }
+
+    private void openReadFragmentDirectly(Book book) {
+        if (getActivity() == null || book == null) return;
+        if (book.getLink() == null || book.getLink().isEmpty()) {
+            Toast.makeText(getContext(), "Không tìm thấy link đọc!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Bundle args = new Bundle();
+        args.putString("PDF_LINK", book.getLink()); // Dùng link trực tiếp
+        args.putString("STORY_ID", book.getId());
+        args.putString("STORY_TITLE", book.getName() != null ? book.getName() : "Truyện");
+        args.putString("TAP_TITLE", book.getName() != null ? book.getName() : "Tập 1"); // Tạm coi là tiêu đề tập
+        args.putString("STORY_AUTHOR", book.getAuthor() != null ? book.getAuthor() : "Không rõ tác giả");
+        args.putString("STORY_CATEGORY", book.getCategory() != null ? book.getCategory() : "Khác");
+        args.putString("STORY_IMAGE_URL", book.getImageUrl() != null ? book.getImageUrl() : "");
+
+        ReadFragment readFragment = ReadFragment.newInstance(args);
+
+        getActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.fragment_container, readFragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
 
     private void onBookClick(Book book) {
         if (getActivity() == null || book == null) return;
@@ -318,8 +340,9 @@ public class HomeFragment extends Fragment {
             previewAdapter.notifyDataSetChanged();
         }
 
+        // 🌟 CHỈNH SỬA Ở ĐÂY: Dùng openReadFragmentDirectly cho btnDetail sau khi click vào sách preview
         if (btnDetail != null) {
-            btnDetail.setOnClickListener(v -> onBookClickOpenReadFragment(book));
+            btnDetail.setOnClickListener(v -> openReadFragmentDirectly(book));
         }
     }
 

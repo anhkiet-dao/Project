@@ -6,14 +6,14 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView; // ⬅️ IMPORT MỚI
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.bumptech.glide.Glide; // ⬅️ IMPORT GLIDE MỚI
+import com.bumptech.glide.Glide;
 import com.example.do_an.R;
 import com.example.do_an.UI.ReadFragment;
 import com.example.do_an.data.DownloadedPdfDao;
@@ -36,6 +36,12 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
         this.pdfDao = pdfDao;
     }
 
+    public void setPdfList(List<DownloadedPdfEntity> newPdfs) {
+        this.downloadedPdfs.clear();
+        this.downloadedPdfs.addAll(newPdfs);
+        notifyDataSetChanged();
+    }
+
     @Override
     public PdfViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.download_item_pdf, parent, false);
@@ -51,7 +57,6 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
         final String author = entity.author != null && !entity.author.isEmpty() ? entity.author : "Đang cập nhật";
         final String localFilePath = entity.localFilePath;
 
-        // HIỂN THỊ ẢNH BÌA
         if (entity.coverImageUrl != null && !entity.coverImageUrl.isEmpty()) {
             Glide.with(activity)
                     .load(entity.coverImageUrl)
@@ -71,7 +76,6 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
             readArgs.putString("STORY_TITLE", title);
             readArgs.putString("STORY_AUTHOR", author);
             readArgs.putString("PDF_PATH", localFilePath);
-            // ⬅️ TRUYỀN THÊM IMAGE URL (cho ReadFragment nếu cần)
             readArgs.putString("STORY_IMAGE_URL", entity.coverImageUrl);
 
             if (activity instanceof AppCompatActivity) {
@@ -99,7 +103,7 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
 
     @Override
     public int getItemCount() {
-        return downloadedPdfs.size(); // ⬅️ THAY ĐỔI
+        return downloadedPdfs.size();
     }
 
     private void showDeleteDialog(File fileToDelete, DownloadedPdfEntity entityToDelete, int adapterPos) {
@@ -142,14 +146,14 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
 
     static class PdfViewHolder extends RecyclerView.ViewHolder {
         TextView txtPdfName, txtPdfAuthor, btnDelete;
-        ImageView imgCover; // ⬅️ KHAI BÁO MỚI
+        ImageView imgCover;
 
         public PdfViewHolder(View itemView) {
             super(itemView);
             txtPdfName = itemView.findViewById(R.id.txtPdfName);
             txtPdfAuthor = itemView.findViewById(R.id.txtPdfAuthor);
             btnDelete = itemView.findViewById(R.id.btnDelete);
-            imgCover = itemView.findViewById(R.id.imgCover); // ⬅️ ÁNH XẠ MỚI
+            imgCover = itemView.findViewById(R.id.imgCover);
         }
     }
 }

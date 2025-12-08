@@ -15,8 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.do_an.data.AppDatabase;
-import com.example.do_an.data.DownloadedPdfDao;
-import com.example.do_an.data.DownloadedPdfEntity;
+import com.example.do_an.data.CachePdfDao;
+import com.example.do_an.data.CachePdfEntity;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -37,11 +37,13 @@ public class PdfViewerUtility {
     private PdfRenderer pdfRenderer;
     private ParcelFileDescriptor parcelFileDescriptor;
     private final AppDatabase db;
+    private final CachePdfDao cachePdfDao;
 
     public PdfViewerUtility(Context context, ViewPager2 viewPager) {
         this.context = context;
         this.viewPager = viewPager;
-        this.db = AppDatabase.getDatabase(context); // Khởi tạo Room
+        this.db = AppDatabase.getDatabase(context);
+        this.cachePdfDao = db.cachePdfDao();
     }
 
     public void loadPdfPreview(Book book, int maxPages) {
@@ -73,7 +75,6 @@ public class PdfViewerUtility {
         private final String storyAuthor;
         private final String coverImageUrl;
         private File pdfFile;
-        private final DownloadedPdfDao pdfDao;
 
         public DownloadAndRenderTask(int maxPages, String storyId, String storyName, String storyAuthor, String coverImageUrl) {
             this.maxPages = maxPages;
@@ -81,25 +82,30 @@ public class PdfViewerUtility {
             this.storyName = storyName;
             this.storyAuthor = storyAuthor;
             this.coverImageUrl = coverImageUrl;
-            this.pdfDao = db.downloadedPdfDao();
         }
 
         @Override
         protected List<Bitmap> doInBackground(String... urls) {
             String pdfUrl = urls[0];
 
-            DownloadedPdfEntity cachedPdf = pdfDao.getPdfByUrl(pdfUrl);
+            // 🌟 SỬ DỤNG CACHEPDFENTITY VÀ CACHEPDFDAO ĐỂ KIỂM TRA CACHE
+            CachePdfEntity cachedPdf = cachePdfDao.getCacheByStoryId(storyId);
 
             if (cachedPdf != null && cachedPdf.localFilePath != null) {
                 pdfFile = new File(cachedPdf.localFilePath);
                 if (pdfFile.exists()) {
                     Log.d(TAG, "Cache found! Rendering from local file: " + cachedPdf.localFilePath);
                     return renderPdfFromFile(pdfFile);
+                } else {
+                    // Nếu entity có nhưng file bị mất, xóa entity
+                    cachePdfDao.delete(cachedPdf);
+                    Log.d(TAG, "Cache entity existed but file lost. Deleted entity.");
                 }
             }
 
             Log.d(TAG, "Cache not found. Downloading PDF.");
-            pdfFile = new File(context.getFilesDir(), storyId + "_preview_" + pdfUrl.hashCode() + ".pdf");
+            // 🌟 Đảm bảo tên file tạm là duy nhất
+            pdfFile = new File(context.getCacheDir(), storyId + "_preview_" + pdfUrl.hashCode() + ".pdf");
 
 
             try {
@@ -118,24 +124,19 @@ public class PdfViewerUtility {
                 output.close();
                 input.close();
 
-                DownloadedPdfEntity newPdf = new DownloadedPdfEntity();
+                CachePdfEntity newPdf = new CachePdfEntity();
                 newPdf.storyDocumentId = storyId;
                 newPdf.fileName = pdfFile.getName();
                 newPdf.localFilePath = pdfFile.getAbsolutePath();
                 newPdf.pdfUrl = pdfUrl;
-                newPdf.author = storyAuthor;
-                newPdf.coverImageUrl = coverImageUrl;
 
-                newPdf.isCache = true;
-
-                pdfDao.insert(newPdf);
+                cachePdfDao.insert(newPdf);
                 Log.d(TAG, "PDF downloaded and cached in Room for next time.");
 
                 return renderPdfFromFile(pdfFile);
 
             } catch (Exception e) {
                 Log.e(TAG, "Error loading PDF for preview: " + e.getMessage(), e);
-                // Nếu tải thất bại, xóa file tạm để không gây lỗi lần sau
                 if (pdfFile != null && pdfFile.exists()) {
                     pdfFile.delete();
                 }
@@ -146,7 +147,6 @@ public class PdfViewerUtility {
         private List<Bitmap> renderPdfFromFile(File file) {
             List<Bitmap> bitmaps = new ArrayList<>();
             try {
-                // Đảm bảo đóng renderer và file descriptor cũ nếu có
                 if (pdfRenderer != null) pdfRenderer.close();
                 if (parcelFileDescriptor != null) parcelFileDescriptor.close();
 
