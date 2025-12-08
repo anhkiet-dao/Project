@@ -6,8 +6,7 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-
-@Database(entities = {DownloadedPdfEntity.class}, version = 2, exportSchema = false)
+@Database(entities = {DownloadedPdfEntity.class}, version = 3, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract DownloadedPdfDao downloadedPdfDao();
@@ -21,7 +20,7 @@ public abstract class AppDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     AppDatabase.class, DATABASE_NAME)
-                            .fallbackToDestructiveMigration() // <--- THÊM DÒNG NÀY
+                            .fallbackToDestructiveMigration()
                             .build();
                 }
             }

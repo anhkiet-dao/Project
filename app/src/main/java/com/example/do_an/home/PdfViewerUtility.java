@@ -14,6 +14,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.do_an.data.AppDatabase;
+import com.example.do_an.data.DownloadedPdfDao;
+import com.example.do_an.data.DownloadedPdfEntity;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,14 +36,21 @@ public class PdfViewerUtility {
     private final ViewPager2 viewPager;
     private PdfRenderer pdfRenderer;
     private ParcelFileDescriptor parcelFileDescriptor;
+    private final AppDatabase db;
 
     public PdfViewerUtility(Context context, ViewPager2 viewPager) {
         this.context = context;
         this.viewPager = viewPager;
+        this.db = AppDatabase.getDatabase(context); // Khởi tạo Room
     }
 
-    public void loadPdfPreview(String pdfUrl, int maxPages) {
-        new DownloadAndRenderTask(maxPages).execute(pdfUrl);
+    public void loadPdfPreview(Book book, int maxPages) {
+        new DownloadAndRenderTask(maxPages,
+                book.getId(),
+                book.getName(),
+                book.getAuthor(),
+                book.getImageUrl())
+                .execute(book.getLink());
     }
 
     public void closeRenderer() {
@@ -57,17 +68,39 @@ public class PdfViewerUtility {
 
     private class DownloadAndRenderTask extends AsyncTask<String, Void, List<Bitmap>> {
         private final int maxPages;
+        private final String storyId;
+        private final String storyName;
+        private final String storyAuthor;
+        private final String coverImageUrl;
         private File pdfFile;
+        private final DownloadedPdfDao pdfDao;
 
-        public DownloadAndRenderTask(int maxPages) {
+        public DownloadAndRenderTask(int maxPages, String storyId, String storyName, String storyAuthor, String coverImageUrl) {
             this.maxPages = maxPages;
+            this.storyId = storyId;
+            this.storyName = storyName;
+            this.storyAuthor = storyAuthor;
+            this.coverImageUrl = coverImageUrl;
+            this.pdfDao = db.downloadedPdfDao();
         }
 
         @Override
         protected List<Bitmap> doInBackground(String... urls) {
             String pdfUrl = urls[0];
-            List<Bitmap> bitmaps = new ArrayList<>();
-            pdfFile = new File(context.getCacheDir(), "preview.pdf");
+
+            DownloadedPdfEntity cachedPdf = pdfDao.getPdfByUrl(pdfUrl);
+
+            if (cachedPdf != null && cachedPdf.localFilePath != null) {
+                pdfFile = new File(cachedPdf.localFilePath);
+                if (pdfFile.exists()) {
+                    Log.d(TAG, "Cache found! Rendering from local file: " + cachedPdf.localFilePath);
+                    return renderPdfFromFile(pdfFile);
+                }
+            }
+
+            Log.d(TAG, "Cache not found. Downloading PDF.");
+            pdfFile = new File(context.getFilesDir(), storyId + "_preview_" + pdfUrl.hashCode() + ".pdf");
+
 
             try {
                 URL url = new URL(pdfUrl);
@@ -85,7 +118,39 @@ public class PdfViewerUtility {
                 output.close();
                 input.close();
 
-                parcelFileDescriptor = ParcelFileDescriptor.open(pdfFile, ParcelFileDescriptor.MODE_READ_ONLY);
+                DownloadedPdfEntity newPdf = new DownloadedPdfEntity();
+                newPdf.storyDocumentId = storyId;
+                newPdf.fileName = pdfFile.getName();
+                newPdf.localFilePath = pdfFile.getAbsolutePath();
+                newPdf.pdfUrl = pdfUrl;
+                newPdf.author = storyAuthor;
+                newPdf.coverImageUrl = coverImageUrl;
+
+                newPdf.isCache = true;
+
+                pdfDao.insert(newPdf);
+                Log.d(TAG, "PDF downloaded and cached in Room for next time.");
+
+                return renderPdfFromFile(pdfFile);
+
+            } catch (Exception e) {
+                Log.e(TAG, "Error loading PDF for preview: " + e.getMessage(), e);
+                // Nếu tải thất bại, xóa file tạm để không gây lỗi lần sau
+                if (pdfFile != null && pdfFile.exists()) {
+                    pdfFile.delete();
+                }
+                return null;
+            }
+        }
+
+        private List<Bitmap> renderPdfFromFile(File file) {
+            List<Bitmap> bitmaps = new ArrayList<>();
+            try {
+                // Đảm bảo đóng renderer và file descriptor cũ nếu có
+                if (pdfRenderer != null) pdfRenderer.close();
+                if (parcelFileDescriptor != null) parcelFileDescriptor.close();
+
+                parcelFileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
                 pdfRenderer = new PdfRenderer(parcelFileDescriptor);
 
                 int pageCount = pdfRenderer.getPageCount();
@@ -96,7 +161,8 @@ public class PdfViewerUtility {
 
                     int pageWidth = page.getWidth();
                     int pageHeight = page.getHeight();
-                    float scale = 2f;
+                    // Gợi ý: Giảm scale để render nhanh hơn, ví dụ 1.5f thay vì 2f
+                    float scale = 1.5f;
                     int renderWidth = (int) (pageWidth * scale);
                     int renderHeight = (int) (pageHeight * scale);
 
@@ -108,13 +174,14 @@ public class PdfViewerUtility {
                     bitmaps.add(bitmap);
                     page.close();
                 }
+                return bitmaps;
 
-            } catch (Exception e) {
-                Log.e(TAG, "Error loading PDF for preview: " + e.getMessage(), e);
+            } catch (IOException e) {
+                Log.e(TAG, "Error rendering PDF from file: " + file.getAbsolutePath(), e);
                 return null;
             }
-            return bitmaps;
         }
+
 
         @Override
         protected void onPostExecute(List<Bitmap> bitmaps) {
@@ -123,9 +190,6 @@ public class PdfViewerUtility {
                 viewPager.setAdapter(adapter);
             } else {
                 Toast.makeText(context, "Không thể tải xem trước PDF. Kiểm tra Logcat.", Toast.LENGTH_SHORT).show();
-            }
-            if (pdfFile != null && pdfFile.exists()) {
-                pdfFile.delete();
             }
         }
     }

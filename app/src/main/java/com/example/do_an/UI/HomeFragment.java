@@ -78,8 +78,6 @@ public class HomeFragment extends Fragment {
     private TextView tvGreeting;
     private TextView detailPreview;
     private TextView detailNewBooks, detailPopularBooks, detailTrendBooks;
-
-    // Biến mới: Giữ tham chiếu đến adapter của danh sách xem trước
     private BookImageAdapter previewAdapter;
 
     @Nullable
@@ -247,11 +245,9 @@ public class HomeFragment extends Fragment {
                     currentViewingBook = list.get(0);
                     showPdfPreview(currentViewingBook);
 
-                    // Khởi tạo và lưu tham chiếu của BookImageAdapter
                     previewAdapter = new BookImageAdapter(getContext(), list, this::onBookClick);
                     recyclerView.setAdapter(previewAdapter);
 
-                    // Thiết lập item đầu tiên là item được chọn mặc định
                     previewAdapter.setSelectedBookId(currentViewingBook.getId());
                     previewAdapter.notifyDataSetChanged();
 
@@ -270,7 +266,7 @@ public class HomeFragment extends Fragment {
                 Toast.makeText(getContext(), collectionName + " trống hoặc lỗi.", Toast.LENGTH_SHORT).show();
                 recyclerView.setAdapter(null);
             } else {
-                if (!isPreviewList) { // Chỉ gán adapter cho các danh sách không phải review
+                if (!isPreviewList) {
                     if (onlyImage) {
                         recyclerView.setAdapter(new BookImageAdapter(getContext(), list, this::onBookClick));
                     } else {
@@ -317,12 +313,10 @@ public class HomeFragment extends Fragment {
         currentViewingBook = book;
         showPdfPreview(book);
 
-        // --- LOGIC HIGHLIGHT MỚI ---
         if (previewAdapter != null) {
             previewAdapter.setSelectedBookId(book.getId());
-            previewAdapter.notifyDataSetChanged(); // Thông báo cho adapter vẽ lại
+            previewAdapter.notifyDataSetChanged();
         }
-        // --- KẾT THÚC LOGIC HIGHLIGHT MỚI ---
 
         if (btnDetail != null) {
             btnDetail.setOnClickListener(v -> onBookClickOpenReadFragment(book));
@@ -331,11 +325,13 @@ public class HomeFragment extends Fragment {
 
     private void showPdfPreview(Book book) {
         if (pdfViewerUtility == null || getContext() == null || pdfViewPager == null || book == null) return;
+        pdfViewPager.setAdapter(null);
+
         pdfViewPager.setVisibility(View.VISIBLE);
         if (pdfInfoContainer != null) pdfInfoContainer.setVisibility(View.VISIBLE);
         txtPdfName.setText(book.getName() != null ? book.getName() : "Không rõ tên");
         txtPdfAuthor.setText(book.getAuthor() != null ? "Tác giả: " + book.getAuthor() : "Tác giả: ???");
-        pdfViewerUtility.loadPdfPreview(book.getLink(), 5);
+        pdfViewerUtility.loadPdfPreview(book, 5);
     }
 
     private void setupUserGreeting() {

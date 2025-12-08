@@ -16,5 +16,7 @@ public class DownloadedPdfEntity {
     public String pdfUrl;
     public String author;
     public String coverImageUrl;
+    public boolean isCache = false;
+
     public DownloadedPdfEntity() {}
 }
