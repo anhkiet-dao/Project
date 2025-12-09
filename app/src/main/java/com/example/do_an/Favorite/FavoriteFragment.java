@@ -41,7 +41,7 @@ public class FavoriteFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.favorite_activity_favorites, container, false);
+        View view = inflater.inflate(R.layout.favorite_fragment_favorites, container, false);
 
         recyclerFavorites = view.findViewById(R.id.recyclerFavorites);
         tvNoFavorites = view.findViewById(R.id.tvNoFavorites);

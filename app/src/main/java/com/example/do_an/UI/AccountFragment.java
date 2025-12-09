@@ -164,18 +164,18 @@ public class AccountFragment extends Fragment {
                         byte[] decodedBytes = Base64.decode(avatarBase64, Base64.DEFAULT);
                         Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
                         if (bitmap != null) imgAvatar.setImageBitmap(getCircularBitmap(bitmap));
-                        else imgAvatar.setImageResource(R.drawable.avatar);
+                        else imgAvatar.setImageResource(R.drawable.ic_logo_uit);
                     } catch (Exception e) {
-                        imgAvatar.setImageResource(R.drawable.avatar);
+                        imgAvatar.setImageResource(R.drawable.ic_logo_uit);
                     }
                 } else {
-                    imgAvatar.setImageResource(R.drawable.avatar);
+                    imgAvatar.setImageResource(R.drawable.ic_logo_uit);
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                imgAvatar.setImageResource(R.drawable.avatar);
+                imgAvatar.setImageResource(R.drawable.ic_logo_uit);
                 Toast.makeText(getContext(), "Không thể tải ảnh: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });

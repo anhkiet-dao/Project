@@ -45,7 +45,7 @@ public class AllBooksFragment extends Fragment implements AllBooksAdapter.BookCl
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.home_all_books, container, false);
+        View view = inflater.inflate(R.layout.home_fragment_all_books, container, false);
         db = FirebaseFirestore.getInstance();
 
         if (getArguments() != null) {

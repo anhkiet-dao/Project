@@ -65,8 +65,15 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
     private TextView txtPageIndicator;
     private ProgressBar progressBarLoading;
     private LinearLayout loadingLayout;
-    public String getCurrentTitle() { return currentTitle; }
-    public String getMainStoryTitle() { return mainStoryTitle; }
+
+    public String getCurrentTitle() {
+        return currentTitle;
+    }
+
+    public String getMainStoryTitle() {
+        return mainStoryTitle;
+    }
+
     private ProgressBar progressDownload;
     private DownloadedPdfDao pdfDao;
     private String episodePdfLink;
@@ -98,17 +105,21 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Context context = requireContext();
-        SharedPreferences prefs = context.getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
-        boolean darkMode = prefs.getBoolean("darkMode", false);
-        AppCompatDelegate.setDefaultNightMode(darkMode ?
-                AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+        // FIXED: Removed AppCompatDelegate call to prevent theme switching
+        // Theme should be managed at Application/Activity level, not Fragment level
+        // SharedPreferences prefs = context.getSharedPreferences("AppSettings",
+        // Context.MODE_PRIVATE);
+        // boolean darkMode = prefs.getBoolean("darkMode", false);
+        // AppCompatDelegate.setDefaultNightMode(darkMode ?
+        // AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             userEmail = currentUser.getEmail();
         } else {
             Toast.makeText(context, "Bạn chưa đăng nhập!", Toast.LENGTH_SHORT).show();
-            if (getActivity() != null) getActivity().finish();
+            if (getActivity() != null)
+                getActivity().finish();
         }
 
         setupIntentData(getArguments());
@@ -119,17 +130,18 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
         Log.d(TAG, "pdfPath (Offline Path): " + pdfPath);
         Log.d(TAG, "------------------------");
 
-
         if (currentStoryId == null && pdfPath == null) {
             Toast.makeText(context, "Lỗi: Không có thông tin truyện để đọc!", Toast.LENGTH_LONG).show();
-            if (getActivity() != null) getActivity().finish();
+            if (getActivity() != null)
+                getActivity().finish();
         }
     }
 
     @SuppressLint("MissingInflatedId")
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.ui_activity_reading, container, false);
     }
 
@@ -168,8 +180,7 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
                 context, pdfViewPager, txtTieuDe, settingsManager,
                 txtPageIndicator,
                 this::getCurrentTitle,
-                (url) -> currentReadUrl = url
-        );
+                (url) -> currentReadUrl = url);
 
         if (pdfPath != null && !pdfPath.trim().isEmpty()) {
             Log.d(TAG, "FLOW: OFFLINE. Đang tìm thông tin trong Room.");
@@ -182,7 +193,9 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
 
             if (userEmail != null && currentStoryId != null) {
                 historyManager.saveStartReadingHistory(
-                        userEmail, currentStoryId, mainStoryTitle, currentTitle, currentAuthor, currentImageUrl // ⬅️ THÊM currentImageUrl
+                        userEmail, currentStoryId, mainStoryTitle, currentTitle, currentAuthor, currentImageUrl // ⬅️
+                                                                                                                // THÊM
+                                                                                                                // currentImageUrl
                 );
             }
         }
@@ -216,13 +229,16 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
 
                     if (userEmail != null && currentStoryId != null) {
                         historyManager.saveStartReadingHistory(
-                                userEmail, currentStoryId, mainStoryTitle, currentTitle, currentAuthor, currentImageUrl // ⬅️ THÊM currentImageUrl
+                                userEmail, currentStoryId, mainStoryTitle, currentTitle, currentAuthor, currentImageUrl // ⬅️
+                                                                                                                        // THÊM
+                                                                                                                        // currentImageUrl
                         );
                     }
                     hideLoading();
                 } else {
                     Log.e(TAG, "ERROR: Không tìm thấy Entity trong Room bằng path: " + filePath);
-                    Toast.makeText(getContext(), "Lỗi: Không tìm thấy thông tin chi tiết truyện đã tải trong CSDL.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), "Lỗi: Không tìm thấy thông tin chi tiết truyện đã tải trong CSDL.",
+                            Toast.LENGTH_LONG).show();
                     hideLoading();
                 }
             });
@@ -239,7 +255,8 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
                 Log.e(TAG, "Không thể xác định Story ID!");
             }
         }
-        if (currentAuthor == null) currentAuthor = "Tác giả: Đang cập nhật";
+        if (currentAuthor == null)
+            currentAuthor = "Tác giả: Đang cập nhật";
     }
 
     @Override
@@ -268,7 +285,8 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
     }
 
     private void setupIntentData(Bundle args) {
-        if (args == null) return;
+        if (args == null)
+            return;
 
         episodePdfLink = args.getString("PDF_LINK");
         pdfPath = args.getString("PDF_PATH");
@@ -291,12 +309,14 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
         } else if (pdfPath != null) {
             String fileName = new File(pdfPath).getName().replace(".pdf", "");
             currentTitle = fileName;
-            if (mainStoryTitle == null) mainStoryTitle = fileName;
+            if (mainStoryTitle == null)
+                mainStoryTitle = fileName;
         } else {
             currentTitle = mainStoryTitle;
         }
 
-        if (mainStoryTitle == null) mainStoryTitle = currentTitle;
+        if (mainStoryTitle == null)
+            mainStoryTitle = currentTitle;
 
         Log.d(TAG, "BUNDLE: TAP: " + args.getString("TAP"));
         Log.d(TAG, "BUNDLE: PDF_LINK: " + args.getString("PDF_LINK"));
@@ -314,8 +334,7 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
         btnFavorite.setOnClickListener(v -> favoriteHandler.toggleFavorite(
                 userEmail, currentStoryId, mainStoryTitle, currentTitle,
                 currentAuthor, currentCategory, currentImageUrl, currentReadUrl,
-                btnFavorite
-        ));
+                btnFavorite));
 
         ImageView btnDownLoad = root.findViewById(R.id.btnDown);
         btnDownLoad.setOnClickListener(v -> {
@@ -323,7 +342,8 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
                 Toast.makeText(getContext(), "Không tìm thấy link PDF!", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (progressDownload != null) progressDownload.setVisibility(View.VISIBLE);
+            if (progressDownload != null)
+                progressDownload.setVisibility(View.VISIBLE);
 
             String fullFileName = mainStoryTitle;
             if (currentTitle != null && !currentTitle.isEmpty() && !currentTitle.equals(mainStoryTitle)) {
@@ -336,8 +356,7 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
                     fullFileName,
                     currentStoryId,
                     currentAuthor,
-                    currentImageUrl
-            );
+                    currentImageUrl);
         });
 
         btnNote.setOnClickListener(v -> {
@@ -349,15 +368,15 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
             int currentPage = pdfViewerController.getCurrentPage() + 1;
 
             String displayTitle = currentTitle != null ? currentTitle : mainStoryTitle;
-            if (displayTitle == null) displayTitle = "Truyện";
+            if (displayTitle == null)
+                displayTitle = "Truyện";
 
             String noteContextId = currentStoryId + "_" + displayTitle;
 
             NoteFragment noteFragment = NoteFragment.newInstance(
                     noteContextId,
                     currentPage,
-                    displayTitle
-            );
+                    displayTitle);
 
             getParentFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, noteFragment)
@@ -372,8 +391,7 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
         pdfViewerController.setupSettingsView(
                 root.findViewById(R.id.settingsContainer),
                 root.findViewById(R.id.btnCloseSettings),
-                root.findViewById(R.id.btnSettings)
-        );
+                root.findViewById(R.id.btnSettings));
 
         if (pdfViewPager != null) {
             pdfViewPager.registerOnPageChangeCallback(pdfViewerController.getPageChangeCallback());
@@ -390,8 +408,10 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
         final int originalPaddingBottom = (int) (getResources().getDisplayMetrics().density * 47);
 
         if (isFullScreenMode) {
-            if (topBar != null) topBar.setVisibility(View.GONE);
-            if (txtPageIndicator != null) txtPageIndicator.setVisibility(View.VISIBLE);
+            if (topBar != null)
+                topBar.setVisibility(View.GONE);
+            if (txtPageIndicator != null)
+                txtPageIndicator.setVisibility(View.VISIBLE);
             if (rootLayout != null) {
                 rootLayout.setPadding(
                         rootLayout.getPaddingLeft(),
@@ -404,11 +424,12 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
                 navigationListener.setBottomNavVisibility(View.GONE);
             }
             if (btnFullScreenAction != null) {
-                btnFullScreenAction.setImageResource(R.drawable.bg_exit_full);
+                btnFullScreenAction.setImageResource(R.drawable.ic_exit_full);
                 btnFullScreenAction.setVisibility(View.VISIBLE);
             }
         } else {
-            if (topBar != null) topBar.setVisibility(View.VISIBLE);
+            if (topBar != null)
+                topBar.setVisibility(View.VISIBLE);
             if (txtPageIndicator != null && settingsManager.isPageIndicatorEnabled()) {
                 txtPageIndicator.setVisibility(View.VISIBLE);
             }
@@ -417,8 +438,7 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
                         rootLayout.getPaddingLeft(),
                         rootLayout.getPaddingTop(),
                         rootLayout.getPaddingRight(),
-                        originalPaddingBottom
-                );
+                        originalPaddingBottom);
             }
             if (navigationListener != null) {
                 navigationListener.setBottomNavVisibility(View.VISIBLE);
@@ -435,8 +455,7 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
                 pdfPath,
                 mainStoryTitle,
                 pdfViewerController::setupPdfRenderer,
-                (url) -> currentReadUrl = url
-        );
+                (url) -> currentReadUrl = url);
     }
 
     @Override

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ========================================= -->
+    <!-- DARK MODE COLORS                          -->
+    <!-- ========================================= -->
+
+    <!-- Primary Colors -->
+    <color name="primary">#E15F3D</color>              <!-- Primary (darker orange for dark mode) -->
+    <color name="primary_dark">#CC5233</color>         <!-- Primary pressed state -->
+    <color name="primary_light">#FF6740</color>        <!-- Secondary/lighter variant -->
+
+    <!-- Secondary Colors -->
+    <color name="secondary">#4B98F1</color>            <!-- Blue3 - Secondary actions -->
+    <color name="secondary_dark">#3498DB</color>       <!-- Blue - Darker variant -->
+    <color name="secondary_light">#00C9F5</color>      <!-- Blue2 - Lighter variant -->
+
+    <!-- Accent Colors -->
+    <color name="accent">#DA7500</color>               <!-- Orange2 - Highlights -->
+    <color name="accent_green">#04D000</color>         <!-- Success/Active indicator -->
+    <color name="accent_green_light">#2ECC71</color>   <!-- Green2 - Lighter green -->
+    <color name="accent_purple">#7D40FF</color>        <!-- Purpose - Special highlights -->
+
+    <!-- Text Colors -->
+    <color name="text_primary">#FFFFFF</color>         <!-- Main text (white on dark) -->
+    <color name="text_secondary">#CACACA</color>       <!-- Silver2 - Secondary text -->
+    <color name="text_tertiary">#7A7A7C</color>        <!-- Silver3 - Disabled text -->
+    <color name="text_hint">#CACACA</color>            <!-- Hint text (same as secondary) -->
+    <color name="text_on_primary">#FFFFFF</color>      <!-- Text on primary color -->
+
+    <!-- Background Colors -->
+    <color name="bg_primary">#191A1C</color>           <!-- Black - Main background -->
+    <color name="bg_secondary">#212328</color>         <!-- Dark - Secondary background -->
+    <color name="bg_tertiary">#2E2F37</color>          <!-- Dark2 - Elevated background -->
+    <color name="bg_search">#2c2c2c</color>            <!-- Dark3 - Search bar -->
+
+    <!-- Surface Colors -->
+    <color name="surface">#212328</color>              <!-- Dark - Cards, dialogs -->
+    <color name="surface_elevated">#2E2F37</color>     <!-- Dark2 - Elevated surfaces -->
+    <color name="surface_hover">#3D3D3D</color>        <!-- Dark4 hover - Hover state -->
+
+    <!-- Navigation Colors -->
+    <color name="navbar_bg">#2C2C2C</color>            <!-- Dark4 - Navbar background -->
+    <color name="navbar_hover">#3D3D3D</color>         <!-- Dark4 hover - Navbar hover -->
+
+    <!-- Border & Divider -->
+    <color name="border_default">#3D414A</color>       <!-- Dark3 - Default borders -->
+    <color name="divider">#4F4F4F</color>              <!-- Dark witch - Dividers -->
+
+    <!-- Status Colors -->
+    <color name="success">#04D000</color>              <!-- Success states -->
+    <color name="success_light">#2ECC71</color>        <!-- Success light variant -->
+    <color name="info">#3498DB</color>                 <!-- Info states -->
+    <color name="info_light">#00C9F5</color>           <!-- Info light variant -->
+    <color name="warning">#DA7500</color>              <!-- Warning states -->
+    <color name="error">#FF4040</color>                <!-- Orange - Error states -->
+
+    <!-- Badge Colors -->
+    <color name="badge_bg">#2C2C2C</color>             <!-- Badge background -->
+    <color name="badge_text">#DA7500</color>           <!-- Badge text -->
+
+    <!-- Icon Colors -->
+    <color name="icon_primary">#FFFFFF</color>         <!-- Primary icon color (white on dark) -->
+    <color name="icon_secondary">#CACACA</color>       <!-- Secondary icon color -->
+    <color name="icon_disabled">#7A7A7C</color>        <!-- Disabled icon color -->
+    <color name="icon_on_primary">#FFFFFF</color>      <!-- Icon on primary color -->
+
+    <!-- Additional Text Colors -->
+    <color name="text_disabled">#7A7A7C</color>        <!-- Disabled text (same as tertiary) -->
+    <color name="text_on_dark">#FFFFFF</color>         <!-- Text on dark background -->
+    <color name="text_error">#EF4444</color>           <!-- Error text -->
+    <color name="text_success">#10B981</color>         <!-- Success text -->
+    <color name="text_warning">#F59E0B</color>         <!-- Warning text -->
+
+    <!-- Additional Background Colors -->
+    <color name="bg_overlay">#80000000</color>         <!-- Overlay/scrim (50% black) -->
+
+    <!-- Additional Border Colors -->
+    <color name="border_focused">#6366F1</color>       <!-- Focused border (indigo) -->
+    <color name="border_error">#EF4444</color>         <!-- Error border -->
+    <color name="border_disabled">#3D414A</color>      <!-- Disabled border -->
+
+    <!-- Additional Divider Colors -->
+    <color name="divider_light">#3D414A</color>        <!-- Light divider -->
+
+    <!-- Additional Dark Variants -->
+    <color name="dark_surface_1">#212328</color>       <!-- Dark -->
+    <color name="dark_surface_2">#2E2F37</color>       <!-- Dark2 -->
+    <color name="dark_surface_3">#3D414A</color>       <!-- Dark3 -->
+    <color name="dark_surface_4">#2C2C2C</color>       <!-- Dark4 -->
+    <color name="dark_surface_5">#464646</color>       <!-- Dark5 -->
+
+    <!-- Basic Colors -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#191A1C</color>
+    <color name="transparent">#00000000</color>
+
+</resources>

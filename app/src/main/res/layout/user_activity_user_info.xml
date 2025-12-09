@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".user.UserInfoActivity"
-    android:background="@drawable/bg_gradient"
+    android:background="@color/bg_primary"
     android:padding="24dp">
 
     <LinearLayout
@@ -17,6 +17,7 @@
             android:textSize="22sp"
             android:textStyle="bold"
             android:gravity="center"
+            android:textColor="@color/primary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="20dp" />
@@ -26,7 +27,7 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_gravity="center_horizontal"
-            android:src="@drawable/avatar"
+            android:src="@drawable/avatar_default"
             android:scaleType="centerCrop"
             android:background="@drawable/avatar_frame"
             android:clipToOutline="true"

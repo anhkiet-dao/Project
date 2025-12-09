@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.TimeZone;
 
 public class HistoryFragment extends Fragment {
 
@@ -46,7 +45,7 @@ public class HistoryFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.history_activity_history, container, false);
+        View view = inflater.inflate(R.layout.history_fragment_history, container, false);
 
         recyclerView = view.findViewById(R.id.recyclerHistory);
         tvEmptyHistory = view.findViewById(R.id.tvEmptyHistory);
@@ -274,7 +273,7 @@ public class HistoryFragment extends Fragment {
             if (item.imageUrl != null && !item.imageUrl.isEmpty()) {
                 Glide.with(holder.itemView.getContext())
                         .load(item.imageUrl)
-                        .placeholder(R.drawable.loading)
+                        .placeholder(R.drawable.ic_loading)
                         .error(R.drawable.ic_launcher_background)
                         .into(holder.ivCoverImage);
             } else {

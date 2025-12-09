@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="180dp"
         android:scaleType="centerCrop"
-        android:contentDescription="Ảnh bìa sách"/>
+        android:contentDescription="Ảnh bìa sách" />
 
     <TextView
         android:id="@+id/txt_book_title"
@@ -22,8 +22,7 @@
         android:layout_marginTop="4dp"
         android:maxLines="2"
         android:ellipsize="end"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:text="Tên Truyện Dài Hơn"/>
+        android:textAppearance="@style/TextAppearance.App.Caption"
+        android:text="Tên Truyện Dài Hơn" />
 
 </LinearLayout>

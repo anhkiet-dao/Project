@@ -1,9 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.Do_an" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+    <!-- ========================================= -->
+    <!-- BASE APP THEME (Light Mode)              -->
+    <!-- ========================================= -->
+
+    <style name="Base.Theme.MangaReader" parent="Theme.Material3.DayNight.NoActionBar">
+
+        <!-- ========================================= -->
+        <!-- PRIMARY COLORS                            -->
+        <!-- ========================================= -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorOnPrimary">@color/text_on_primary</item>
+        <item name="colorPrimaryContainer">@color/bg_tertiary</item>
+
+        <!-- ========================================= -->
+        <!-- SECONDARY COLORS                          -->
+        <!-- ========================================= -->
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorSecondaryVariant">@color/secondary_dark</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondaryContainer">@color/bg_tertiary</item>
+
+        <!-- ========================================= -->
+        <!-- SURFACE & BACKGROUND                      -->
+        <!-- ========================================= -->
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorSurfaceVariant">@color/surface_elevated</item>
+
+        <item name="android:colorBackground">@color/bg_primary</item>
+        <item name="colorOnBackground">@color/text_primary</item>
+
+        <!-- ========================================= -->
+        <!-- STATUS COLORS                             -->
+        <!-- ========================================= -->
+        <item name="colorError">@color/error</item>
+        <item name="colorOnError">@color/white</item>
+
+        <!-- ========================================= -->
+        <!-- TEXT COLORS                               -->
+        <!-- ========================================= -->
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:textColorTertiary">@color/text_tertiary</item>
+        <item name="android:textColorHint">@color/text_secondary</item>
+
+        <!-- ========================================= -->
+        <!-- TYPOGRAPHY (Poppins Font)                 -->
+        <!-- ========================================= -->
+        <item name="fontFamily">@font/poppins</item>
+        <item name="android:fontFamily">@font/poppins</item>
+
+        <!-- Material Design 3 Text Appearances -->
+        <item name="textAppearanceDisplayLarge">@style/TextAppearance.App.DisplayLarge</item>
+        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.App.Headline1</item>
+        <item name="textAppearanceHeadlineMedium">@style/TextAppearance.App.Headline2</item>
+        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.App.Headline3</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.App.Title</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.App.Subtitle</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.App.Body1</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.App.Body2</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.App.Caption</item>
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.App.Button</item>
+
+        <!-- ========================================= -->
+        <!-- COMPONENT STYLES                          -->
+        <!-- ========================================= -->
+
+        <!-- Buttons -->
+        <item name="materialButtonStyle">@style/Widget.App.Button.Primary</item>
+        <item name="borderlessButtonStyle">@style/Widget.App.Button.Text</item>
+
+        <!-- Text Fields -->
+        <item name="textInputStyle">@style/Widget.App.TextInputLayout</item>
+        <item name="editTextStyle">@style/Widget.App.EditText</item>
+
+        <!-- Cards -->
+        <item name="materialCardViewStyle">@style/Widget.App.CardView</item>
+
+        <!-- Bottom Navigation -->
+        <item name="bottomNavigationStyle">@style/Widget.App.BottomNavigationView</item>
+
+        <!-- Toolbar -->
+        <item name="toolbarStyle">@style/Widget.App.Toolbar</item>
+
+        <!-- ========================================= -->
+        <!-- WINDOW & STATUS BAR                       -->
+        <!-- ========================================= -->
+        <item name="android:windowBackground">@color/bg_primary</item>
+        <item name="android:statusBarColor">@color/primary</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+
+        <!-- Window Animations -->
+        <item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
+
     </style>
 
-    <style name="Theme.Do_an" parent="Base.Theme.Do_an" />
+    <!-- Main App Theme -->
+    <style name="Theme.MangaReader" parent="Base.Theme.MangaReader" />
+
+    <!-- Legacy Theme Name (for compatibility) -->
+    <style name="Theme.Do_an" parent="Theme.MangaReader" />
+
+    <!-- ========================================= -->
+    <!-- AUTH THEME (League Spartan Font)          -->
+    <!-- ========================================= -->
+
+    <style name="Theme.Auth" parent="Theme.MangaReader">
+        <!-- Override font to League Spartan -->
+        <item name="fontFamily">@font/league_spartan</item>
+        <item name="android:fontFamily">@font/league_spartan</item>
+
+        <!-- Fullscreen for auth screens -->
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:statusBarColor">@color/bg_primary</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+    </style>
+
+    <!-- ========================================= -->
+    <!-- COMPONENT STYLES                          -->
+    <!-- ========================================= -->
+
+    <!-- Primary Button -->
+    <style name="Widget.App.Button.Primary" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/primary</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.Button</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
+        <item name="android:minHeight">48dp</item>
+    </style>
+
+    <!-- Secondary Button -->
+    <style name="Widget.App.Button.Secondary" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="strokeColor">@color/primary</item>
+        <item name="android:textColor">@color/primary</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.Button</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
+        <item name="android:minHeight">48dp</item>
+    </style>
+
+    <!-- Text Button -->
+    <style name="Widget.App.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">@color/primary</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.Button</item>
+    </style>
+
+    <!-- Text Input Layout -->
+    <style name="Widget.App.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/primary</item>
+        <item name="boxStrokeWidth">2dp</item>
+        <item name="boxCornerRadiusTopStart">12dp</item>
+        <item name="boxCornerRadiusTopEnd">12dp</item>
+        <item name="boxCornerRadiusBottomStart">12dp</item>
+        <item name="boxCornerRadiusBottomEnd">12dp</item>
+        <item name="hintTextColor">@color/text_secondary</item>
+        <item name="android:textColorHint">@color/text_secondary</item>
+        <item name="errorTextColor">@color/error</item>
+    </style>
+
+    <!-- Edit Text -->
+    <style name="Widget.App.EditText" parent="Widget.Material3.TextInputEditText.OutlinedBox">
+        <item name="android:textAppearance">@style/TextAppearance.App.Input</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textColorHint">@color/text_secondary</item>
+    </style>
+
+    <!-- Card View -->
+    <style name="Widget.App.CardView" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardBackgroundColor">@color/surface</item>
+        <item name="cardElevation">4dp</item>
+        <item name="cardCornerRadius">16dp</item>
+        <item name="contentPadding">16dp</item>
+    </style>
+
+    <!-- Bottom Navigation View -->
+    <style name="Widget.App.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
+        <item name="backgroundTint">@color/bg_secondary</item>
+        <item name="itemIconTint">@color/bottom_nav_item_color</item>
+        <item name="itemTextColor">@color/bottom_nav_item_color</item>
+        <item name="itemTextAppearanceActive">@style/TextAppearance.App.BottomNav</item>
+        <item name="itemTextAppearanceInactive">@style/TextAppearance.App.BottomNav</item>
+        <item name="elevation">8dp</item>
+    </style>
+
+    <!-- Toolbar -->
+    <style name="Widget.App.Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="titleTextAppearance">@style/TextAppearance.App.ToolbarTitle</item>
+        <item name="titleTextColor">@color/text_primary</item>
+        <item name="android:background">@color/bg_primary</item>
+        <item name="elevation">4dp</item>
+    </style>
+
+    <!-- ========================================= -->
+    <!-- WINDOW ANIMATIONS                         -->
+    <!-- ========================================= -->
+
+    <style name="WindowAnimationTransition">
+        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+    </style>
+
 </resources>

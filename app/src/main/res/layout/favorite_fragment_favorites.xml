@@ -1,39 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="#F9F9F9">
+    android:background="@android:color/transparent">
 
     <!-- Toolbar -->
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardToolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardElevation="0dp"
-            app:cardBackgroundColor="?attr/colorPrimary">
+            app:cardBackgroundColor="?attr/colorPrimary"
+            app:cardElevation="0dp">
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:background="@android:color/transparent"
-                app:titleTextColor="@android:color/white"
-                app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light">
+                app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light"
+                app:titleTextColor="@android:color/white">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Truyện yêu thích"
                     android:gravity="center"
+                    android:text="Truyện yêu thích"
+                    android:textColor="@android:color/white"
                     android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/white" />
+                    android:textStyle="bold" />
 
             </com.google.android.material.appbar.MaterialToolbar>
 
@@ -42,7 +42,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerFavorites"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
     </LinearLayout>
 
     <!-- TextView hiển thị khi không có dữ liệu -->
@@ -50,10 +50,10 @@
         android:id="@+id/tvNoFavorites"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:text="Không có truyện yêu thích nào"
-        android:textSize="18sp"
         android:textColor="@android:color/black"
-        android:visibility="gone"
-        android:layout_gravity="center"/>
+        android:textSize="18sp"
+        android:visibility="gone" />
 
 </FrameLayout>

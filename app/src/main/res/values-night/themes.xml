@@ -1,7 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.Do_an" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+
+    <!-- ========================================= -->
+    <!-- DARK MODE THEME                          -->
+    <!-- ========================================= -->
+
+    <style name="Base.Theme.MangaReader" parent="Theme.Material3.DayNight.NoActionBar">
+
+        <!-- ========================================= -->
+        <!-- PRIMARY COLORS (Dark Mode)               -->
+        <!-- ========================================= -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorOnPrimary">@color/text_on_primary</item>
+        <item name="colorPrimaryContainer">@color/bg_tertiary</item>
+
+        <!-- ========================================= -->
+        <!-- SECONDARY COLORS (Dark Mode)             -->
+        <!-- ========================================= -->
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorSecondaryVariant">@color/secondary_dark</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondaryContainer">@color/bg_tertiary</item>
+
+        <!-- ========================================= -->
+        <!-- SURFACE & BACKGROUND (Dark Mode)         -->
+        <!-- ========================================= -->
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorSurfaceVariant">@color/surface_elevated</item>
+
+        <item name="android:colorBackground">@color/bg_primary</item>
+        <item name="colorOnBackground">@color/text_primary</item>
+
+        <!-- ========================================= -->
+        <!-- STATUS COLORS (Dark Mode)                -->
+        <!-- ========================================= -->
+        <item name="colorError">@color/error</item>
+        <item name="colorOnError">@color/white</item>
+
+        <!-- ========================================= -->
+        <!-- TEXT COLORS (Dark Mode)                  -->
+        <!-- ========================================= -->
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:textColorTertiary">@color/text_tertiary</item>
+        <item name="android:textColorHint">@color/text_hint</item>
+
+        <!-- ========================================= -->
+        <!-- TYPOGRAPHY (Poppins Font - Dark Mode)    -->
+        <!-- ========================================= -->
+        <item name="fontFamily">@font/poppins</item>
+        <item name="android:fontFamily">@font/poppins</item>
+
+        <!-- Material Design 3 Text Appearances -->
+        <item name="textAppearanceDisplayLarge">@style/TextAppearance.App.DisplayLarge</item>
+        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.App.Headline1</item>
+        <item name="textAppearanceHeadlineMedium">@style/TextAppearance.App.Headline2</item>
+        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.App.Headline3</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.App.Title</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.App.Subtitle</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.App.Body1</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.App.Body2</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.App.Caption</item>
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.App.Button</item>
+
+        <!-- ========================================= -->
+        <!-- COMPONENT STYLES (Dark Mode)             -->
+        <!-- ========================================= -->
+
+        <!-- Buttons -->
+        <item name="materialButtonStyle">@style/Widget.App.Button.Primary</item>
+        <item name="borderlessButtonStyle">@style/Widget.App.Button.Text</item>
+
+        <!-- Text Fields -->
+        <item name="textInputStyle">@style/Widget.App.TextInputLayout</item>
+        <item name="editTextStyle">@style/Widget.App.EditText</item>
+
+        <!-- Cards -->
+        <item name="materialCardViewStyle">@style/Widget.App.CardView</item>
+
+        <!-- Bottom Navigation -->
+        <item name="bottomNavigationStyle">@style/Widget.App.BottomNavigationView</item>
+
+        <!-- Toolbar -->
+        <item name="toolbarStyle">@style/Widget.App.Toolbar</item>
+
+        <!-- ========================================= -->
+        <!-- WINDOW & STATUS BAR (Dark Mode)          -->
+        <!-- ========================================= -->
+        <item name="android:windowBackground">@color/bg_primary</item>
+        <item name="android:statusBarColor">@color/bg_primary</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">false</item>
+
+        <!-- Elevation Overlay (Material Design Dark Theme) -->
+        <item name="elevationOverlayEnabled">true</item>
+        <item name="elevationOverlayColor">@color/white</item>
+
+        <!-- Window Animations -->
+        <item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
+
     </style>
+
 </resources>

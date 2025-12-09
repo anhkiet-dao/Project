@@ -3,78 +3,37 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@android:color/white">
+    android:background="@color/bg_primary"
+    android:orientation="vertical">
 
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginTop="10dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="4dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp">
-
-            <ImageView
-                android:id="@+id/imgAvatar"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="@drawable/avatar_circle_bg"
-                android:clipToOutline="true"
-                android:outlineProvider="background"
-                android:scaleType="centerCrop"
-                android:src="@drawable/avatar"
-                android:contentDescription="Avatar người dùng" />
-
-            <TextView
-                android:id="@+id/txtGreeting"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center|center_vertical"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="0dp"
-                android:text="Xin chào, Tên!"
-                android:textColor="@color/black"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    <include layout="@layout/include_header_greeting" />
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardElevation="0dp"
         android:layout_marginLeft="16dp"
+        android:layout_marginTop="10dp"
         android:layout_marginRight="16dp"
-        app:cardBackgroundColor="?attr/colorPrimary">
+        app:cardBackgroundColor="?attr/colorPrimary"
+        app:cardElevation="0dp">
+
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:background="@android:color/transparent"
-            app:titleTextColor="@android:color/white"
-            app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light" >
+            app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light"
+            app:titleTextColor="@android:color/white">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Danh sách các tập"
                 android:gravity="center"
+                android:text="Danh sách các tập"
+                android:textColor="@android:color/white"
                 android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/white" />
+                android:textStyle="bold" />
 
         </com.google.android.material.appbar.MaterialToolbar>
 
@@ -89,13 +48,13 @@
             android:id="@+id/recyclerSeries"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:paddingTop="8dp"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
+            android:clipToPadding="false"
+            android:overScrollMode="ifContentScrolls"
+            android:paddingTop="8dp"
             android:paddingBottom="72dp"
-            android:scrollbars="vertical"
-            android:overScrollMode="ifContentScrolls"/>
+            android:scrollbars="vertical" />
 
         <TextView
             android:id="@+id/tvNoSeries"
@@ -103,8 +62,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="Không có tập nào"
-            android:textSize="18sp"
             android:textColor="@android:color/darker_gray"
-            android:visibility="gone" /> </FrameLayout>
+            android:textSize="18sp"
+            android:visibility="gone" />
+    </FrameLayout>
 
 </LinearLayout>

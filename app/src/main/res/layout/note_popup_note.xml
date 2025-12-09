@@ -41,7 +41,7 @@
                 android:id="@+id/btnClose"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:src="@drawable/cross"
+                android:src="@drawable/ic_exit"
                 android:background="?selectableItemBackgroundBorderless"
                 android:contentDescription="Close"
                 android:layout_alignParentEnd="true"
