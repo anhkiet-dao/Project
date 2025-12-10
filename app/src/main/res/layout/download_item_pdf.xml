@@ -42,7 +42,7 @@
             android:layout_marginTop="10dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:text="Tác giả: ???"
+            android:text="Tác giả: "
             android:textColor="#777777"
             android:textSize="15sp" />
 

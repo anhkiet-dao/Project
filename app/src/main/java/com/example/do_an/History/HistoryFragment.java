@@ -37,7 +37,7 @@ public class HistoryFragment extends Fragment {
     private RecyclerView recyclerView;
     private HistoryGroupAdapter adapter;
     private ArrayList<HistoryGroup> groupList = new ArrayList<>();
-    private TextView tvEmptyHistory;
+    private TextView tvEmptyHistory, tvTitle;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -46,22 +46,24 @@ public class HistoryFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.recyclerHistory);
         tvEmptyHistory = view.findViewById(R.id.tvEmptyHistory);
-        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        tvTitle = view.findViewById(R.id.tvTitle);
 
+        tvTitle.setText(getString(R.string.history_title)); // 🌍 đa ngôn ngữ
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new HistoryGroupAdapter(groupList);
         recyclerView.setAdapter(adapter);
 
         loadHistoryFromFirebase();
-
         return view;
     }
 
     private void loadHistoryFromFirebase() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
-            Toast.makeText(requireContext(), "Bạn chưa đăng nhập!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), getString(R.string.history_empty_no_login), Toast.LENGTH_SHORT).show();
             recyclerView.setVisibility(View.GONE);
-            tvEmptyHistory.setText("Bạn chưa đăng nhập!");
+            tvEmptyHistory.setText(getString(R.string.history_empty_no_login));
             tvEmptyHistory.setVisibility(View.VISIBLE);
             return;
         }
@@ -114,22 +116,18 @@ public class HistoryFragment extends Fragment {
                     allHistoryItems.add(new HistoryItemWithDate(item, startDate));
                 }
 
-                // 🔥 Sắp xếp toàn bộ từ mới đến cũ
                 Collections.sort(allHistoryItems, (i1, i2) -> i2.date.compareTo(i1.date));
 
-                // 🔥 Nhóm theo ngày, MỖI NGÀY TỐI ĐA 10 ITEM
                 Map<String, ArrayList<HistoryItem>> mapDay = new HashMap<>();
 
                 for (HistoryItemWithDate itemWithDate : allHistoryItems) {
                     String dateKey = sdfDay.format(itemWithDate.date);
-
                     if (!mapDay.containsKey(dateKey)) mapDay.put(dateKey, new ArrayList<>());
-                    if (mapDay.get(dateKey).size() < 10) { // Giới hạn mỗi ngày tối đa 10
+                    if (mapDay.get(dateKey).size() < 10) {
                         mapDay.get(dateKey).add(itemWithDate.item);
                     }
                 }
 
-                // Sắp xếp theo ngày mới nhất
                 ArrayList<String> sortedDates = new ArrayList<>(mapDay.keySet());
                 Collections.sort(sortedDates, (d1, d2) -> {
                     try {
@@ -144,7 +142,7 @@ public class HistoryFragment extends Fragment {
 
                 if (groupList.isEmpty()) {
                     recyclerView.setVisibility(View.GONE);
-                    tvEmptyHistory.setText("Chưa có lịch sử xem.");
+                    tvEmptyHistory.setText(getString(R.string.history_empty_no_data));
                     tvEmptyHistory.setVisibility(View.VISIBLE);
                 } else {
                     tvEmptyHistory.setVisibility(View.GONE);
@@ -155,9 +153,9 @@ public class HistoryFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(requireContext(), "Lỗi tải dữ liệu!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getString(R.string.history_error_load), Toast.LENGTH_SHORT).show();
                 recyclerView.setVisibility(View.GONE);
-                tvEmptyHistory.setText("Lỗi tải dữ liệu. Vui lòng kiểm tra kết nối.");
+                tvEmptyHistory.setText(getString(R.string.history_error_load));
                 tvEmptyHistory.setVisibility(View.VISIBLE);
             }
         });
@@ -237,8 +235,8 @@ public class HistoryFragment extends Fragment {
             HistoryItem item = list.get(position);
 
             holder.tvTitle.setText(item.title);
-            holder.tvAuthor.setText("Tác giả: " + item.author);
-            holder.tvTime.setText("Bắt đầu: " + item.startTime);
+            holder.tvAuthor.setText(holder.itemView.getContext().getString(R.string.history_author, item.author));
+            holder.tvTime.setText(holder.itemView.getContext().getString(R.string.history_start_time, item.startTime));
 
             if (item.imageUrl != null && !item.imageUrl.isEmpty()) {
                 Glide.with(holder.itemView.getContext())

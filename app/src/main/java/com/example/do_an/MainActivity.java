@@ -1,7 +1,9 @@
 package com.example.do_an;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
-import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -14,6 +16,8 @@ import com.example.do_an.UI.ReadFragment;
 import com.example.do_an.UI.HomeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.util.Locale;
+
 public class MainActivity extends AppCompatActivity implements ReadFragment.NavigationListener {
 
     private BottomNavigationView bottomNav;
@@ -22,8 +26,11 @@ public class MainActivity extends AppCompatActivity implements ReadFragment.Navi
     private Fragment accountFragment;
     private Fragment discoverFragment; // Home fragment
     private final FragmentManager fm = getSupportFragmentManager();
-
     private static final int FRAGMENT_CONTAINER_ID = R.id.fragment_container;
+
+    public BottomNavigationView getBottomNav() {
+        return bottomNav;
+    }
 
     public interface ResettableFragment {
         void resetState();
@@ -31,9 +38,7 @@ public class MainActivity extends AppCompatActivity implements ReadFragment.Navi
 
     @Override
     public void setBottomNavVisibility(int visibility) {
-        if (bottomNav != null) {
-            bottomNav.setVisibility(visibility);
-        }
+        if (bottomNav != null) bottomNav.setVisibility(visibility);
     }
 
     @Override
@@ -108,9 +113,45 @@ public class MainActivity extends AppCompatActivity implements ReadFragment.Navi
 
     public void openFragment(Fragment fragment) {
         fm.beginTransaction()
-                .hide(activeFragment) // Ẩn tab đang dùng
-                .add(FRAGMENT_CONTAINER_ID, fragment) // Thêm màn phụ lên trên
+                .hide(activeFragment)
+                .add(FRAGMENT_CONTAINER_ID, fragment)
                 .addToBackStack(null)
                 .commit();
+    }
+
+    /** Hàm đổi ngôn ngữ app */
+    public void updateAppLanguage(String langCode) {
+        // Lưu locale
+        Locale locale = new Locale(langCode);
+        Locale.setDefault(locale);
+        Configuration config = getResources().getConfiguration();
+        config.setLocale(locale);
+        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
+
+        // Reload activity để áp dụng locale mới
+        recreate();
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        SharedPreferences prefs = newBase.getSharedPreferences("AppSettings", MODE_PRIVATE);
+        String lang = prefs.getString("App_Lang", "vi");
+
+        Locale locale = new Locale(lang);
+        Locale.setDefault(locale);
+
+        Configuration config = newBase.getResources().getConfiguration();
+        config.setLocale(locale);
+
+        super.attachBaseContext(newBase.createConfigurationContext(config));
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (fm.getBackStackEntryCount() > 0) {
+            fm.popBackStack();
+        } else {
+            super.onBackPressed();
+        }
     }
 }

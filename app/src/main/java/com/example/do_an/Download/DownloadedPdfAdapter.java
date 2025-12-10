@@ -54,7 +54,12 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
         DownloadedPdfEntity entity = downloadedPdfs.get(position);
 
         final String title = entity.fileName.replace(".pdf", "");
-        final String author = entity.author != null && !entity.author.isEmpty() ? entity.author : "Đang cập nhật";
+
+        // 🔥 Lấy text "Đang cập nhật" từ resource
+        final String author = entity.author != null && !entity.author.isEmpty()
+                ? entity.author
+                : activity.getString(R.string.updating);
+
         final String localFilePath = entity.localFilePath;
 
         if (entity.coverImageUrl != null && !entity.coverImageUrl.isEmpty()) {
@@ -68,11 +73,16 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
         }
 
         holder.txtPdfName.setText(title);
-        holder.txtPdfAuthor.setText("Tác giả: " + author);
+
+        // 🔥 Lấy text theo locale
+        String authorLabel = activity.getString(R.string.author_label);
+        holder.txtPdfAuthor.setText(authorLabel + author);
+
+        // 🔥 Nút Xóa theo ngôn ngữ
+        holder.btnDelete.setText(activity.getString(R.string.delete_text));
 
         holder.itemView.setOnClickListener(v -> {
             Bundle readArgs = new Bundle();
-
             readArgs.putString("STORY_TITLE", title);
             readArgs.putString("STORY_AUTHOR", author);
             readArgs.putString("PDF_PATH", localFilePath);
@@ -88,7 +98,7 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
                         .addToBackStack(null)
                         .commit();
             } else {
-                Toast.makeText(activity, "Không thể mở file!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, activity.getString(R.string.cannot_open_file), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -111,17 +121,21 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
         dialog.setContentView(R.layout.note_item_confirm_delete);
         dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
+        TextView txtMessage = dialog.findViewById(R.id.txtMessage); // 👈 thêm dòng này
         TextView btnYes = dialog.findViewById(R.id.btnYes);
         TextView btnNo = dialog.findViewById(R.id.btnNo);
+
+        // 🔥 Set text theo ngôn ngữ
+        txtMessage.setText(activity.getString(R.string.delete_confirm_msg)); // 👈 message mới
+        btnYes.setText(activity.getString(R.string.delete_confirm_yes));
+        btnNo.setText(activity.getString(R.string.delete_confirm_no));
 
         btnYes.setOnClickListener(v -> {
 
             boolean deleted = fileToDelete.delete();
             final String fileNameToDelete = fileToDelete.getName();
 
-            new Thread(() -> {
-                pdfDao.delete(entityToDelete);
-            }).start();
+            new Thread(() -> pdfDao.delete(entityToDelete)).start();
 
             File jsonFile = new File(
                     fileToDelete.getParent(),
@@ -132,9 +146,13 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
             if (deleted) {
                 downloadedPdfs.remove(adapterPos);
                 notifyItemRemoved(adapterPos);
-                Toast.makeText(this.activity, "Đã xóa " + fileNameToDelete, Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity,
+                        activity.getString(R.string.deleted_msg) + fileNameToDelete,
+                        Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this.activity, "Không thể xóa " + fileNameToDelete, Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity,
+                        activity.getString(R.string.cannot_delete) + fileNameToDelete,
+                        Toast.LENGTH_SHORT).show();
             }
 
             dialog.dismiss();
@@ -143,6 +161,7 @@ public class DownloadedPdfAdapter extends RecyclerView.Adapter<DownloadedPdfAdap
         btnNo.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
     }
+
 
     static class PdfViewHolder extends RecyclerView.ViewHolder {
         TextView txtPdfName, txtPdfAuthor, btnDelete;

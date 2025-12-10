@@ -1,3 +1,60 @@
 <resources>
-    <string name="app_name">Orumanga</string>
+    <string name="app_name" translatable="false">Orumanga</string>
+    <string name="nav_home">Trang Chủ</string>
+    <string name="nav_read">Của Tôi</string>
+    <string name="nav_search">Tìm Kiếm</string>
+    <string name="nav_profile">Tài Khoản</string>
+
+
+    <string name="logout">Đăng xuất</string>
+    <string name="profile">Hồ sơ</string>
+    <string name="language">Ngôn ngữ</string>
+    <string name="settings">Cài đặt</string>
+    <string name="informaton">Thông tin</string>
+
+    // Mylist
+    <string name="analytics">Thống kê</string>
+    <string name="history">Lịch sử</string>
+    <string name="favorite">Yêu thích</string>
+    <string name="download">Tải xuống</string>
+
+    <string name="hello_user">Chào bạn!</string>
+    <string name="default_user">Bạn</string>
+
+    <string name="good_morning">Chào buổi sáng</string>
+    <string name="good_noon">Chào buổi trưa</string>
+    <string name="good_afternoon">Chào buổi chiều</string>
+    <string name="good_evening">Chào buổi tối</string>
+
+    //Download
+    <string name="downloaded_list_title">Danh sách đã tải về</string>
+    <string name="no_downloads">Chưa có tài liệu tải xuống</string>
+    <string name="author_label1">Tác giả: </string>
+    <string name="delete_text">Xóa</string>
+    <string name="cannot_open_file">Không thể mở file!</string>
+    <string name="deleted_msg">Đã xóa </string>
+    <string name="cannot_delete">Không thể xóa </string>
+    <string name="updating">Đang cập nhật</string>
+    <string name="delete_confirm_yes">Có</string>
+    <string name="delete_confirm_no">Không</string>
+    <string name="delete_confirm_msg">Bạn có chắc muốn xóa file này?</string>
+
+    //History
+    <string name="history_empty_no_login">Bạn chưa đăng nhập!</string>
+    <string name="history_empty_no_data">Chưa có lịch sử xem.</string>
+    <string name="history_error_load">Lỗi tải dữ liệu. Vui lòng kiểm tra kết nối.</string>
+    <string name="history_title">Lịch sử đọc truyện</string>
+    <string name="history_author">Tác giả: %1$s</string>
+    <string name="history_start_time">Bắt đầu: %1$s</string>
+
+    <!-- Favorite -->
+    <string name="title_favorite">Truyện yêu thích</string>
+    <string name="empty_favorite">Chưa có truyện yêu thích.</string>
+    <string name="remove_favorite_success">Đã bỏ yêu thích: %1$s</string>
+    <string name="not_logged_in">Chưa đăng nhập!</string>
+    <string name="favorite_error">Lỗi tải danh sách yêu thích.</string>
+    <string name="author_label">Tác giả: </string>
+    <string name="remove_fav">Bỏ yêu thích</string>
+
+
 </resources>

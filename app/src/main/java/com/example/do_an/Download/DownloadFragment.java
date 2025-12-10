@@ -22,25 +22,29 @@ import java.util.List;
 public class DownloadFragment extends Fragment {
     private static final String TAG = "DownloadFragment";
     private RecyclerView rvDownloadedPdfs;
-    private TextView tvNoDownloads;
+    private TextView tvNoDownloads, tvTitle;
     private DownloadedPdfAdapter adapter;
     private List<DownloadedPdfEntity> downloadedPdfs;
     private DownloadedPdfDao pdfDao;
 
-    public DownloadFragment() {
-    }
+    public DownloadFragment() { }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         View view = inflater.inflate(R.layout.download_fragment_downloaded_list, container, false);
 
+        // 📌 Ánh xạ view
         rvDownloadedPdfs = view.findViewById(R.id.rvDownloadedPdfs);
         rvDownloadedPdfs.setLayoutManager(new LinearLayoutManager(getContext()));
 
         tvNoDownloads = view.findViewById(R.id.tvNoDownloads);
+        tvTitle = view.findViewById(R.id.tvTitle);
 
+        // 🌍 Set text đa ngôn ngữ
+        tvTitle.setText(getString(R.string.downloaded_list_title));
+
+        // 📌 Load dữ liệu
         pdfDao = AppDatabase.getDatabase(getContext()).downloadedPdfDao();
         loadDownloadedPdfs();
 
@@ -60,53 +64,50 @@ public class DownloadFragment extends Fragment {
 
         new Thread(() -> {
             List<DownloadedPdfEntity> entities = getAllDownloadedPdfs(pdfDao);
-            Log.d(TAG, "Bước 1: Số lượng Entities lấy từ DAO (Bao gồm Cache): " + entities.size());
 
             List<DownloadedPdfEntity> validEntities = new ArrayList<>();
             List<DownloadedPdfEntity> entitiesToRemove = new ArrayList<>();
 
+            // 📌 Kiểm tra file vật lý có còn tồn tại
             for (DownloadedPdfEntity entity : entities) {
                 File pdfFile = new File(entity.localFilePath);
 
-                Log.d(TAG, "Kiểm tra Entity: " + entity.fileName + " | Path: " + entity.localFilePath + " | isCache: " + entity.isCache);
-
                 if (pdfFile.exists()) {
                     validEntities.add(entity);
-                    Log.d(TAG, " -> HỢP LỆ: File vật lý tồn tại.");
-
                 } else {
                     entitiesToRemove.add(entity);
-                    Log.w(TAG, " -> KHÔNG HỢP LỆ: File vật lý bị mất. Sẽ xóa khỏi Room.");
                 }
             }
 
-            Log.d(TAG, "Bước 2: Số lượng Entities hợp lệ để hiển thị: " + validEntities.size());
-
+            // ❌ Xóa dữ liệu rác khỏi Room
             if (!entitiesToRemove.isEmpty()) {
-                Log.w(TAG, "Đang xóa " + entitiesToRemove.size() + " records lỗi khỏi Room.");
                 for (DownloadedPdfEntity entity : entitiesToRemove) {
                     pdfDao.delete(entity);
                 }
             }
 
-            requireActivity().runOnUiThread(() -> {
-                downloadedPdfs = validEntities;
+            // 🔄 Cập nhật giao diện
+            if (isAdded()) {
+                requireActivity().runOnUiThread(() -> {
+                    downloadedPdfs = validEntities;
 
-                if (downloadedPdfs.isEmpty()) {
-                    rvDownloadedPdfs.setVisibility(View.GONE);
-                    tvNoDownloads.setVisibility(View.VISIBLE);
-                } else {
-                    rvDownloadedPdfs.setVisibility(View.VISIBLE);
-                    tvNoDownloads.setVisibility(View.GONE);
-
-                    if (adapter == null) {
-                        adapter = new DownloadedPdfAdapter(requireActivity(), downloadedPdfs, pdfDao);
-                        rvDownloadedPdfs.setAdapter(adapter);
+                    if (downloadedPdfs.isEmpty()) {
+                        rvDownloadedPdfs.setVisibility(View.GONE);
+                        tvNoDownloads.setVisibility(View.VISIBLE);
+                        tvNoDownloads.setText(getString(R.string.no_downloads)); // 🔥 đa ngôn ngữ
                     } else {
-                        adapter.setPdfList(downloadedPdfs);
+                        rvDownloadedPdfs.setVisibility(View.VISIBLE);
+                        tvNoDownloads.setVisibility(View.GONE);
+
+                        if (adapter == null) {
+                            adapter = new DownloadedPdfAdapter(requireActivity(), downloadedPdfs, pdfDao);
+                            rvDownloadedPdfs.setAdapter(adapter);
+                        } else {
+                            adapter.setPdfList(downloadedPdfs);
+                        }
                     }
-                }
-            });
+                });
+            }
 
         }).start();
     }
@@ -115,7 +116,7 @@ public class DownloadFragment extends Fragment {
         try {
             return dao.getAllPdfs();
         } catch (Exception e) {
-            Log.e(TAG, "Lỗi khi lấy PDFs từ DAO", e);
+            Log.e(TAG, "Error loading PDFs", e);
             return new ArrayList<>();
         }
     }

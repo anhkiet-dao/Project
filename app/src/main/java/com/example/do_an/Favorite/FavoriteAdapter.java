@@ -49,7 +49,11 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.FavVie
         FavoriteStory story = favoriteList.get(position);
 
         holder.tvStoryTitle.setText(story.getTitle());
-        holder.tvAuthor.setText("Tác giả: " + story.getAuthor());
+
+        // 🔥 Lấy text theo ngôn ngữ từ string resources
+        String authorLabel = context.getString(R.string.author_label);
+        holder.tvAuthor.setText(authorLabel + story.getAuthor());
+        holder.btnRemoveFav.setText(context.getString(R.string.remove_fav));
 
         String imageUrl = story.getImageUrl();
         if (imageUrl == null || imageUrl.trim().isEmpty()) {
@@ -91,7 +95,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.FavVie
 
     public static class FavViewHolder extends RecyclerView.ViewHolder {
         ImageView imgStory;
-        TextView tvStoryTitle, tvAuthor, tvCategory, tvDescription;
+        TextView tvStoryTitle, tvAuthor;
         Button btnRemoveFav;
 
         public FavViewHolder(@NonNull View itemView) {

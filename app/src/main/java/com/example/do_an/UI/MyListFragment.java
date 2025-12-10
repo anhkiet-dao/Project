@@ -30,7 +30,7 @@ import java.util.Calendar;
 public class MyListFragment extends Fragment {
 
     private Button btnAnalytics, btnHistory, btnFavorite, btnDownload;
-    private TextView tvGreeting; // Lời chào người dùng
+    private TextView tvGreeting;
 
     @Nullable
     @Override
@@ -45,6 +45,12 @@ public class MyListFragment extends Fragment {
         btnFavorite = view.findViewById(R.id.btnFavorite);
         btnDownload = view.findViewById(R.id.btnDownload);
         tvGreeting = view.findViewById(R.id.txtGreeting);
+
+        // Set text từ strings.xml
+        btnAnalytics.setText(getString(R.string.analytics));
+        btnHistory.setText(getString(R.string.history));
+        btnFavorite.setText(getString(R.string.favorite));
+        btnDownload.setText(getString(R.string.download));
 
         setupUserGreeting();
 
@@ -93,10 +99,11 @@ public class MyListFragment extends Fragment {
                 .commit();
     }
 
+    // ================== LỜI CHÀO ĐA NGÔN NGỮ =====================
     private void setupUserGreeting() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null || currentUser.getEmail() == null) {
-            tvGreeting.setText("Chào bạn!");
+            tvGreeting.setText(getString(R.string.hello_user));
             return;
         }
 
@@ -114,7 +121,8 @@ public class MyListFragment extends Fragment {
                         String emailDecrypted = Encryption.decrypt(encryptedEmail.trim());
                         if (userEmail.equals(emailDecrypted)) {
                             String encryptedName = userSnap.child("fullName").getValue(String.class);
-                            String realName = "Bạn";
+                            String realName = getString(R.string.default_user);
+
                             if (encryptedName != null && !encryptedName.isEmpty()) {
                                 realName = Encryption.decrypt(encryptedName.trim());
                             }
@@ -122,24 +130,22 @@ public class MyListFragment extends Fragment {
                             Calendar calendar = Calendar.getInstance();
                             int hour = calendar.get(Calendar.HOUR_OF_DAY);
                             String greeting;
-                            if (hour < 11) greeting = "Chào buổi sáng, ";
-                            else if (hour < 13) greeting = "Chào buổi trưa, ";
-                            else if (hour < 18) greeting = "Chào buổi chiều, ";
-                            else greeting = "Chào buổi tối, ";
+                            if (hour < 11) greeting = getString(R.string.good_morning);
+                            else if (hour < 13) greeting = getString(R.string.good_noon);
+                            else if (hour < 18) greeting = getString(R.string.good_afternoon);
+                            else greeting = getString(R.string.good_evening);
 
-                            tvGreeting.setText(greeting + realName + "!");
+                            tvGreeting.setText(greeting + " " + realName + "!");
                             return;
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    } catch (Exception ignored) {}
                 }
-                tvGreeting.setText("Chào bạn!");
+                tvGreeting.setText(getString(R.string.hello_user));
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                tvGreeting.setText("Chào bạn!");
+                tvGreeting.setText(getString(R.string.hello_user));
             }
         });
     }

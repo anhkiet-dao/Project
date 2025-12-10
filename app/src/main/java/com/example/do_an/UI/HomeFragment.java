@@ -238,8 +238,9 @@ public class HomeFragment extends Fragment {
                         pdfViewerUtility.preloadPdf(b);
                     }
 
-                    // Hiển thị PDF preview của cuốn đầu tiên
-                    pdfViewerUtility.loadPdfPreview(currentViewingBook, 5);
+                    // ➡️ ĐÃ SỬA: Thay thế loadPdfPreview bằng showPdfPreview
+                    // showPdfPreview đảm bảo cả tên, tác giả và nút chi tiết đều được cập nhật
+                    showPdfPreview(currentViewingBook);
 
                     previewAdapter = new BookImageAdapter(getContext(), list, this::onBookClick);
                     recyclerView.setAdapter(previewAdapter);
@@ -250,9 +251,10 @@ public class HomeFragment extends Fragment {
                         detailPreview.setOnClickListener(v -> navigateToAllBooksFragment("reviewBooks", "Truyện xem trước"));
                     }
 
-                    if (btnDetail != null) {
-                        btnDetail.setOnClickListener(v -> openReadFragmentDirectly(currentViewingBook));
-                    }
+                    // Nút chi tiết (btnDetail) không cần set ở đây nữa vì đã có trong showPdfPreview
+                    // if (btnDetail != null) {
+                    //     btnDetail.setOnClickListener(v -> openReadFragmentDirectly(currentViewingBook));
+                    // }
                 }
             } else {
                 if (!list.isEmpty()) {

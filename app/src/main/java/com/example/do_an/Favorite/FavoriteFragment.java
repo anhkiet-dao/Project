@@ -1,7 +1,6 @@
 package com.example.do_an.Favorite;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +27,7 @@ import java.util.List;
 public class FavoriteFragment extends Fragment {
 
     private RecyclerView recyclerFavorites;
-    private TextView tvNoFavorites;
+    private TextView tvNoFavorites, tvTitle;
     private FavoriteAdapter adapter;
     private final List<FavoriteStory> favoriteList = new ArrayList<>();
     private DatabaseReference favRef;
@@ -45,24 +44,29 @@ public class FavoriteFragment extends Fragment {
 
         recyclerFavorites = view.findViewById(R.id.recyclerFavorites);
         tvNoFavorites = view.findViewById(R.id.tvNoFavorites);
+        tvTitle = view.findViewById(R.id.tvTitle); // 🔥 thêm title
 
         recyclerFavorites.setLayoutManager(new LinearLayoutManager(getContext()));
 
+        // ⚠️ Kiểm tra đăng nhập
         auth = FirebaseAuth.getInstance();
         String email = auth.getCurrentUser() != null ? auth.getCurrentUser().getEmail() : null;
         if (email == null) {
-            Toast.makeText(getContext(), "Chưa đăng nhập!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), getString(R.string.not_logged_in), Toast.LENGTH_SHORT).show();
             return view;
         }
 
+        // 🔠 Set text theo string.xml (tự chuyển ngôn ngữ)
+        tvTitle.setText(getString(R.string.title_favorite));
+        tvNoFavorites.setText(getString(R.string.empty_favorite));
+
+        // ⚙️ Adapter
         adapter = new FavoriteAdapter(getContext(), favoriteList);
         recyclerFavorites.setAdapter(adapter);
 
+        // ❌ Event xóa yêu thích
         adapter.setOnRemoveFavoriteListener((story, position) -> {
             String emailKey = email.replace(".", "_");
-
-            Log.d("FavoriteFragment", "Đang xóa truyện ID: " + story.getStoryId()
-                    + " tại path: Favorites/" + emailKey + "/" + story.getStoryId());
 
             DatabaseReference ref = FirebaseDatabase
                     .getInstance("https://nt118q14-default-rtdb.asia-southeast1.firebasedatabase.app/")
@@ -77,12 +81,16 @@ public class FavoriteFragment extends Fragment {
                     adapter.notifyItemRangeChanged(position, favoriteList.size());
                 }
                 checkEmptyState();
-                Toast.makeText(getContext(), "Đã bỏ yêu thích: " + story.getTitle(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(),
+                        getString(R.string.remove_favorite_success, story.getTitle()),
+                        Toast.LENGTH_SHORT
+                ).show();
             }).addOnFailureListener(e ->
-                    Toast.makeText(getContext(), "Lỗi khi bỏ yêu thích: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show()
             );
         });
 
+        // 🔗 Firebase Reference
         String emailKey = email.replace(".", "_");
         favRef = FirebaseDatabase
                 .getInstance("https://nt118q14-default-rtdb.asia-southeast1.firebasedatabase.app/")
@@ -106,19 +114,7 @@ public class FavoriteFragment extends Fragment {
                     FavoriteStory story = storySnap.getValue(FavoriteStory.class);
 
                     if (story != null) {
-                        String firebaseKey = storySnap.getKey();
-                        story.setStoryId(firebaseKey);
-
-                        try {
-                            if (story.getTitle() != null) story.setTitle(story.getTitle());
-                            if (story.getAuthor() != null) story.setAuthor(story.getAuthor());
-                            if (story.getCategory() != null) story.setCategory(story.getCategory());
-                            if (story.getImageUrl() != null) story.setImageUrl(story.getImageUrl());
-                            if (story.getReadUrl() != null) story.setReadUrl(story.getReadUrl());
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
+                        story.setStoryId(storySnap.getKey());
                         favoriteList.add(story);
                     }
                 }
@@ -128,7 +124,9 @@ public class FavoriteFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Lỗi tải danh sách yêu thích: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(),
+                        getString(R.string.favorite_error),
+                        Toast.LENGTH_LONG).show();
             }
         };
 
