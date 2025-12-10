@@ -25,7 +25,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.do_an.R;
-// [ĐÃ XÓA] import com.example.do_an.Statistic.StatisticFragment;
 import com.example.do_an.application.Encryption;
 import com.example.do_an.application.InforAppFragment;
 import com.example.do_an.auth.LoginActivity;
@@ -59,7 +58,6 @@ public class AccountFragment extends Fragment {
         imgAvatar = view.findViewById(R.id.imgAvatar);
         tvProfile = view.findViewById(R.id.tvProfile);
         tvSettings = view.findViewById(R.id.tvSettings);
-        // [ĐÃ XÓA] tvAnalytics = view.findViewById(R.id.tvAnalytics);
         tvInformation = view.findViewById(R.id.tvInformation);
         btnLogout = view.findViewById(R.id.btnLogout);
         tvUsername = view.findViewById(R.id.tvUsername);
@@ -90,7 +88,6 @@ public class AccountFragment extends Fragment {
 
         tvProfile.setOnClickListener(v -> openChildFragment(new ProfileFragment()));
         tvInformation.setOnClickListener(v -> openChildFragment(new InforAppFragment()));
-        // [ĐÃ XÓA] tvAnalytics.setOnClickListener(v -> openChildFragment(new StatisticFragment()));
 
         btnLogout.setOnClickListener(v -> {
             auth.signOut();
@@ -100,7 +97,6 @@ public class AccountFragment extends Fragment {
 
         requireActivity().getSupportFragmentManager().addOnBackStackChangedListener(() -> {
             if (fragmentContainer != null) {
-                // Chỉ ẩn container khi Back Stack của Activity rỗng (tức là quay về màn hình AccountFragment gốc)
                 if (requireActivity().getSupportFragmentManager().getBackStackEntryCount() == 0) {
                     fragmentContainer.setVisibility(View.GONE);
                 }
