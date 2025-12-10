@@ -32,7 +32,7 @@
     <dimen name="recyclerview_height_large">300dp</dimen>
 
     <!-- Card Heights -->
-    <dimen name="card_featured_height">300dp</dimen>
+    <dimen name="card_featured_height">400dp</dimen>
     <dimen name="card_pdf_info_height">60dp</dimen>
     <dimen name="card_viewpager_height">400dp</dimen>
 
@@ -45,6 +45,7 @@
     <!-- CORNER RADIUS                            -->
     <!-- ========================================= -->
 
+    <dimen name="corner_radius_mini">2dp</dimen>
     <dimen name="corner_radius_small">8dp</dimen>
     <dimen name="corner_radius_medium">12dp</dimen>
     <dimen name="corner_radius_large">16dp</dimen>

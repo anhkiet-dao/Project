@@ -10,8 +10,6 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">horizontal</item>
-        <item name="android:paddingStart">@dimen/content_padding_horizontal</item>
-        <item name="android:paddingEnd">@dimen/content_padding_horizontal</item>
         <item name="android:layout_marginTop">@dimen/section_margin_top</item>
     </style>
 
@@ -22,6 +20,7 @@
         <item name="android:layout_weight">2</item>
         <item name="android:ellipsize">end</item>
         <item name="android:maxLines">1</item>
+        <item name="android:includeFontPadding">false</item>
         <item name="android:textAppearance">@style/TextAppearance.App.SectionTitle</item>
     </style>
 
@@ -34,6 +33,8 @@
         <item name="android:ellipsize">end</item>
         <item name="android:maxLines">1</item>
         <item name="android:gravity">end</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:includeFontPadding">false</item>
         <item name="android:textAppearance">@style/TextAppearance.App.Link</item>
         <item name="android:text">Chi tiết ></item>
     </style>
@@ -45,14 +46,15 @@
     <!-- Base RecyclerView Style -->
     <style name="BookRecyclerView">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">@dimen/recyclerview_height_medium</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginTop">@dimen/section_margin_top_tiny</item>
         <item name="android:clipToPadding">false</item>
     </style>
 
     <!-- Horizontal RecyclerView (smaller height) -->
     <style name="BookRecyclerView.Horizontal">
-        <item name="android:layout_height">@dimen/recyclerview_height_small</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginTop">@dimen/section_margin_top_small</item>
     </style>
 
@@ -64,16 +66,16 @@
     <style name="FeaturedBookCard">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">@dimen/card_featured_height</item>
-        <item name="cardCornerRadius">@dimen/corner_radius_large</item>
-        <item name="cardUseCompatPadding">true</item>
+        <item name="cardCornerRadius">@dimen/corner_radius_mini </item>
+<!--        <item name="cardUseCompatPadding">true</item>-->
     </style>
 
     <!-- PDF Info Card -->
     <style name="PdfInfoCard">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">@dimen/card_pdf_info_height</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginTop">@dimen/content_padding_small</item>
-        <item name="android:background">@drawable/bg_item</item>
+        <item name="android:background">@color/bg_secondary</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:orientation">horizontal</item>
         <item name="android:padding">@dimen/spacing_medium</item>
