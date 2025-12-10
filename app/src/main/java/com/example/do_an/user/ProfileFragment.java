@@ -130,17 +130,17 @@ public class ProfileFragment extends Fragment {
                             imgAvatar.setScaleType(ImageView.ScaleType.CENTER_CROP);
                             imgAvatar.setImageBitmap(circleBitmap);
                         } else {
-                            imgAvatar.setImageResource(R.drawable.avatar);
+                            imgAvatar.setImageResource(R.drawable.ic_logo_uit);
                         }
                     } else {
-                        imgAvatar.setImageResource(R.drawable.avatar);
+                        imgAvatar.setImageResource(R.drawable.ic_logo_uit);
                     }
 
                 } catch (Exception e) {
                     e.printStackTrace();
                     // Sử dụng getContext()
                     Toast.makeText(getContext(), "Lỗi khi tải dữ liệu người dùng!", Toast.LENGTH_SHORT).show();
-                    imgAvatar.setImageResource(R.drawable.avatar);
+                    imgAvatar.setImageResource(R.drawable.ic_logo_uit);
                 }
             }
 

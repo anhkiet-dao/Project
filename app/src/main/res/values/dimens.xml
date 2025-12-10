@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ========================================= -->
+    <!-- SPACING & MARGINS                        -->
+    <!-- ========================================= -->
+
+    <!-- Base Spacing -->
+    <dimen name="spacing_tiny">4dp</dimen>
+    <dimen name="spacing_small">8dp</dimen>
+    <dimen name="spacing_medium">16dp</dimen>
+    <dimen name="spacing_large">24dp</dimen>
+    <dimen name="spacing_xlarge">32dp</dimen>
+
+    <!-- Content Padding -->
+    <dimen name="content_padding_horizontal">16dp</dimen>
+    <dimen name="content_padding_vertical">16dp</dimen>
+    <dimen name="content_padding_small">10dp</dimen>
+
+    <!-- Section Spacing -->
+    <dimen name="section_margin_top">16dp</dimen>
+    <dimen name="section_margin_top_small">8dp</dimen>
+    <dimen name="section_margin_top_tiny">5dp</dimen>
+
+    <!-- ========================================= -->
+    <!-- COMPONENT HEIGHTS                        -->
+    <!-- ========================================= -->
+
+    <!-- RecyclerView Heights -->
+    <dimen name="recyclerview_height_small">200dp</dimen>
+    <dimen name="recyclerview_height_medium">230dp</dimen>
+    <dimen name="recyclerview_height_large">300dp</dimen>
+
+    <!-- Card Heights -->
+    <dimen name="card_featured_height">400dp</dimen>
+    <dimen name="card_pdf_info_height">60dp</dimen>
+    <dimen name="card_viewpager_height">400dp</dimen>
+
+    <!-- Avatar/Icon Sizes -->
+    <dimen name="avatar_size_small">32dp</dimen>
+    <dimen name="avatar_size_medium">48dp</dimen>
+    <dimen name="avatar_size_large">64dp</dimen>
+
+    <!-- ========================================= -->
+    <!-- CORNER RADIUS                            -->
+    <!-- ========================================= -->
+
+    <dimen name="corner_radius_mini">2dp</dimen>
+    <dimen name="corner_radius_small">8dp</dimen>
+    <dimen name="corner_radius_medium">12dp</dimen>
+    <dimen name="corner_radius_large">16dp</dimen>
+
+</resources>

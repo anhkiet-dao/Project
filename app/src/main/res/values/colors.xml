@@ -1,5 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+
+    <!-- ========================================= -->
+    <!-- LIGHT MODE COLORS                         -->
+    <!-- ========================================= -->
+
+    <!-- Primary Colors -->
+    <color name="primary">#FF6740</color>              <!-- Orange/Coral - Main brand color -->
+    <color name="primary_dark">#CC5233</color>         <!-- Primary hover/pressed state -->
+    <color name="primary_light">#FF8A6B</color>        <!-- Lighter variant -->
+
+    <!-- Secondary Colors -->
+    <color name="secondary">#4B98F1</color>            <!-- Blue3 - Secondary actions -->
+    <color name="secondary_dark">#3498DB</color>       <!-- Blue - Darker variant -->
+    <color name="secondary_light">#00C9F5</color>      <!-- Blue2 - Lighter variant -->
+
+    <!-- Accent Colors -->
+    <color name="accent">#DA7500</color>               <!-- Badge orange - Highlights -->
+    <color name="accent_green">#04D000</color>         <!-- Success/Active indicator -->
+    <color name="accent_green_light">#2ECC71</color>   <!-- Green2 - Lighter green -->
+
+    <!-- Text Colors -->
+    <color name="text_primary">#242424</color>         <!-- Main text -->
+    <color name="text_secondary">#A5A3A3</color>       <!-- Secondary text, hints -->
+    <color name="text_tertiary">#C6C3C0</color>        <!-- Disabled text -->
+    <color name="text_hint">#A5A3A3</color>            <!-- Hint text (same as secondary) -->
+    <color name="text_on_primary">#FFFFFF</color>      <!-- Text on primary color -->
+
+    <!-- Background Colors -->
+    <color name="bg_primary">#FFFFFF</color>           <!-- Main background -->
+    <color name="bg_secondary">#F0F1F2</color>         <!-- Navbar, cards -->
+    <color name="bg_tertiary">#E8EAEB</color>          <!-- Navbar hover, elevated -->
+    <color name="bg_search">#f0f1f2</color>            <!-- Search bar background -->
+
+    <!-- Surface Colors -->
+    <color name="surface">#FFFFFF</color>              <!-- Cards, dialogs -->
+    <color name="surface_elevated">#F0F1F2</color>     <!-- Elevated surfaces -->
+
+    <!-- Border & Divider -->
+    <color name="border_default">#E8EAEB</color>       <!-- Default borders -->
+    <color name="divider">#C6C3C0</color>              <!-- Dividers -->
+
+    <!-- Status Colors -->
+    <color name="success">#04D000</color>              <!-- Success states -->
+    <color name="success_light">#2ECC71</color>        <!-- Success light variant -->
+    <color name="info">#3498DB</color>                 <!-- Info states -->
+    <color name="info_light">#00C9F5</color>           <!-- Info light variant -->
+    <color name="warning">#DA7500</color>              <!-- Warning states -->
+    <color name="error">#FF4040</color>                <!-- Error states (using orange from night) -->
+
+    <!-- Badge Colors -->
+    <color name="badge_bg">#F0F1F2</color>             <!-- Badge background -->
+    <color name="badge_text">#DA7500</color>           <!-- Badge text -->
+
+    <!-- Icon Colors -->
+    <color name="icon_primary">#242424</color>         <!-- Primary icon color -->
+    <color name="icon_secondary">#6B7280</color>       <!-- Secondary icon color -->
+    <color name="icon_disabled">#D1D5DB</color>        <!-- Disabled icon color -->
+    <color name="icon_on_primary">#FFFFFF</color>      <!-- Icon on primary color -->
+
+    <!-- Additional Text Colors -->
+    <color name="text_disabled">#D1D5DB</color>        <!-- Disabled text -->
+    <color name="text_on_dark">#FFFFFF</color>         <!-- Text on dark background -->
+    <color name="text_error">#EF4444</color>           <!-- Error text -->
+    <color name="text_success">#10B981</color>         <!-- Success text -->
+    <color name="text_warning">#F59E0B</color>         <!-- Warning text -->
+
+    <!-- Additional Background Colors -->
+    <color name="bg_overlay">#80000000</color>         <!-- Overlay/scrim (50% black) -->
+
+    <!-- Additional Border Colors -->
+    <color name="border_focused">#6366F1</color>       <!-- Focused border (indigo) -->
+    <color name="border_error">#EF4444</color>         <!-- Error border -->
+    <color name="border_disabled">#F3F4F6</color>      <!-- Disabled border -->
+
+    <!-- Additional Divider Colors -->
+    <color name="divider_light">#F3F4F6</color>        <!-- Light divider -->
+
+    <!-- Basic Colors -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="transparent">#00000000</color>
+
 </resources>

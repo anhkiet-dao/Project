@@ -34,7 +34,7 @@ public class DownloadFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.download_activity_downloaded_list, container, false);
+        View view = inflater.inflate(R.layout.download_fragment_downloaded_list, container, false);
 
         rvDownloadedPdfs = view.findViewById(R.id.rvDownloadedPdfs);
         rvDownloadedPdfs.setLayoutManager(new LinearLayoutManager(getContext()));
