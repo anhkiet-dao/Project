@@ -80,24 +80,22 @@ public class DownloadManager {
 
         new Thread(() -> {
             DownloadedPdfEntity existingPdf = pdfDao.getPdfByFileName(fileName);
+            File pdfDir = new File(context.getExternalFilesDir(null), "PDF");
+            if (!pdfDir.exists()) pdfDir.mkdirs();
+            File localFile = new File(pdfDir, fileName);
 
-            if (existingPdf != null) {
-                File localFile = new File(existingPdf.localFilePath);
-                if (localFile.exists()) {
-                    runOnUiThread(() -> {
-                        Toast.makeText(context, "File '" + fileName.replace(".pdf", "") + "' đã được tải xuống trước đó.", Toast.LENGTH_LONG).show();
-                        if (loadingListener != null) loadingListener.hideDownloadProgress();
-                    });
-                    return;
-                } else {
-                    pdfDao.delete(existingPdf);
-                    Log.d(TAG, "Entity tồn tại nhưng file bị mất, đang xóa Entity và tiến hành tải lại.");
-                }
+            if (localFile.exists()) {
+                runOnUiThread(() -> {
+                    Toast.makeText(context, "File '" + fileName.replace(".pdf", "") + "' đã được tải xuống trước đó.", Toast.LENGTH_LONG).show();
+                    if (loadingListener != null) loadingListener.hideDownloadProgress();
+                });
+                return;
+            } else if (existingPdf != null) {
+                pdfDao.delete(existingPdf);
+                Log.d(TAG, "Entity tồn tại nhưng file bị mất, đang xóa Entity và tiến hành tải lại.");
             }
 
-            runOnUiThread(() ->
-                    Toast.makeText(context, "Bắt đầu tải xuống", Toast.LENGTH_SHORT).show()
-            );
+            runOnUiThread(() -> Toast.makeText(context, "Bắt đầu tải xuống", Toast.LENGTH_SHORT).show());
 
             final String downloadUrl = pdfUrl;
 
@@ -122,7 +120,6 @@ public class DownloadManager {
                 public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                     InputStream is = null;
                     FileOutputStream fos = null;
-                    File pdfFile = null;
 
                     try {
                         if (!response.isSuccessful() || response.body() == null) {
@@ -132,25 +129,13 @@ public class DownloadManager {
                         }
 
                         is = response.body().byteStream();
-                        File pdfDir = new File(context.getExternalFilesDir(null), "PDF");
-                        if (!pdfDir.exists()) pdfDir.mkdirs();
-                        pdfFile = new File(pdfDir, fileName);
-
-                        if (pdfFile.exists()) {
-                            runOnUiThread(() -> {
-                                Toast.makeText(context, "File đã tồn tại trước.", Toast.LENGTH_SHORT).show();
-                                if (loadingListener != null) loadingListener.hideDownloadProgress();
-                            });
-                            return;
-                        }
-
-                        fos = new FileOutputStream(pdfFile);
+                        fos = new FileOutputStream(localFile);
                         byte[] buffer = new byte[OPTIMIZED_BUFFER_SIZE];
                         int len;
                         while ((len = is.read(buffer)) != -1) fos.write(buffer, 0, len);
                         fos.flush();
 
-                        final File finalPdfFile = pdfFile;
+                        final File finalPdfFile = localFile;
 
                         DownloadedPdfEntity entity = new DownloadedPdfEntity();
                         entity.storyDocumentId = storyDocumentId;
