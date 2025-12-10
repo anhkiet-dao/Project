@@ -179,7 +179,7 @@ public class AllBooksFragment extends Fragment implements AllBooksAdapter.BookCl
 
         getActivity().getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container, seriesFragment)
+                .add(R.id.fragment_container, seriesFragment)
                 .addToBackStack(null)
                 .commit();
     }

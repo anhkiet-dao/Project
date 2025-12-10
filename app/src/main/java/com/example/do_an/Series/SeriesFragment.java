@@ -114,7 +114,7 @@ public class SeriesFragment extends Fragment {
                 getActivity().getSupportFragmentManager()
                         .beginTransaction()
 
-                        .replace(R.id.fragment_container, readFragment)
+                        .add(R.id.fragment_container, readFragment)
                         .addToBackStack(null)
                         .commit();
             });

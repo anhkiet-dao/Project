@@ -25,7 +25,9 @@
             <!-- Featured Book Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/card_book"
-                style="@style/FeaturedBookCard">
+                style="@style/FeaturedBookCard"
+                app:strokeColor="#4EB0BCB5"
+                app:cardCornerRadius="10dp">
 
                 <ImageView
                     android:id="@+id/rounded_image"

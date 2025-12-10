@@ -19,7 +19,7 @@
         android:orientation="vertical"
         android:layout_width="0dp"
         android:layout_weight="1"
-        android:layout_height="wrap_content">
+        android:layout_height="100dp">
 
         <TextView
             android:id="@+id/tvStoryTitle"
@@ -33,13 +33,9 @@
         <TextView
             android:id="@+id/tvAuthor"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Tác giả:"
+            android:layout_height="0dp"
+            android:layout_weight="1" android:text="Tác giả:"
             android:textColor="#555"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
 
         <Button
             android:id="@+id/btnRemoveFav"
@@ -47,7 +43,8 @@
             android:layout_height="40dp"
             android:layout_gravity="center_horizontal"
             android:text="Bỏ yêu thích"
-            android:textColor="@android:color/white" />
+            android:textColor="@android:color/white"
+            style="@style/Widget.MaterialComponents.Button"/>
 
     </LinearLayout>
 </LinearLayout>

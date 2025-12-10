@@ -36,6 +36,7 @@
             android:layout_height="wrap_content"
             android:text="Tên truyện"
             android:textSize="18sp"
+            android:textColor="#000"
             android:textStyle="bold" />
 
         <TextView

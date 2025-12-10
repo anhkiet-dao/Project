@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -39,7 +37,6 @@ public class HistoryFragment extends Fragment {
     private RecyclerView recyclerView;
     private HistoryGroupAdapter adapter;
     private ArrayList<HistoryGroup> groupList = new ArrayList<>();
-    private Button btnBack;
     private TextView tvEmptyHistory;
 
     @Override
@@ -63,11 +60,9 @@ public class HistoryFragment extends Fragment {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
             Toast.makeText(requireContext(), "Bạn chưa đăng nhập!", Toast.LENGTH_SHORT).show();
-            if (tvEmptyHistory != null) {
-                recyclerView.setVisibility(View.GONE);
-                tvEmptyHistory.setText("Bạn chưa đăng nhập!");
-                tvEmptyHistory.setVisibility(View.VISIBLE);
-            }
+            recyclerView.setVisibility(View.GONE);
+            tvEmptyHistory.setText("Bạn chưa đăng nhập!");
+            tvEmptyHistory.setVisibility(View.VISIBLE);
             return;
         }
 
@@ -95,15 +90,12 @@ public class HistoryFragment extends Fragment {
                     String endTimeStr = Encryption.decrypt(itemSnapshot.child("endTime").getValue(String.class));
                     String imageUrl = Encryption.decrypt(itemSnapshot.child("imageUrl").getValue(String.class));
 
-                    Date startDate = null;
-                    Date endDate = null;
+                    Date startDate = null, endDate = null;
+
                     try {
                         if (startTimeStr != null) startDate = sdfFull.parse(startTimeStr);
                         if (endTimeStr != null) endDate = sdfFull.parse(endTimeStr);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        continue;
-                    }
+                    } catch (Exception e) { continue; }
 
                     if (startDate == null) continue;
 
@@ -122,30 +114,27 @@ public class HistoryFragment extends Fragment {
                     allHistoryItems.add(new HistoryItemWithDate(item, startDate));
                 }
 
-                Collections.sort(allHistoryItems, (item1, item2) -> item2.date.compareTo(item1.date));
+                // 🔥 Sắp xếp toàn bộ từ mới đến cũ
+                Collections.sort(allHistoryItems, (i1, i2) -> i2.date.compareTo(i1.date));
 
-                int limit = Math.min(allHistoryItems.size(), 10);
-                List<HistoryItemWithDate> latestItems = allHistoryItems.subList(0, limit);
-
+                // 🔥 Nhóm theo ngày, MỖI NGÀY TỐI ĐA 10 ITEM
                 Map<String, ArrayList<HistoryItem>> mapDay = new HashMap<>();
 
-                for (HistoryItemWithDate itemWithDate : latestItems) {
+                for (HistoryItemWithDate itemWithDate : allHistoryItems) {
                     String dateKey = sdfDay.format(itemWithDate.date);
 
                     if (!mapDay.containsKey(dateKey)) mapDay.put(dateKey, new ArrayList<>());
-                    mapDay.get(dateKey).add(itemWithDate.item);
+                    if (mapDay.get(dateKey).size() < 10) { // Giới hạn mỗi ngày tối đa 10
+                        mapDay.get(dateKey).add(itemWithDate.item);
+                    }
                 }
 
-                // Sắp xếp các ngày (chỉ cần sắp xếp các ngày có trong 10 mục)
-                List<String> sortedDates = new ArrayList<>(mapDay.keySet());
+                // Sắp xếp theo ngày mới nhất
+                ArrayList<String> sortedDates = new ArrayList<>(mapDay.keySet());
                 Collections.sort(sortedDates, (d1, d2) -> {
                     try {
-                        Date date1 = sdfDay.parse(d1);
-                        Date date2 = sdfDay.parse(d2);
-                        return date2.compareTo(date1);
-                    } catch (Exception e) {
-                        return 0;
-                    }
+                        return sdfDay.parse(d2).compareTo(sdfDay.parse(d1));
+                    } catch (Exception e) { return 0; }
                 });
 
                 groupList.clear();
@@ -155,28 +144,21 @@ public class HistoryFragment extends Fragment {
 
                 if (groupList.isEmpty()) {
                     recyclerView.setVisibility(View.GONE);
-                    if (tvEmptyHistory != null) {
-                        tvEmptyHistory.setText("Chưa có lịch sử xem.");
-                        tvEmptyHistory.setVisibility(View.VISIBLE);
-                    }
+                    tvEmptyHistory.setText("Chưa có lịch sử xem.");
+                    tvEmptyHistory.setVisibility(View.VISIBLE);
                 } else {
-                    if (tvEmptyHistory != null) {
-                        tvEmptyHistory.setVisibility(View.GONE);
-                    }
+                    tvEmptyHistory.setVisibility(View.GONE);
                     recyclerView.setVisibility(View.VISIBLE);
                     adapter.notifyDataSetChanged();
                 }
             }
 
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Toast.makeText(requireContext(), "Lỗi tải dữ liệu!", Toast.LENGTH_SHORT).show();
-                if (tvEmptyHistory != null) {
-                    tvEmptyHistory.setText("Lỗi tải dữ liệu. Vui lòng kiểm tra kết nối.");
-                    tvEmptyHistory.setVisibility(View.VISIBLE);
-                    recyclerView.setVisibility(View.GONE);
-                }
+                recyclerView.setVisibility(View.GONE);
+                tvEmptyHistory.setText("Lỗi tải dữ liệu. Vui lòng kiểm tra kết nối.");
+                tvEmptyHistory.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -184,40 +166,30 @@ public class HistoryFragment extends Fragment {
     public static class HistoryItemWithDate {
         final HistoryItem item;
         final Date date;
-
-        public HistoryItemWithDate(HistoryItem item, Date date) {
-            this.item = item;
-            this.date = date;
-        }
+        public HistoryItemWithDate(HistoryItem item, Date date) { this.item = item; this.date = date; }
     }
 
     public static class HistoryItem {
         String title, author, startTime, endTime, imageUrl;
         public HistoryItem(String title, String author, String startTime, String endTime, String imageUrl) {
-            this.title = title;
-            this.author = author;
-            this.startTime = startTime;
-            this.endTime = endTime;
-            this.imageUrl = imageUrl;
+            this.title = title; this.author = author;
+            this.startTime = startTime; this.endTime = endTime; this.imageUrl = imageUrl;
         }
     }
 
     public static class HistoryGroup {
         String date;
         ArrayList<HistoryItem> items;
-        public HistoryGroup(String date, ArrayList<HistoryItem> items) {
-            this.date = date;
-            this.items = items;
-        }
+        public HistoryGroup(String date, ArrayList<HistoryItem> items) { this.date = date; this.items = items; }
     }
 
+    // ------- Adapter Group -------
     public static class HistoryGroupAdapter extends RecyclerView.Adapter<HistoryGroupAdapter.GroupViewHolder> {
 
         private final ArrayList<HistoryGroup> list;
         public HistoryGroupAdapter(ArrayList<HistoryGroup> list) { this.list = list; }
 
-        @NonNull
-        @Override
+        @NonNull @Override
         public GroupViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.history_item_history_group, parent, false);
@@ -234,8 +206,7 @@ public class HistoryFragment extends Fragment {
             holder.recyclerInner.setAdapter(innerAdapter);
         }
 
-        @Override
-        public int getItemCount() { return list.size(); }
+        @Override public int getItemCount() { return list.size(); }
 
         static class GroupViewHolder extends RecyclerView.ViewHolder {
             TextView tvDate;
@@ -248,13 +219,13 @@ public class HistoryFragment extends Fragment {
         }
     }
 
+    // ------- Adapter Item -------
     public static class HistoryItemAdapter extends RecyclerView.Adapter<HistoryItemAdapter.ViewHolder> {
 
         private final ArrayList<HistoryItem> list;
         public HistoryItemAdapter(ArrayList<HistoryItem> list) { this.list = list; }
 
-        @NonNull
-        @Override
+        @NonNull @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.history_item_history, parent, false);
@@ -267,7 +238,6 @@ public class HistoryFragment extends Fragment {
 
             holder.tvTitle.setText(item.title);
             holder.tvAuthor.setText("Tác giả: " + item.author);
-
             holder.tvTime.setText("Bắt đầu: " + item.startTime);
 
             if (item.imageUrl != null && !item.imageUrl.isEmpty()) {
@@ -281,8 +251,7 @@ public class HistoryFragment extends Fragment {
             }
         }
 
-        @Override
-        public int getItemCount() { return list.size(); }
+        @Override public int getItemCount() { return list.size(); }
 
         static class ViewHolder extends RecyclerView.ViewHolder {
             TextView tvTitle, tvAuthor, tvTime;

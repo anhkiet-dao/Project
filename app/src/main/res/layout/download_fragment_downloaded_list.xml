@@ -3,10 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/transparent"
-    >
+    android:background="@android:color/transparent">
 
-    <!-- Toolbar -->
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -15,28 +13,27 @@
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardToolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardElevation="0dp"
-            app:cardBackgroundColor="?attr/colorPrimary">
+            android:layout_height="55dp"
+            app:cardBackgroundColor="?attr/colorPrimary"
+            app:cardCornerRadius="20dp">
 
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/toolbar"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:background="@android:color/transparent"
-                app:titleTextColor="@android:color/white"
-                app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light">
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/tvTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Danh sách đã tải về"
                     android:gravity="center"
-                    android:textSize="20sp"
+                    android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@android:color/white" />
+                    android:textColor="@android:color/white"/>
 
-            </com.google.android.material.appbar.MaterialToolbar>
+            </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>
 
@@ -48,9 +45,9 @@
             android:clipToPadding="false"
             android:paddingBottom="72dp"
             android:scrollbars="vertical"/>
+
     </LinearLayout>
 
-    <!-- TextView hiển thị khi không có file -->
     <TextView
         android:id="@+id/tvNoDownloads"
         android:layout_width="wrap_content"
