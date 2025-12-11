@@ -179,9 +179,84 @@
     <string name="password_hint">Password</string>
     <string name="forgot_password">Forgot password?</string>
     <string name="login_button">Login</string>
-    <string name="register_text">Do not have an account?</string>
     <string name="register_now">Register now</string>
-    <string name="error_empty_fields">Please fill in all fields!</string>
-    <string name="login_success">Login successful!</string>
-    <string name="login_fail">Incorrect email or password!</string>
+    <string name="error_empty_fields">Please fill all fields</string>
+    <string name="login_success">Login successful</string>
+    <string name="login_fail">Login failed</string>
+    <string name="register_prompt">Do not have an account?</string>
+
+    // Profile
+    <string name="profile_title">USER INFORMATION</string>
+    <string name="email_label">Email: </string>
+    <string name="fullname_label">Full Name: </string>
+    <string name="gender_label">Gender: </string>
+    <string name="birthdate_label">Birth Date: </string>
+    <string name="phone_label">Phone: </string>
+    <string name="interest_label">Interest: </string>
+    <string name="gender_male">Male</string>
+    <string name="gender_female">Female</string>
+
+    <string name="please_login_again">Please login again!</string>
+    <string name="choose_new_avatar_title">Change Avatar</string>
+    <string name="choose_new_avatar_message">Do you want to choose a new image?</string>
+    <string name="choose_image">Choose Image</string>
+    <string name="cancel">Cancel</string>
+    <string name="logout_success">Logged out successfully!</string>
+    <string name="update_avatar_success">Avatar updated successfully!</string>
+    <string name="update_avatar_fail">Failed to save avatar!</string>
+    <string name="select_image_fail">Failed to select image!</string>
+    <string name="user_data_not_found">User data not found!</string>
+    <string name="user_data_load_fail">Failed to load user data!</string>
+    <string name="database_error">Data load error: %1$s</string>
+
+    // Register
+    <string name="register_title">Create Account</string>
+    <string name="confirm_password_hint">Confirm Password</string>
+    <string name="register_button">Register</string>
+    <string name="login_now">Login Now</string>
+    <string name="already_have_account">Already have an account?</string>
+    <string name="password_not_match">Passwords do not match</string>
+    <string name="password_min_length">Password must be at least 6 characters</string>
+    <string name="register_success">Registration successful!</string>
+    <string name="error">Error</string>
+
+    <!-- Spinner ngôn ngữ -->
+    <string name="language_vi">Vietnamese</string>
+    <string name="language_en">English</string>
+
+    <!-- Forgot Password -->
+    <string name="forgot_password_title">Forgot Password</string>
+    <string name="email_hint1">Enter your email</string>
+    <string name="reset_button">Send Reset</string>
+    <string name="back_to_login">Back to Login</string>
+    <string name="reset_email_sent">Password reset email sent to</string>
+    <string name="reset_email_fail">Failed to send email</string>
+    <string name="error_unknown">Unknown error</string>
+
+    <!-- User Info -->
+    <string name="title_user_info">User Information</string>
+    <string name="full_name">Full Name</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="birth_date">Birth Date</string>
+    <string name="interest">Interest</string>
+    <string name="select_gender">Gender</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="other">Other</string>
+    <string name="save_button">Save Information</string>
+    <string name="toast_missing_info">Please fill in all required information!</string>
+    <string name="toast_missing_account">Account not found. Please log in again!</string>
+    <string name="toast_image_error">Error loading image!</string>
+    <string name="toast_save_success">Information saved successfully!</string>
+    <string name="toast_save_failed">Save failed:</string>
+    <string name="avatar_description">Profile Avatar</string>
+    <string name="userinfo_title">Enter Personal Information</string>
+    <string name="userinfo_avatar">Avatar</string>
+    <string name="userinfo_gender">Gender:</string>
+    <string name="userinfo_birthdate">Birthdate:</string>
+    <string name="save_info">Save Information</string>
+    <string name="hint_full_name">Full Name</string>
+    <string name="hint_phone">Phone Number</string>
+    <string name="hint_birthdate">Select Birthdate</string>
+    <string name="hint_interest">Enter your interests</string>
 </resources>

@@ -45,6 +45,7 @@
                 android:orientation="horizontal"
                 android:layout_marginBottom="14dp">
                 <TextView
+                    android:id="@+id/txtemail"
                     android:text="Email: "
                     android:textAppearance="@style/TextAppearance.App.LabelMedium"
                     android:layout_height="wrap_content"
@@ -63,6 +64,7 @@
                 android:orientation="horizontal"
                 android:layout_marginBottom="14dp">
                 <TextView
+                    android:id="@+id/txtFullName"
                     android:text="Họ và tên: "
                     android:textAppearance="@style/TextAppearance.App.LabelMedium"
                     android:layout_height="wrap_content"
@@ -81,6 +83,7 @@
                 android:orientation="horizontal"
                 android:layout_marginBottom="14dp">
                 <TextView
+                    android:id="@+id/txtGender"
                     android:text="Giới tính: "
                     android:textAppearance="@style/TextAppearance.App.LabelMedium"
                     android:layout_height="wrap_content"
@@ -99,6 +102,7 @@
                 android:orientation="horizontal"
                 android:layout_marginBottom="14dp">
                 <TextView
+                    android:id="@+id/txtBirthDate"
                     android:text="Ngày sinh: "
                     android:textAppearance="@style/TextAppearance.App.LabelMedium"
                     android:layout_height="wrap_content"
@@ -117,6 +121,7 @@
                 android:orientation="horizontal"
                 android:layout_marginBottom="14dp">
                 <TextView
+                    android:id="@+id/txtPhone"
                     android:text="Số điện thoại: "
                     android:textAppearance="@style/TextAppearance.App.LabelMedium"
                     android:layout_height="wrap_content"
@@ -135,6 +140,7 @@
                 android:orientation="horizontal"
                 android:layout_marginBottom="20dp">
                 <TextView
+                    android:id="@+id/txtInterest"
                     android:text="Sở thích: "
                     android:textAppearance="@style/TextAppearance.App.LabelMedium"
                     android:layout_height="wrap_content"
@@ -147,13 +153,6 @@
                     android:textAppearance="@style/TextAppearance.App.BodyLarge" />
             </LinearLayout>
 
-            <Button
-                android:id="@+id/btnLogout"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:text="Đăng xuất"
-                android:textAppearance="@style/TextAppearance.App.Button"
-                android:backgroundTint="@color/design_default_color_error" />
         </LinearLayout>
 
     </LinearLayout>

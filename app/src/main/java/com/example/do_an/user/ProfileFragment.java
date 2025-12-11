@@ -26,7 +26,8 @@ import java.io.ByteArrayOutputStream;
 
 public class ProfileFragment extends Fragment {
 
-    private TextView tvFullName, tvGender, tvBirthDate, tvPhone, tvEmail, tvInterest;
+    private TextView tvTitle, txtEmail, txtFullName, txtGender, txtBirthDate, txtPhone, txtInterest;
+    private TextView tvEmailValue, tvFullNameValue, tvGenderValue, tvBirthDateValue, tvPhoneValue, tvInterestValue;
     private ImageView imgAvatar;
     private Button btnLogout;
 
@@ -46,18 +47,37 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // TextView label
+        tvTitle = view.findViewById(R.id.tvTitle);
+        txtEmail = view.findViewById(R.id.txtemail);
+        txtFullName = view.findViewById(R.id.txtFullName);
+        txtGender = view.findViewById(R.id.txtGender);
+        txtBirthDate = view.findViewById(R.id.txtBirthDate);
+        txtPhone = view.findViewById(R.id.txtPhone);
+        txtInterest = view.findViewById(R.id.txtInterest);
+
+        // TextView value
+        tvEmailValue = view.findViewById(R.id.tvEmail);
+        tvFullNameValue = view.findViewById(R.id.tvFullName);
+        tvGenderValue = view.findViewById(R.id.tvGender);
+        tvBirthDateValue = view.findViewById(R.id.tvBirthDate);
+        tvPhoneValue = view.findViewById(R.id.tvPhone);
+        tvInterestValue = view.findViewById(R.id.tvInterest);
+
         imgAvatar = view.findViewById(R.id.imgAvatar);
-        tvFullName = view.findViewById(R.id.tvFullName);
-        tvGender = view.findViewById(R.id.tvGender);
-        tvBirthDate = view.findViewById(R.id.tvBirthDate);
-        tvPhone = view.findViewById(R.id.tvPhone);
-        tvEmail = view.findViewById(R.id.tvEmail);
-        tvInterest = view.findViewById(R.id.tvInterest);
-        btnLogout = view.findViewById(R.id.btnLogout);
+
+        // Set text đa ngôn ngữ
+        tvTitle.setText(getString(R.string.profile_title));
+        txtEmail.setText(getString(R.string.email_label));
+        txtFullName.setText(getString(R.string.fullname_label));
+        txtGender.setText(getString(R.string.gender_label));
+        txtBirthDate.setText(getString(R.string.birthdate_label));
+        txtPhone.setText(getString(R.string.phone_label));
+        txtInterest.setText(getString(R.string.interest_label));
 
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
-            Toast.makeText(getContext(), "Vui lòng đăng nhập lại!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), getString(R.string.please_login_again), Toast.LENGTH_SHORT).show();
             startActivity(new Intent(getActivity(), LoginActivity.class));
             if (getActivity() != null) {
                 getActivity().finish();
@@ -66,32 +86,22 @@ public class ProfileFragment extends Fragment {
         }
 
         String userId = currentUser.getUid();
-
         databaseRef = FirebaseDatabase
                 .getInstance("https://nt118q14-default-rtdb.asia-southeast1.firebasedatabase.app/")
                 .getReference("Users")
                 .child(userId);
 
-        tvEmail.setText(currentUser.getEmail());
+        tvEmailValue.setText(" " + currentUser.getEmail());
 
         loadUserInfo();
 
         imgAvatar.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-            builder.setTitle("Thay đổi ảnh đại diện");
-            builder.setMessage("Bạn có muốn chọn ảnh mới không?");
-            builder.setPositiveButton("Chọn ảnh", (dialog, which) -> openImagePicker());
-            builder.setNegativeButton("Hủy", null);
+            builder.setTitle(getString(R.string.choose_new_avatar_title));
+            builder.setMessage(getString(R.string.choose_new_avatar_message));
+            builder.setPositiveButton(getString(R.string.choose_image), (dialog, which) -> openImagePicker());
+            builder.setNegativeButton(getString(R.string.cancel), null);
             builder.show();
-        });
-
-        btnLogout.setOnClickListener(v -> {
-            FirebaseAuth.getInstance().signOut();
-            Toast.makeText(getContext(), "Đã đăng xuất!", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(getActivity(), LoginActivity.class));
-            if (getActivity() != null) {
-                getActivity().finish();
-            }
         });
     }
 
@@ -100,7 +110,7 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 if (!snapshot.exists()) {
-                    Toast.makeText(getContext(), "Không tìm thấy dữ liệu người dùng!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), getString(R.string.user_data_not_found), Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -112,11 +122,24 @@ public class ProfileFragment extends Fragment {
                     String interest = snapshot.child("interest").getValue(String.class);
                     String avatarBase64 = snapshot.child("avatarBase64").getValue(String.class);
 
-                    tvFullName.setText(fullName != null ? Encryption.decrypt(fullName) : "Chưa cập nhật");
-                    tvGender.setText(gender != null ? Encryption.decrypt(gender) : "Chưa cập nhật");
-                    tvBirthDate.setText(birthDate != null ? Encryption.decrypt(birthDate) : "Chưa cập nhật");
-                    tvPhone.setText(phone != null ? Encryption.decrypt(phone) : "Chưa cập nhật");
-                    tvInterest.setText(interest != null ? Encryption.decrypt(interest) : "Chưa cập nhật");
+                    tvFullNameValue.setText(" " + (fullName != null ? Encryption.decrypt(fullName) : getString(R.string.user_data_not_found)));
+
+                    if (gender != null) {
+                        String genderDecrypted = Encryption.decrypt(gender).trim().toLowerCase();
+                        if (genderDecrypted.equals("nam") || genderDecrypted.equals("male")) {
+                            tvGenderValue.setText(" " + getString(R.string.gender_male));
+                        } else if (genderDecrypted.equals("nữ") || genderDecrypted.equals("female")) {
+                            tvGenderValue.setText(" " + getString(R.string.gender_female));
+                        } else {
+                            tvGenderValue.setText(" " + getString(R.string.user_data_not_found));
+                        }
+                    } else {
+                        tvGenderValue.setText(" " + getString(R.string.user_data_not_found));
+                    }
+
+                    tvBirthDateValue.setText(" " + (birthDate != null ? Encryption.decrypt(birthDate) : getString(R.string.user_data_not_found)));
+                    tvPhoneValue.setText(" " + (phone != null ? Encryption.decrypt(phone) : getString(R.string.user_data_not_found)));
+                    tvInterestValue.setText(" " + (interest != null ? Encryption.decrypt(interest) : getString(R.string.user_data_not_found)));
 
                     if (avatarBase64 != null && !avatarBase64.isEmpty()) {
                         byte[] decodedBytes = Base64.decode(avatarBase64, Base64.DEFAULT);
@@ -138,16 +161,14 @@ public class ProfileFragment extends Fragment {
 
                 } catch (Exception e) {
                     e.printStackTrace();
-                    // Sử dụng getContext()
-                    Toast.makeText(getContext(), "Lỗi khi tải dữ liệu người dùng!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), getString(R.string.user_data_load_fail), Toast.LENGTH_SHORT).show();
                     imgAvatar.setImageResource(R.drawable.ic_logo_uit);
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError error) {
-                // Sử dụng getContext()
-                Toast.makeText(getContext(), "Lỗi tải dữ liệu: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.database_error, error.getMessage()), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -180,7 +201,7 @@ public class ProfileFragment extends Fragment {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                Toast.makeText(getContext(), "Lỗi khi chọn ảnh!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.select_image_fail), Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -189,9 +210,8 @@ public class ProfileFragment extends Fragment {
         if (currentUser == null) return;
 
         databaseRef.child("avatarBase64").setValue(encodedImage)
-                // Sử dụng getContext()
-                .addOnSuccessListener(aVoid -> Toast.makeText(getContext(), "Cập nhật ảnh thành công!", Toast.LENGTH_SHORT).show())
-                .addOnFailureListener(e -> Toast.makeText(getContext(), "Lỗi khi lưu ảnh!", Toast.LENGTH_SHORT).show());
+                .addOnSuccessListener(aVoid -> Toast.makeText(getContext(), getString(R.string.update_avatar_success), Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e -> Toast.makeText(getContext(), getString(R.string.update_avatar_fail), Toast.LENGTH_SHORT).show());
     }
 
     private Bitmap getCircularBitmap(Bitmap bitmap) {

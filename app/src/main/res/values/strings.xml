@@ -180,9 +180,84 @@
     <string name="password_hint">Mật khẩu</string>
     <string name="forgot_password">Quên mật khẩu?</string>
     <string name="login_button">Đăng nhập</string>
-    <string name="register_text">Chưa có tài khoản?</string>
     <string name="register_now">Đăng ký ngay</string>
-    <string name="error_empty_fields">Vui lòng nhập đầy đủ thông tin!</string>
-    <string name="login_success">Đăng nhập thành công!</string>
-    <string name="login_fail">Email hoặc mật khẩu không đúng!</string>
+    <string name="error_empty_fields">Vui lòng điền đầy đủ thông tin</string>
+    <string name="login_success">Đăng nhập thành công</string>
+    <string name="login_fail">Đăng nhập thất bại</string>
+    <string name="register_prompt">Chưa có tài khoản?</string>
+
+    // Profile
+    <string name="profile_title">THÔNG TIN NGƯỜI DÙNG</string>
+    <string name="email_label">Email: </string>
+    <string name="fullname_label">Họ và tên: </string>
+    <string name="gender_label">Giới tính: </string>
+    <string name="birthdate_label">Ngày sinh: </string>
+    <string name="phone_label">Số điện thoại: </string>
+    <string name="interest_label">Sở thích: </string>
+    <string name="gender_male">Nam</string>
+    <string name="gender_female">Nữ</string>
+
+    <string name="please_login_again">Vui lòng đăng nhập lại!</string>
+    <string name="choose_new_avatar_title">Thay đổi ảnh đại diện</string>
+    <string name="choose_new_avatar_message">Bạn có muốn chọn ảnh mới không?</string>
+    <string name="choose_image">Chọn ảnh</string>
+    <string name="cancel">Hủy</string>
+    <string name="logout_success">Đã đăng xuất!</string>
+    <string name="update_avatar_success">Cập nhật ảnh thành công!</string>
+    <string name="update_avatar_fail">Lỗi khi lưu ảnh!</string>
+    <string name="select_image_fail">Lỗi khi chọn ảnh!</string>
+    <string name="user_data_not_found">Không tìm thấy dữ liệu người dùng!</string>
+    <string name="user_data_load_fail">Lỗi khi tải dữ liệu người dùng!</string>
+    <string name="database_error">Lỗi tải dữ liệu: %1$s</string>
+
+    // Register
+    <string name="register_title">Tạo tài khoản</string>
+    <string name="confirm_password_hint">Xác nhận mật khẩu</string>
+    <string name="register_button">Đăng ký</string>
+    <string name="login_now">Đăng nhập ngay</string>
+    <string name="already_have_account">Đã có tài khoản?</string>
+    <string name="password_not_match">Mật khẩu không trùng khớp</string>
+    <string name="password_min_length">Mật khẩu phải có ít nhất 6 ký tự</string>
+    <string name="register_success">Đăng ký thành công!</string>
+    <string name="error">Lỗi</string>
+
+    <!-- Spinner ngôn ngữ -->
+    <string name="language_vi">Tiếng Việt</string>
+    <string name="language_en">English</string>
+
+    <!-- Forgot Password -->
+    <string name="forgot_password_title">Quên mật khẩu</string>
+    <string name="email_hint1">Nhập email của bạn</string>
+    <string name="reset_button">Gửi lại</string>
+    <string name="back_to_login">Quay lại đăng nhập</string>
+    <string name="reset_email_sent">Đã gửi email đặt lại mật khẩu đến</string>
+    <string name="reset_email_fail">Gửi email thất bại</string>
+    <string name="error_unknown">Lỗi không xác định</string>
+
+    <!-- User Info -->
+    <string name="title_user_info">Thông tin người dùng</string>
+    <string name="full_name">Họ và tên</string>
+    <string name="phone_number">Số điện thoại</string>
+    <string name="birth_date">Ngày sinh</string>
+    <string name="interest">Sở thích</string>
+    <string name="select_gender">Giới tính</string>
+    <string name="male">Nam</string>
+    <string name="female">Nữ</string>
+    <string name="other">Khác</string>
+    <string name="save_button">Lưu thông tin</string>
+    <string name="toast_missing_info">Vui lòng nhập đầy đủ thông tin!</string>
+    <string name="toast_missing_account">Không tìm thấy tài khoản. Vui lòng đăng nhập lại!</string>
+    <string name="toast_image_error">Lỗi khi đọc ảnh!</string>
+    <string name="toast_save_success">Đã lưu thông tin thành công!</string>
+    <string name="toast_save_failed">Lưu thất bại:</string>
+    <string name="avatar_description">Ảnh đại diện</string>
+    <string name="userinfo_title">Nhập thông tin cá nhân</string>
+    <string name="userinfo_avatar">Ảnh đại diện</string>
+    <string name="userinfo_gender">Giới tính:</string>
+    <string name="userinfo_birthdate">Ngày sinh:</string>
+    <string name="save_info">Lưu thông tin</string>
+    <string name="hint_full_name">Họ và tên</string>
+    <string name="hint_phone">Số điện thoại</string>
+    <string name="hint_birthdate">Chọn ngày sinh</string>
+    <string name="hint_interest">Nhập sở thích</string>
 </resources>

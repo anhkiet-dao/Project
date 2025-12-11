@@ -32,10 +32,13 @@ import java.util.Map;
 
 public class UserInfoActivity extends AppCompatActivity {
 
-    private EditText edtFullName, edtPhone, edtBirthDate, edtinterest;
+    private EditText edtFullName, edtPhone, edtBirthDate, edtInterest;
     private RadioGroup radioGender;
+    private RadioButton radioMale, radioFemale;
     private Button btnSave;
     private ImageView imgAvatar;
+    private TextView txtTitle, txtGender, txtBirthTitle;
+
     private Uri imageUri;
 
     private DatabaseReference databaseRef;
@@ -49,73 +52,111 @@ public class UserInfoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.user_activity_user_info);
 
+        // Ánh xạ view
+        txtTitle = findViewById(R.id.txtTitle);
+        txtGender = findViewById(R.id.txtGender);
+        txtBirthTitle = findViewById(R.id.txtBirthDate);
+
         edtFullName = findViewById(R.id.edtFullName);
         edtPhone = findViewById(R.id.edtPhone);
         edtBirthDate = findViewById(R.id.edtBirthDate);
+        edtInterest = findViewById(R.id.edtinterest);
+
         radioGender = findViewById(R.id.radioGender);
+        radioMale = findViewById(R.id.radioMale);
+        radioFemale = findViewById(R.id.radioFemale);
+
         btnSave = findViewById(R.id.btnSave);
-        edtinterest = findViewById(R.id.edtinterest);
         imgAvatar = findViewById(R.id.imgAvatar);
 
+        // Lấy thông tin từ Intent
         userId = getIntent().getStringExtra("uid");
         email = getIntent().getStringExtra("email");
 
         if (userId == null || email == null) {
-            Toast.makeText(this, "Không tìm thấy tài khoản. Vui lòng đăng nhập lại!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.toast_missing_account), Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
         databaseRef = FirebaseDatabase.getInstance(
-                        "https://nt118q14-default-rtdb.asia-southeast1.firebasedatabase.app/")
-                .getReference("Users");
+                "https://nt118q14-default-rtdb.asia-southeast1.firebasedatabase.app/"
+        ).getReference("Users");
 
+        // Xin quyền ảnh
         requestImagePermission();
 
+        // Launcher chọn ảnh
         pickImageLauncher = registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
                 uri -> {
                     if (uri != null) {
                         imageUri = uri;
                         imgAvatar.setImageURI(uri);
-                        Log.d("UserInfoActivity", "Đã chọn ảnh: " + uri);
                     }
-                });
+                }
+        );
 
         imgAvatar.setOnClickListener(v -> pickImageLauncher.launch("image/*"));
-        edtBirthDate.setOnClickListener(v -> showDatePickerDialog());
+        edtBirthDate.setOnClickListener(v -> showDateDialog());
         btnSave.setOnClickListener(v -> saveUserInfo());
+
+        applyLocalizationText();
+    }
+
+    private void applyLocalizationText() {
+        txtTitle.setText(getString(R.string.userinfo_title));
+        txtGender.setText(getString(R.string.gender_label));
+        txtBirthTitle.setText(getString(R.string.birthdate_label));
+
+        radioMale.setText(getString(R.string.gender_male));
+        radioFemale.setText(getString(R.string.gender_female));
+
+        edtFullName.setHint(getString(R.string.hint_full_name));
+        edtPhone.setHint(getString(R.string.hint_phone));
+        edtBirthDate.setHint(getString(R.string.hint_birthdate));
+        edtInterest.setHint(getString(R.string.hint_interest));
+
+        btnSave.setText(getString(R.string.save_info));
     }
 
     private void requestImagePermission() {
         if (android.os.Build.VERSION.SDK_INT >= 33) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.READ_MEDIA_IMAGES}, REQUEST_PERMISSION_CODE);
+            if (ContextCompat.checkSelfPermission(
+                    this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(
+                        this,
+                        new String[]{Manifest.permission.READ_MEDIA_IMAGES},
+                        REQUEST_PERMISSION_CODE
+                );
             }
         } else {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_PERMISSION_CODE);
+            if (ContextCompat.checkSelfPermission(
+                    this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(
+                        this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        REQUEST_PERMISSION_CODE
+                );
             }
         }
     }
 
-    private void showDatePickerDialog() {
+    private void showDateDialog() {
         final Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        int y = calendar.get(Calendar.YEAR);
+        int m = calendar.get(Calendar.MONTH);
+        int d = calendar.get(Calendar.DAY_OF_MONTH);
 
         DatePickerDialog dialog = new DatePickerDialog(
                 this,
-                (view, selectedYear, selectedMonth, selectedDay) -> {
-                    String date = selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear;
+                (view, year, month, dayOfMonth) -> {
+                    String date = dayOfMonth + "/" + (month + 1) + "/" + year;
                     edtBirthDate.setText(date);
                 },
-                year, month, day
+                y, m, d
         );
         dialog.show();
     }
@@ -124,48 +165,53 @@ public class UserInfoActivity extends AppCompatActivity {
         String fullName = edtFullName.getText().toString().trim();
         String phone = edtPhone.getText().toString().trim();
         String birthDate = edtBirthDate.getText().toString().trim();
-        String interest = edtinterest.getText().toString().trim();
+        String interest = edtInterest.getText().toString().trim();
 
         int selectedId = radioGender.getCheckedRadioButtonId();
         RadioButton selectedGender = findViewById(selectedId);
-        String gender = selectedGender != null ? selectedGender.getText().toString() : "";
 
-        if (fullName.isEmpty() || phone.isEmpty() || birthDate.isEmpty() || gender.isEmpty()) {
-            Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin!", Toast.LENGTH_SHORT).show();
+        if (fullName.isEmpty() || phone.isEmpty() || birthDate.isEmpty() || selectedGender == null) {
+            Toast.makeText(this, getString(R.string.toast_missing_info), Toast.LENGTH_SHORT).show();
             return;
         }
 
-        Map<String, Object> userMap = new HashMap<>();
-        userMap.put("fullName", Encryption.encrypt(fullName));
-        userMap.put("gender", Encryption.encrypt(gender));
-        userMap.put("birthDate", Encryption.encrypt(birthDate));
-        userMap.put("phone", Encryption.encrypt(phone));
-        userMap.put("email", Encryption.encrypt(email));
-        userMap.put("interest", Encryption.encrypt(interest));
+        String gender = selectedGender.getText().toString();
 
+        Map<String, Object> map = new HashMap<>();
+        map.put("fullName", Encryption.encrypt(fullName));
+        map.put("phone", Encryption.encrypt(phone));
+        map.put("birthDate", Encryption.encrypt(birthDate));
+        map.put("gender", Encryption.encrypt(gender));
+        map.put("interest", Encryption.encrypt(interest));
+        map.put("email", Encryption.encrypt(email));
+
+        // Xử lý ảnh
         if (imageUri != null) {
-            try {
-                InputStream inputStream = getContentResolver().openInputStream(imageUri);
-                Bitmap bitmap = android.graphics.BitmapFactory.decodeStream(inputStream);
+            try (InputStream is = getContentResolver().openInputStream(imageUri)) {
+
+                Bitmap bmp = android.graphics.BitmapFactory.decodeStream(is);
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
+                bmp.compress(Bitmap.CompressFormat.JPEG, 80, baos);
                 String encodedImage = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-                userMap.put("avatarBase64", encodedImage);
+
+                map.put("avatarBase64", encodedImage);
+
             } catch (IOException e) {
-                e.printStackTrace();
-                Toast.makeText(this, "Lỗi khi đọc ảnh!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.toast_image_error), Toast.LENGTH_SHORT).show();
             }
         }
 
-        databaseRef.child(userId).setValue(userMap)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Đã lưu thông tin thành công!", Toast.LENGTH_SHORT).show();
+        // Lưu Firebase
+        databaseRef.child(userId).setValue(map)
+                .addOnSuccessListener(a -> {
+                    Toast.makeText(this, getString(R.string.toast_save_success), Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(UserInfoActivity.this, MainActivity.class));
                     finish();
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("UserInfoActivity", "Lỗi ghi Firebase: " + e.getMessage());
-                    Toast.makeText(this, "Lưu thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this,
+                            getString(R.string.toast_save_failed) + ": " + e.getMessage(),
+                            Toast.LENGTH_LONG).show();
                 });
     }
 }

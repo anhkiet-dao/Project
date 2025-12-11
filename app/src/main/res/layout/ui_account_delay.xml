@@ -137,7 +137,7 @@
                         android:background="?attr/selectableItemBackground"
                         android:gravity="center"
                         android:padding="@dimen/spacing_medium"
-                        android:text="Chat với Bot"
+                        android:text="Chat Bot"
                         android:textAppearance="@style/TextAppearance.App.TitleMedium" />
                 </androidx.cardview.widget.CardView>
 
