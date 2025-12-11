@@ -6,6 +6,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.Switch;
@@ -33,8 +34,10 @@ public class PdfViewerController {
     private final StringConsumer urlConsumer;
     private Handler autoHandler = new Handler();
     private Runnable autoRunnable;
+
     public interface StringSupplier { String get(); }
     public interface StringConsumer { void set(String value); }
+
     public PdfViewerController(Context context, ViewPager2 viewPager, TextView tieuDe,
                                SettingsManager settingsManager, TextView pageIndicator,
                                StringSupplier titleSupplier, StringConsumer urlConsumer) {
@@ -46,15 +49,13 @@ public class PdfViewerController {
         this.titleSupplier = titleSupplier;
         this.urlConsumer = urlConsumer;
     }
+
     public void setupPdfRenderer(File pdfFile) {
-        this.pdfFile = pdfFile; // <<< LƯU FILE PDF
+        this.pdfFile = pdfFile;
 
         if (pdfPageAdapter != null) {
-
             pdfViewPager.setAdapter(pdfPageAdapter);
-
             applySettingsToReader();
-
             Log.d(TAG, "Renderer đã tồn tại, tái sử dụng Adapter.");
             return;
         }
@@ -80,8 +81,9 @@ public class PdfViewerController {
 
             applySettingsToReader();
 
-            txtTieuDe.setText(titleSupplier.get() + " (" + pdfPageAdapter.getItemCount() + " trang)");
-            Toast.makeText(context, "Tải xong, bắt đầu đọc!", Toast.LENGTH_SHORT).show();
+            txtTieuDe.setText(titleSupplier.get() + " (" + pdfPageAdapter.getItemCount() + " " +
+                    context.getString(R.string.page) + ")");
+            Toast.makeText(context, context.getString(R.string.toast_start_reading), Toast.LENGTH_SHORT).show();
 
             updatePageIndicator(pdfViewPager.getCurrentItem(), pdfPageAdapter.getItemCount());
 
@@ -89,7 +91,7 @@ public class PdfViewerController {
 
         } catch (Exception e) {
             Log.e("PdfController", "Lỗi setup PdfRenderer", e);
-            Toast.makeText(context, "Không thể mở file PDF đã tải.", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, context.getString(R.string.toast_cannot_open_pdf), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -108,7 +110,6 @@ public class PdfViewerController {
     }
 
     public int getCurrentPage() {
-        // Kiểm tra null cho ViewPager2 (vì nó có thể đã bị clear)
         if (pdfViewPager != null && pdfPageAdapter != null) {
             return pdfViewPager.getCurrentItem();
         }
@@ -133,48 +134,59 @@ public class PdfViewerController {
 
         final int newPageMode = settingsManager.getPageMode();
         pdfPageAdapter.setPageMode(newPageMode);
-
         pdfPageAdapter.notifyDataSetChanged();
 
         pdfViewPager.post(() -> {
-
             int finalPosition = currentPageIndex;
-
             if (oldPageMode != newPageMode) {
                 int currentPdfPage = (oldPageMode == 1) ? currentPageIndex : currentPageIndex * 2;
-
                 finalPosition = (newPageMode == 1) ? currentPdfPage : currentPdfPage / 2;
             }
-
             int maxPosition = pdfPageAdapter.getItemCount() - 1;
             if (finalPosition > maxPosition) finalPosition = maxPosition;
             if (finalPosition < 0) finalPosition = 0;
 
             pdfViewPager.setCurrentItem(finalPosition, false);
-
             updatePageIndicator(finalPosition, pdfPageAdapter.getItemCount());
         });
     }
 
     public void setupSettingsView(View settingsContainer, AppCompatButton btnCloseSettings, View btnSettings) {
+
+        TextView txtDirectionTitle = settingsContainer.findViewById(R.id.Chieudoc);
+        txtDirectionTitle.setText(context.getString(R.string.Chieudoc));
+
         RadioGroup rgDirection = settingsContainer.findViewById(R.id.rgReadingDirection);
+        RadioButton rbVertical = settingsContainer.findViewById(R.id.rbVertical);
+        RadioButton rbHorizontal = settingsContainer.findViewById(R.id.rbHorizontal);
+        rbVertical.setText(context.getString(R.string.rbVertical));
+        rbHorizontal.setText(context.getString(R.string.rbHorizontal));
+        if (settingsManager.getDirection() == 0) rgDirection.check(R.id.rbVertical);
+        else rgDirection.check(R.id.rbHorizontal);
+
+        TextView txtPageModeTitle = settingsContainer.findViewById(R.id.txtPageMode);
+        txtPageModeTitle.setText(context.getString(R.string.txtPageMode));
+
         RadioGroup rgPageMode = settingsContainer.findViewById(R.id.rgPageMode);
+        RadioButton rbSinglePage = settingsContainer.findViewById(R.id.rbSinglePage);
+        RadioButton rbDoublePage = settingsContainer.findViewById(R.id.rbDoublePage);
+        rbSinglePage.setText(context.getString(R.string.rbSinglePage));
+        rbDoublePage.setText(context.getString(R.string.rbDoublePage));
+        if (settingsManager.getPageMode() == 1) rgPageMode.check(R.id.rbSinglePage);
+        else rgPageMode.check(R.id.rbDoublePage);
+
         Switch switchAutoNext = settingsContainer.findViewById(R.id.switchAutoNext);
+        switchAutoNext.setText(context.getString(R.string.switchAutoNext));
+        boolean isAutoNextEnabled = settingsManager.isAutoNext();
+        switchAutoNext.setChecked(isAutoNextEnabled);
 
         View layoutAutoTime = settingsContainer.findViewById(R.id.layoutAutoTime);
         SeekBar seekAutoTime = settingsContainer.findViewById(R.id.seekAutoTime);
         TextView txtAutoTime = settingsContainer.findViewById(R.id.txtAutoTime);
-
-        if (settingsManager.getDirection() == 0) rgDirection.check(R.id.rbVertical);
-        else rgDirection.check(R.id.rbHorizontal);
-        if (settingsManager.getPageMode() == 1) rgPageMode.check(R.id.rbSinglePage);
-        else rgPageMode.check(R.id.rbDoublePage);
-
-        boolean isAutoNextEnabled = settingsManager.isAutoNext();
-        switchAutoNext.setChecked(isAutoNextEnabled);
+        TextView txtAutoTimeTitle = settingsContainer.findViewById(R.id.txtAutoTimeTitle);
+        txtAutoTimeTitle.setText(context.getString(R.string.txtAutoTimeTitle));
         seekAutoTime.setProgress(settingsManager.getAutoTime());
         txtAutoTime.setText(settingsManager.getAutoTime() + "s");
-
         if (layoutAutoTime != null) {
             layoutAutoTime.setVisibility(isAutoNextEnabled ? View.VISIBLE : View.GONE);
         }
@@ -187,21 +199,17 @@ public class PdfViewerController {
             settingsManager.setPageMode((checkedId == R.id.rbSinglePage) ? 1 : 2);
             applySettingsToReader();
         });
-
         switchAutoNext.setOnCheckedChangeListener((buttonView, isChecked) -> {
             settingsManager.setAutoNext(isChecked);
-
             if (layoutAutoTime != null) {
                 layoutAutoTime.setVisibility(isChecked ? View.VISIBLE : View.GONE);
             }
-
             if (isChecked) startAutoNext();
             else stopAutoNext();
         });
-
         seekAutoTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (progress < 1) progress = 1; // Đảm bảo thời gian tối thiểu là 1s
+                if (progress < 1) progress = 1;
                 txtAutoTime.setText(progress + "s");
             }
             @Override public void onStartTrackingTouch(SeekBar seekBar) {}
@@ -209,7 +217,6 @@ public class PdfViewerController {
                 int p = seekBar.getProgress();
                 if (p < 1) p = 1;
                 settingsManager.setAutoTime(p);
-
                 if (settingsManager.isAutoNext()) { stopAutoNext(); startAutoNext(); }
             }
         });
@@ -218,7 +225,7 @@ public class PdfViewerController {
             settingsContainer.setVisibility(View.VISIBLE);
             txtPageIndicator.setVisibility(View.GONE);
         });
-
+        btnCloseSettings.setText(context.getString(R.string.close));
         btnCloseSettings.setOnClickListener(v -> {
             settingsContainer.setVisibility(View.GONE);
             txtPageIndicator.setVisibility(View.VISIBLE);
@@ -238,13 +245,10 @@ public class PdfViewerController {
                 if (pdfPageAdapter == null || pdfViewPager == null) return;
                 int current = pdfViewPager.getCurrentItem();
                 int total = pdfPageAdapter.getItemCount();
-
                 if (current + 1 < total) {
                     pdfViewPager.setCurrentItem(current + 1, true);
                     autoHandler.postDelayed(this, delayMs);
-                } else {
-                    stopAutoNext();
-                }
+                } else stopAutoNext();
             }
         };
         autoHandler.postDelayed(autoRunnable, delayMs);
@@ -276,6 +280,7 @@ public class PdfViewerController {
         stopAutoNext();
         Log.d("PdfController", "Đã xóa tham chiếu View.");
     }
+
     public void closeRenderer() {
         if (pdfPageAdapter != null) {
             pdfPageAdapter.close();

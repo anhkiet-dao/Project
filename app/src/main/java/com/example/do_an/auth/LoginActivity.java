@@ -25,7 +25,6 @@ public class LoginActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        // AUTO LOGIN
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             Intent intent = new Intent(this, MainActivity.class);
@@ -53,7 +52,7 @@ public class LoginActivity extends AppCompatActivity {
             String password = passwordInput.getText().toString().trim();
 
             if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.error_empty_fields), Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -65,17 +64,18 @@ public class LoginActivity extends AppCompatActivity {
                                     .putString("email", email)
                                     .putString("password", password)
                                     .apply();
+
                             FirebaseUser user = mAuth.getCurrentUser();
                             if (user != null) {
-                                Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(this, getString(R.string.login_success), Toast.LENGTH_SHORT).show();
 
-                                Intent intent = new Intent(this, MainActivity.class); // sau này sửa lại
-                                intent.putExtra("userEmail", user.getEmail()); // Gửi email qua
+                                Intent intent = new Intent(this, MainActivity.class);
+                                intent.putExtra("userEmail", user.getEmail());
                                 startActivity(intent);
                                 finish();
                             }
                         } else {
-                            Toast.makeText(this, "Email hoặc mật khẩu không đúng!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, getString(R.string.login_fail), Toast.LENGTH_SHORT).show();
                         }
                     });
         });

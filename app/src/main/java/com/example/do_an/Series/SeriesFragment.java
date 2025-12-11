@@ -1,7 +1,9 @@
 package com.example.do_an.Series;
 
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Bundle;
-import android.util.Log; // Thêm import Log
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,8 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.do_an.R;
 import com.example.do_an.UI.ReadFragment;
-// Thêm các thư viện cần thiết để lấy thông tin người dùng
-import com.example.do_an.application.Encryption; // Cần có lớp Encryption
+import com.example.do_an.application.Encryption;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -30,21 +31,20 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
-import java.util.Calendar; // Cần import Calendar
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 public class SeriesFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private TextView tvNoSeries;
     private TextView txtGreeting;
+    private TextView toolbarTitle;
     private SeriesAdapter adapter;
     private final List<Series> seriesList = new ArrayList<>();
     private FirebaseFirestore db;
     private String storyId, storyName, storyAuthor, storyCategory, storyDescription, storyImageUrl;
-
-    public SeriesFragment() {
-    }
 
     @Nullable
     @Override
@@ -57,6 +57,7 @@ public class SeriesFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         txtGreeting = view.findViewById(R.id.txtGreeting);
+        toolbarTitle = view.findViewById(R.id.toolbar_title);
 
         setupUserGreeting();
 
@@ -72,16 +73,19 @@ public class SeriesFragment extends Fragment {
 
         if (storyId == null || storyId.isEmpty()) {
             if (getContext() != null) {
-                Toast.makeText(getContext(), "Không tìm thấy truyện!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.error_story_not_found), Toast.LENGTH_SHORT).show();
             }
-            if (getActivity() != null) {
-                getActivity().onBackPressed();
-            }
+            if (getActivity() != null) getActivity().onBackPressed();
             return;
         }
 
         MaterialToolbar toolbar = view.findViewById(R.id.toolbar);
-        toolbar.setTitle(storyName != null && !storyName.isEmpty() ? storyName : "Danh sách tập");
+        if (toolbarTitle != null) {
+            toolbarTitle.setText(storyName != null && !storyName.isEmpty() ? storyName : getString(R.string.series_list));
+        } else {
+            toolbar.setTitle(storyName != null && !storyName.isEmpty() ? storyName : getString(R.string.series_list));
+        }
+
         toolbar.setNavigationOnClickListener(v -> {
             if (getActivity() != null) getActivity().onBackPressed();
         });
@@ -92,19 +96,16 @@ public class SeriesFragment extends Fragment {
 
         if (getContext() != null) {
             recyclerView.setLayoutManager(new GridLayoutManager(getContext(), numberOfColumns));
-
             adapter = new SeriesAdapter(seriesList, series -> {
                 if (getContext() == null || getActivity() == null) return;
 
                 Bundle readArgs = new Bundle();
-
                 readArgs.putString("STORY_ID", storyId);
                 readArgs.putString("STORY_TITLE", storyName);
                 readArgs.putString("STORY_AUTHOR", storyAuthor);
                 readArgs.putString("STORY_CATEGORY", storyCategory);
                 readArgs.putString("STORY_DESCRIPTION", storyDescription);
                 readArgs.putString("STORY_IMAGE_URL", storyImageUrl);
-
                 readArgs.putString("PDF_LINK", series.getLink());
                 readArgs.putString("TAP", series.getName());
 
@@ -113,7 +114,6 @@ public class SeriesFragment extends Fragment {
 
                 getActivity().getSupportFragmentManager()
                         .beginTransaction()
-
                         .add(R.id.fragment_container, readFragment)
                         .addToBackStack(null)
                         .commit();
@@ -130,7 +130,7 @@ public class SeriesFragment extends Fragment {
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null || currentUser.getEmail() == null) {
-            txtGreeting.setText("Chào bạn!");
+            txtGreeting.setText(getString(R.string.hello_user));
             return;
         }
 
@@ -142,8 +142,7 @@ public class SeriesFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (!isAdded() || getContext() == null) return;
 
-                String defaultName = "Bạn";
-                String realName = defaultName;
+                String realName = getString(R.string.default_user_name);
 
                 for (DataSnapshot userSnap : snapshot.getChildren()) {
                     String encryptedEmail = userSnap.child("email").getValue(String.class);
@@ -156,7 +155,7 @@ public class SeriesFragment extends Fragment {
                             if (encryptedName != null && !encryptedName.isEmpty()) {
                                 realName = Encryption.decrypt(encryptedName.trim());
                             }
-                            break; // Đã tìm thấy tên, thoát vòng lặp
+                            break;
                         }
                     } catch (Exception e) {
                         Log.e("SeriesFragment", "Lỗi giải mã email/tên: " + e.getMessage());
@@ -166,19 +165,18 @@ public class SeriesFragment extends Fragment {
                 Calendar calendar = Calendar.getInstance();
                 int hour = calendar.get(Calendar.HOUR_OF_DAY);
                 String greeting;
-                if (hour < 11) greeting = "Chào buổi sáng, ";
-                else if (hour < 13) greeting = "Chào buổi trưa, ";
-                else if (hour < 18) greeting = "Chào buổi chiều, ";
-                else greeting = "Chào buổi tối, ";
+                if (hour < 11) greeting = getString(R.string.greeting_morning);
+                else if (hour < 13) greeting = getString(R.string.greeting_noon);
+                else if (hour < 18) greeting = getString(R.string.greeting_afternoon);
+                else greeting = getString(R.string.greeting_evening);
 
-                txtGreeting.setText(greeting + realName + "!");
+                txtGreeting.setText(greeting + ", " + realName + "!");
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 if (!isAdded() || getContext() == null) return;
-                Log.e("SeriesFragment", "Lỗi tải dữ liệu user: " + error.getMessage());
-                txtGreeting.setText("Chào bạn!");
+                txtGreeting.setText(getString(R.string.hello_user));
             }
         });
     }
@@ -192,7 +190,6 @@ public class SeriesFragment extends Fragment {
                 .orderBy("name")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    // Kiểm tra Context và Fragment có được gắn chưa
                     if (getContext() == null || !isAdded()) return;
 
                     seriesList.clear();
@@ -203,33 +200,42 @@ public class SeriesFragment extends Fragment {
                             seriesList.add(s);
                         }
                     }
-                    if (adapter != null) {
-                        adapter.notifyDataSetChanged();
-                    }
+                    if (adapter != null) adapter.notifyDataSetChanged();
 
                     if (seriesList.isEmpty()) {
-                        if (tvNoSeries != null) {
-                            tvNoSeries.setText("Không có tập nào");
-                            tvNoSeries.setVisibility(View.VISIBLE);
-                            recyclerView.setVisibility(View.GONE);
-                        }
+                        tvNoSeries.setText(getString(R.string.no_series));
+                        tvNoSeries.setVisibility(View.VISIBLE);
+                        recyclerView.setVisibility(View.GONE);
                     } else {
-                        if (tvNoSeries != null) {
-                            tvNoSeries.setVisibility(View.GONE);
-                            recyclerView.setVisibility(View.VISIBLE);
-                        }
+                        tvNoSeries.setVisibility(View.GONE);
+                        recyclerView.setVisibility(View.VISIBLE);
                     }
                 })
                 .addOnFailureListener(e -> {
                     if (getContext() != null && isAdded()) {
-                        if (tvNoSeries != null && seriesList.isEmpty()) {
-                            tvNoSeries.setText("Lỗi tải dữ liệu!");
+                        if (seriesList.isEmpty()) {
+                            tvNoSeries.setText(getString(R.string.error_loading_data));
                             tvNoSeries.setVisibility(View.VISIBLE);
                             recyclerView.setVisibility(View.GONE);
                         } else {
-                            Toast.makeText(getContext(), "Lỗi tải dữ liệu!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), getString(R.string.error_loading_data), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
+    }
+
+    /** Hàm chuyển đổi ngôn ngữ runtime */
+    public void switchLanguage(String languageCode) {
+        Locale locale = new Locale(languageCode);
+        Locale.setDefault(locale);
+        Resources resources = getResources();
+        Configuration config = resources.getConfiguration();
+        config.setLocale(locale);
+        resources.updateConfiguration(config, resources.getDisplayMetrics());
+
+        // Reload fragment để cập nhật text
+        if (getFragmentManager() != null) {
+            getFragmentManager().beginTransaction().detach(this).attach(this).commit();
+        }
     }
 }

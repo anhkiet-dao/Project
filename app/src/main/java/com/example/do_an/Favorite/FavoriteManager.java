@@ -1,8 +1,11 @@
 package com.example.do_an.Favorite;
 
+import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 
+import com.example.do_an.R;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -13,20 +16,40 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class FavoriteManager {
 
     private static final String TAG = "FavoriteManager";
     private final DatabaseReference database;
+    private final Context context;
+    private Locale currentLocale = Locale.getDefault(); // Ngôn ngữ mặc định
 
     public interface FavoritesCallback {
         void onFavoritesLoaded(List<Map<String, Object>> favorites);
     }
 
-    public FavoriteManager() {
-        database = FirebaseDatabase.getInstance("https://nt118q14-default-rtdb.asia-southeast1.firebasedatabase.app/")
-                .getReference("Favorites");
+    public FavoriteManager(Context context) {
+        this.context = context;
+        database = FirebaseDatabase.getInstance(
+                "https://nt118q14-default-rtdb.asia-southeast1.firebasedatabase.app/"
+        ).getReference("Favorites");
+    }
+
+    /** Set ngôn ngữ runtime cho Toast/Log */
+    public void setLocale(Locale locale) {
+        this.currentLocale = locale;
+    }
+
+    private String getString(int resId) {
+        return context.createConfigurationContext(context.getResources().getConfiguration())
+                .getResources().getString(resId);
+    }
+
+    private String getStringByLocale(int resId, Locale locale) {
+        return context.createConfigurationContext(context.getResources().getConfiguration())
+                .getResources().getString(resId);
     }
 
     public void getFavorites(String email, FavoritesCallback callback) {
@@ -44,7 +67,10 @@ public class FavoriteManager {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, "Lỗi tải favorites: " + error.getMessage());
+                String msg = getStringByLocale(R.string.error_load_favorites, currentLocale)
+                        + ": " + error.getMessage();
+                Log.e(TAG, msg);
+                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
                 callback.onFavoritesLoaded(new ArrayList<>());
             }
         });
@@ -64,8 +90,16 @@ public class FavoriteManager {
 
         database.child(safeEmail).push()
                 .setValue(favoriteData)
-                .addOnSuccessListener(a -> Log.d(TAG, "✅ Đã thêm yêu thích: " + title))
-                .addOnFailureListener(e -> Log.e(TAG, "❌ Lỗi thêm yêu thích", e));
+                .addOnSuccessListener(a -> {
+                    String msg = getStringByLocale(R.string.add_favorite_success, currentLocale) + ": " + title;
+                    Log.d(TAG, msg);
+                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    String msg = getStringByLocale(R.string.add_favorite_fail, currentLocale);
+                    Log.e(TAG, msg, e);
+                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+                });
     }
 
     public void removeFavorite(String email, String storyId, String titleToRemove) {
@@ -76,19 +110,31 @@ public class FavoriteManager {
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot appleSnapshot: snapshot.getChildren()) {
-                    String title = appleSnapshot.child("title").getValue(String.class);
-
+                for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
+                    String title = itemSnapshot.child("title").getValue(String.class);
                     if (title != null && title.equals(titleToRemove)) {
-                        appleSnapshot.getRef().removeValue()
-                                .addOnSuccessListener(a -> Log.d(TAG, "🗑️ Đã xóa: " + titleToRemove));
+                        itemSnapshot.getRef().removeValue()
+                                .addOnSuccessListener(a -> {
+                                    String msg = getStringByLocale(R.string.remove_favorite_success1, currentLocale)
+                                            + ": " + titleToRemove;
+                                    Log.d(TAG, msg);
+                                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+                                })
+                                .addOnFailureListener(e -> {
+                                    String msg = getStringByLocale(R.string.remove_favorite_fail, currentLocale);
+                                    Log.e(TAG, msg, e);
+                                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+                                });
                     }
                 }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.e(TAG, "onCancelled", databaseError.toException());
+            public void onCancelled(@NonNull DatabaseError error) {
+                String msg = getStringByLocale(R.string.error_load_favorites, currentLocale)
+                        + ": " + error.getMessage();
+                Log.e(TAG, msg, error.toException());
+                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
             }
         });
     }

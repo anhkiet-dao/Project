@@ -41,14 +41,9 @@ public class NoteFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.note_popup_note, container, false);
-        View dim = view.findViewById(R.id.dimBackground);
-        dim.setOnClickListener(v -> {
-            if (getParentFragmentManager() != null) {
-                getParentFragmentManager().popBackStack();
-            }
-        });
 
         edtNote = view.findViewById(R.id.edtNoteContent);
         btnAdd = view.findViewById(R.id.btnAddNote);
@@ -56,6 +51,17 @@ public class NoteFragment extends Fragment {
         btnDelete = view.findViewById(R.id.btnDeleteNote);
         btnClose = view.findViewById(R.id.btnClose);
         txtTitleNote = view.findViewById(R.id.txtTitle);
+
+        // Thiết lập text đa ngôn ngữ
+        txtTitleNote.setText(getString(R.string.txtTitle));
+        edtNote.setHint(getString(R.string.edtNoteContent));
+        btnAdd.setText(getString(R.string.btnAddNote));
+        btnUpdate.setText(getString(R.string.btnUpdateNote));
+        btnDelete.setText(getString(R.string.btnDeleteNote));
+        btnClose.setContentDescription(getString(R.string.btnClose));
+
+        View dim = view.findViewById(R.id.dimBackground);
+        dim.setOnClickListener(v -> closeFragment());
 
         Bundle args = getArguments();
         if (args != null) {
@@ -69,21 +75,15 @@ public class NoteFragment extends Fragment {
             }
 
             if (noteContextId == null || pageNumber <= 0 || userEmail == null) {
-                Toast.makeText(getContext(), "Lỗi: Cần thông tin đăng nhập hoặc trang ghi chú.", Toast.LENGTH_LONG).show();
-                if (getActivity() != null) {
-                    Log.e(TAG, "Lỗi thiếu dữ liệu bắt buộc.");
-                    return view;
-                }
+                Toast.makeText(getContext(), getString(R.string.error_missing_data), Toast.LENGTH_LONG).show();
+                Log.e(TAG, "Missing required data");
+                return view;
             } else {
                 uniqueNoteKey = noteContextId + "_PAGE_" + pageNumber;
 
-                if (txtTitleNote != null) {
-                    txtTitleNote.setText(storyTitleDisplay + " - Trang " + pageNumber);
-                    txtTitleNote.setVisibility(View.VISIBLE);
-                }
+                txtTitleNote.setText(storyTitleDisplay + " - " + getString(R.string.page_label) + " " + pageNumber);
 
                 String firebaseUserKey = userEmail.replace('.', '_').replace('@', '_');
-
                 notesRef = FirebaseDatabase.getInstance().getReference("users")
                         .child(firebaseUserKey)
                         .child("notes")
@@ -94,18 +94,19 @@ public class NoteFragment extends Fragment {
                 btnAdd.setOnClickListener(v -> saveNoteToFirebase(edtNote.getText().toString().trim()));
                 btnUpdate.setOnClickListener(v -> saveNoteToFirebase(edtNote.getText().toString().trim()));
                 btnDelete.setOnClickListener(v -> deleteNoteFromFirebase());
-
-                btnClose.setOnClickListener(v -> {
-                    if (getParentFragmentManager() != null) {
-                        getParentFragmentManager().popBackStack();
-                    }
-                });
+                btnClose.setOnClickListener(v -> closeFragment());
             }
         } else {
-            Toast.makeText(getContext(), "Lỗi: Không tìm thấy dữ liệu Fragment.", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), getString(R.string.error_no_fragment_data), Toast.LENGTH_LONG).show();
         }
 
         return view;
+    }
+
+    private void closeFragment() {
+        if (getParentFragmentManager() != null) {
+            getParentFragmentManager().popBackStack();
+        }
     }
 
     private void loadNoteFromFirebase() {
@@ -116,19 +117,18 @@ public class NoteFragment extends Fragment {
                     NoteModel note = dataSnapshot.getValue(NoteModel.class);
                     if (note != null && note.content != null) {
                         edtNote.setText(note.content);
-                        updateButtonStates(false); // Có ghi chú
-                        Log.d(TAG, "Ghi chú đã tải.");
+                        updateButtonStates(false);
+                        Log.d(TAG, "Note loaded");
                     }
                 } else {
-                    updateButtonStates(true); // Chưa có ghi chú
-                    Log.d(TAG, "Không tìm thấy ghi chú.");
+                    updateButtonStates(true);
+                    Log.d(TAG, "No note found");
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                // Sử dụng getContext()
-                Toast.makeText(getContext(), "Lỗi tải ghi chú: " + databaseError.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), getString(R.string.error_load_note, databaseError.getMessage()), Toast.LENGTH_LONG).show();
                 updateButtonStates(true);
             }
         });
@@ -136,29 +136,22 @@ public class NoteFragment extends Fragment {
 
     private void saveNoteToFirebase(String content) {
         if (content.isEmpty()) {
-            Toast.makeText(getContext(), "Vui lòng nhập nội dung!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), getString(R.string.error_empty_note), Toast.LENGTH_SHORT).show();
             return;
         }
 
         String baseNoteContextId = uniqueNoteKey.substring(0, uniqueNoteKey.lastIndexOf("_PAGE_"));
-
-        NoteModel note = new NoteModel(
-                userEmail,
-                baseNoteContextId,
-                pageNumber,
-                content,
-                System.currentTimeMillis()
-        );
+        NoteModel note = new NoteModel(userEmail, baseNoteContextId, pageNumber, content, System.currentTimeMillis());
 
         notesRef.setValue(note)
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(getContext(), "Đã lưu ghi chú ở trang " + pageNumber + "!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), getString(R.string.note_saved, pageNumber), Toast.LENGTH_SHORT).show();
                     updateButtonStates(false);
                     hideKeyboardAndClearFocus();
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Lưu ghi chú thất bại: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                    Log.e(TAG, "Lỗi lưu Firebase", e);
+                    Toast.makeText(getContext(), getString(R.string.error_save_note, e.getMessage()), Toast.LENGTH_LONG).show();
+                    Log.e(TAG, "Failed to save note", e);
                 });
     }
 
@@ -166,31 +159,24 @@ public class NoteFragment extends Fragment {
         notesRef.removeValue()
                 .addOnSuccessListener(aVoid -> {
                     edtNote.setText("");
-                    Toast.makeText(getContext(), "Đã xóa ghi chú ở trang " + pageNumber + "!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), getString(R.string.note_deleted, pageNumber), Toast.LENGTH_SHORT).show();
                     updateButtonStates(true);
                     hideKeyboardAndClearFocus();
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Xóa ghi chú thất bại.", Toast.LENGTH_SHORT).show();
-                    Log.e(TAG, "Lỗi xóa Firebase", e);
+                    Toast.makeText(getContext(), getString(R.string.error_delete_note), Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Failed to delete note", e);
                 });
     }
 
     private void updateButtonStates(boolean noNote) {
-        if (noNote) {
-            btnAdd.setVisibility(View.VISIBLE);
-            btnUpdate.setVisibility(View.GONE);
-            btnDelete.setVisibility(View.GONE);
-        } else {
-            btnAdd.setVisibility(View.GONE);
-            btnUpdate.setVisibility(View.VISIBLE);
-            btnDelete.setVisibility(View.VISIBLE);
-        }
+        btnAdd.setVisibility(noNote ? View.VISIBLE : View.GONE);
+        btnUpdate.setVisibility(noNote ? View.GONE : View.VISIBLE);
+        btnDelete.setVisibility(noNote ? View.GONE : View.VISIBLE);
     }
 
     private void hideKeyboardAndClearFocus() {
         edtNote.clearFocus();
-
         View view = getView();
         if (view != null) {
             InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);

@@ -1,0 +1,187 @@
+<resources>
+    <string name="app_name">Orumanga</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_read">My List</string>
+    <string name="nav_search">Search</string>
+    <string name="nav_profile">Account</string>
+
+    // Account
+    <string name="logout">Logout</string>
+    <string name="profile">Profile</string>
+    <string name="language">Language</string>
+    <string name="settings">Settings</string>
+    <string name="informaton">Information</string>
+
+    // Mylist
+    <string name="analytics">Analytics</string>
+    <string name="history">History</string>
+    <string name="favorite">Favorite</string>
+    <string name="download">Downloads</string>
+    <string name="hello_user">Hello!</string>
+    <string name="default_user">User</string>
+    <string name="good_morning">Good morning</string>
+    <string name="good_noon">Good noon</string>
+    <string name="good_afternoon">Good afternoon</string>
+    <string name="good_evening">Good evening</string>
+
+    //Download
+    <string name="downloaded_list_title">Downloaded list</string>
+    <string name="no_downloads">No downloaded books</string>
+    <string name="author_label1">Author: </string>
+    <string name="delete_text">Delete</string>
+    <string name="cannot_open_file">Cannot open file!</string>
+    <string name="deleted_msg">Deleted </string>
+    <string name="cannot_delete">Cannot delete </string>
+    <string name="updating">Updating</string>
+    <string name="delete_confirm_yes">Yes</string>
+    <string name="delete_confirm_no">No</string>
+    <string name="delete_confirm_msg">Are you sure you want to delete this file?</string>
+    <string name="pdf_download_error">PDF download error: %1$s</string>
+    <string name="file_already_downloaded">File has already.</string>
+    <string name="start_download">Starting download</string>
+    <string name="pdf_not_downloaded">Failed to download PDF!</string>
+    <string name="download_success">Download successful</string>
+    <string name="entity_deleted_for_redownload">Entity exists but file is missing, deleting entity and redownloading.</string>
+    <string name="download_canceled">Download canceled due to leaving the screen or manual cancellation</string>
+    <string name="download_ready">PDF is ready to use</string>
+    <string name="no_pdf_file">This story does not have a PDF file!</string>
+    <string name="pdf_data_not_found">PDF data not found for story!</string>
+    <string name="firestore_load_error">Firestore load error: %1$s</string>
+    <string name="load_pdf_local">Load PDF: Reading from local path (pdfPath).</string>
+    <string name="load_pdf_missing">Load PDF: Downloaded file is missing at path: %1$s</string>
+    <string name="load_pdf_missing_toast">Error: Downloaded file not found.</string>
+    <string name="load_pdf_episode">Load PDF: Downloading file from episode link (episodePdfLink).</string>
+    <string name="load_pdf_room_exists">Load PDF: Reading from Room (File exists).</string>
+    <string name="load_pdf_room_missing">Load PDF: Room file missing, deleting record and redownloading.</string>
+    <string name="file_lost_redownload">Downloaded file is lost, redownloading...</string>
+
+    //History
+    <string name="history_empty_no_login">You are not logged in!</string>
+    <string name="history_empty_no_data">No history available.</string>
+    <string name="history_error_load">Failed to load data. Please check your connection.</string>
+    <string name="history_title">Reading History</string>
+    <string name="history_author">Author: %1$s</string>
+    <string name="history_start_time">Start: %1$s</string>
+
+    <!-- Favorite -->
+    <string name="title_favorite">Favorite Stories</string>
+    <string name="empty_favorite">No favorite stories.</string>
+    <string name="remove_favorite_success">Removed from favorites: %1$s</string>
+    <string name="not_logged_in">Not logged in!</string>
+    <string name="favorite_error">Failed to load favorite list.</string>
+    <string name="author_label">Author: </string>
+    <string name="remove_fav">Remove Favorite</string>
+    <string name="error_load_favorites">Failed to load favorites</string>
+    <string name="add_favorite_success">Added to favorites</string>
+    <string name="add_favorite_fail">Failed to add to favorites</string>
+    <string name="remove_favorite_success1">Removed from favorites</string>
+    <string name="remove_favorite_fail">Failed to remove from favorites</string>
+    <string name="error_insufficient_info">Error: Insufficient information to save favorite</string>
+    <string name="added_to_favorites">Added to favorites</string>
+    <string name="removed_from_favorites">Removed from favorites</string>
+
+    // Home
+    <string name="network_error">Network error!</string>
+    <string name="unknown_name">Unknown name</string>
+    <string name="unknown_author">Unknown author</string>
+    <string name="unknown_category">Other</string>
+    <string name="pdf_link_not_found">PDF link not found!</string>
+    <string name="default_story_title">Story</string>
+    <string name="default_tap_title">Chapter 1</string>
+    <string name="default_user_name">User</string>
+
+    <string name="review_books">Recent Stories</string>
+    <string name="new_books">New Stories</string>
+    <string name="popular_books">Popular Stories</string>
+    <string name="trend_books">Trending</string>
+    <string name="detail_text">Details ></string>
+
+    <string name="hello_user1">Hello!</string>
+    <string name="greeting_morning">Good morning </string>
+    <string name="greeting_noon">Good noon </string>
+    <string name="greeting_afternoon">Good afternoon </string>
+    <string name="greeting_evening">Good evening </string>
+    <string name="author">Author: %1$s</string>
+
+    <string name="error_no_category">Error: No category found.</string>
+    <string name="no_books_found">No books found in this category.</string>
+
+    // Series
+    <string name="series_list">Series List</string>
+    <string name="no_series">No series available</string>
+    <string name="error_story_not_found">Story not found!</string>
+    <string name="error_loading_data">Error loading data!</string>
+
+    // Analytics
+    <string name="sum_book">Total books</string>
+    <string name="sum_hours">Total reading hours</string>
+    <string name="tv_title">Reading Statistics</string>
+    <string name="title1">Reading activity</string>
+    <string name="title2">Reading frequency by story</string>
+    <string name="title3">Reading time ratio by session</string>
+    <string name="daily">Daily</string>
+    <string name="weekly">Weekly</string>
+    <string name="minutes">%1$d min</string>
+    <string name="hours">hours</string>
+    <string name="no_data">No data</string>
+    <string name="hours_minutes">%1$d h %2$d min</string>
+    <string name="total_reading_time">TOTAL\nREADING\nTIME</string>
+
+    // Read
+    <string name="pdf_loaded">start reading!</string>
+    <string name="pdf_load_error">Cannot open downloaded PDF.</string>
+    <string name="second">s</string>
+    <string name="story_default">Story</string>
+    <string name="page">pages</string>
+    <string name="loading">Loading...</string>
+    <string name="no_story_data">Error: No story data available!</string>
+    <string name="author_unknown">Author: Unknown</string>
+    <string name="downloaded">Downloaded</string>
+    <string name="story_not_found_room">Error: No story info found in database.</string>
+    <string name="no_pdf_link">PDF link not found!</string>
+    <string name="no_fragment_manager">Error: Fragment Manager not found.</string>
+
+    //Setting
+    <string name="title_setting">Settings</string>
+    <string name="Chieudoc">Reading Direction:</string>
+    <string name="rbVertical">Horizontal</string>
+    <string name="rbHorizontal">Vertical</string>
+    <string name="txtPageMode">Page Mode</string>
+    <string name="rbSinglePage">Single Page</string>
+    <string name="rbDoublePage">Double Page</string>
+    <string name="switchAutoNext">Auto Next Page</string>
+    <string name="txtAutoTimeTitle">Time</string>
+    <string name="close">Close</string>
+    <string name="toast_start_reading">Start reading!</string>
+    <string name="toast_cannot_open_pdf">Cannot open downloaded PDF file.</string>
+
+    // Note
+    <string name="error_missing_data">Error: Missing required data.</string>
+    <string name="error_no_fragment_data">Error: Fragment data not found.</string>
+    <string name="error_load_note">Failed to load note: %1$s</string>
+    <string name="error_empty_note">Please enter note content!</string>
+    <string name="error_save_note">Failed to save note: %1$s</string>
+    <string name="error_delete_note">Failed to delete note.</string>
+    <string name="note_saved">Note saved on page %1$d!</string>
+    <string name="note_deleted">Note deleted on page %1$d!</string>
+
+    <string name="txtTitle">Note</string>
+    <string name="edtNoteContent">Enter note...</string>
+    <string name="btnAddNote">Add</string>
+    <string name="btnUpdateNote">Save</string>
+    <string name="btnDeleteNote">Delete</string>
+    <string name="btnClose">Close</string>
+    <string name="page_label">Page</string>
+
+    // Login
+    <string name="login_title">Login</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Password</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="login_button">Login</string>
+    <string name="register_text">Do not have an account?</string>
+    <string name="register_now">Register now</string>
+    <string name="error_empty_fields">Please fill in all fields!</string>
+    <string name="login_success">Login successful!</string>
+    <string name="login_fail">Incorrect email or password!</string>
+</resources>

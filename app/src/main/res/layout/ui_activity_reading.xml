@@ -177,6 +177,7 @@
                 android:padding="20dp">
 
                 <TextView
+                    android:id="@+id/title_setting"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
@@ -185,6 +186,7 @@
                     android:textAppearance="@style/TextAppearance.App.TitleLarge" />
 
                 <TextView
+                    android:id="@+id/Chieudoc"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Chiều đọc:"
@@ -214,6 +216,7 @@
                 </RadioGroup>
 
                 <TextView
+                    android:id="@+id/txtPageMode"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
@@ -232,14 +235,14 @@
                         android:id="@+id/rbSinglePage"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="1 trang / lần"
+                        android:text="1 trang"
                         android:textColor="#444444" />
 
                     <RadioButton
                         android:id="@+id/rbDoublePage"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="2 trang / lần"
+                        android:text="2 trang"
                         android:textColor="#444444" />
                 </RadioGroup>
 
@@ -261,6 +264,7 @@
                     android:visibility="gone">
 
                     <TextView
+                        android:id="@+id/txtAutoTimeTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Thời gian:"
@@ -271,7 +275,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:max="30" />
+                        android:max="60" />
 
                     <TextView
                         android:id="@+id/txtAutoTime"

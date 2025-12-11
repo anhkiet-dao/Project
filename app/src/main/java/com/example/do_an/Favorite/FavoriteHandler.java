@@ -6,18 +6,25 @@ import android.widget.Toast;
 
 import com.example.do_an.R;
 
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class FavoriteHandler {
     private final Context context;
-    private final FavoriteManager favoriteManager = new FavoriteManager();
+    private final FavoriteManager favoriteManager;
 
     public FavoriteHandler(Context context) {
         this.context = context;
+        favoriteManager = new FavoriteManager(context);
+    }
+
+    /** Chọn ngôn ngữ hiển thị (Toast/Log) */
+    public void setLocale(Locale locale) {
+        favoriteManager.setLocale(locale);
     }
 
     private String getFavoriteTitle(String mainStoryTitle, String currentTitle) {
-
         if (mainStoryTitle != null && !mainStoryTitle.equals(currentTitle)) {
             return mainStoryTitle + " - " + currentTitle;
         }
@@ -35,7 +42,6 @@ public class FavoriteHandler {
                 if (item != null) {
                     String id = (String) item.get("storyId");
                     String title = (String) item.get("title");
-
                     if (storyId.equals(id) && titleToCheck.equals(title)) {
                         isFavorite = true;
                         break;
@@ -44,11 +50,9 @@ public class FavoriteHandler {
             }
 
             btnFavorite.setTag(isFavorite);
-            if (isFavorite) {
-                btnFavorite.setImageResource(R.drawable.ic_favorite_filled);
-            } else {
-                btnFavorite.setImageResource(R.drawable.ic_favorite_border);
-            }
+            btnFavorite.setImageResource(isFavorite
+                    ? R.drawable.ic_favorite_filled
+                    : R.drawable.ic_favorite_border);
         });
     }
 
@@ -56,26 +60,21 @@ public class FavoriteHandler {
                                String author, String category, String imageUrl, String readUrl,
                                ImageView btnFavorite) {
         if (userEmail == null || storyId == null || readUrl == null) {
-            Toast.makeText(context, "Lỗi: Không đủ thông tin để lưu yêu thích.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getString(R.string.error_insufficient_info), Toast.LENGTH_SHORT).show();
             return;
         }
 
         final String titleForFavorite = getFavoriteTitle(mainTitle, currentTitle);
-
         boolean isFavorite = btnFavorite.getTag() != null && (boolean) btnFavorite.getTag();
 
         if (!isFavorite) {
-            favoriteManager.addFavorite(
-                    userEmail, storyId, titleForFavorite, author, category, null, imageUrl, readUrl
-            );
+            favoriteManager.addFavorite(userEmail, storyId, titleForFavorite, author, category, null, imageUrl, readUrl);
             btnFavorite.setImageResource(R.drawable.ic_favorite_filled);
             btnFavorite.setTag(true);
-            Toast.makeText(context, "Đã thêm: " + titleForFavorite + " vào yêu thích ❤️", Toast.LENGTH_SHORT).show();
         } else {
             favoriteManager.removeFavorite(userEmail, storyId, titleForFavorite);
             btnFavorite.setImageResource(R.drawable.ic_favorite_border);
             btnFavorite.setTag(false);
-            Toast.makeText(context, "Đã xóa khỏi yêu thích 💔", Toast.LENGTH_SHORT).show();
         }
     }
 }

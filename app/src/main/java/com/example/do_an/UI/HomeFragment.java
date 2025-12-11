@@ -1,5 +1,7 @@
 package com.example.do_an.UI;
 
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -41,6 +43,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 public class HomeFragment extends Fragment {
 
@@ -74,6 +77,7 @@ public class HomeFragment extends Fragment {
     private FirebaseFirestore db;
     private TextView tvGreeting;
     private TextView detailPreview;
+    private TextView title, title1, title2, title3;
     private TextView detailNewBooks, detailPopularBooks, detailTrendBooks;
     private BookImageAdapter previewAdapter;
 
@@ -116,6 +120,10 @@ public class HomeFragment extends Fragment {
         txtPdfName = view.findViewById(R.id.txtPdfName);
         txtPdfAuthor = view.findViewById(R.id.txtPdfAuthor);
         btnDetail = view.findViewById(R.id.btnDetail);
+        title = view.findViewById(R.id.title);
+        title1 = view.findViewById(R.id.title1);
+        title2 = view.findViewById(R.id.title2);
+        title3 = view.findViewById(R.id.title3);
 
         tvGreeting = view.findViewById(R.id.txtGreeting);
 
@@ -126,10 +134,21 @@ public class HomeFragment extends Fragment {
         pdfViewerUtility = new PdfViewerUtility(getContext(), pdfViewPager);
 
         detailPreview = view.findViewById(R.id.detail);
-
         detailNewBooks = view.findViewById(R.id.detail1);
         detailPopularBooks = view.findViewById(R.id.detail2);
         detailTrendBooks = view.findViewById(R.id.detail3);
+
+        if (title != null) title.setText(getString(R.string.review_books));
+        if (title1 != null) title1.setText(getString(R.string.new_books));
+        if (title2 != null) title2.setText(getString(R.string.popular_books));
+        if (title3 != null) title3.setText(getString(R.string.trend_books));
+
+        // Set detail text đa ngôn ngữ
+        String detailText = getString(R.string.detail_text);
+        if (detailPreview != null) detailPreview.setText(detailText);
+        if (detailNewBooks != null) detailNewBooks.setText(detailText);
+        if (detailPopularBooks != null) detailPopularBooks.setText(detailText);
+        if (detailTrendBooks != null) detailTrendBooks.setText(detailText);
     }
 
     private void setupRecycler() {
@@ -147,14 +166,17 @@ public class HomeFragment extends Fragment {
     }
 
     private void setupDetailClickListeners() {
+        if (detailPreview != null) {
+            detailPreview.setOnClickListener(v -> navigateToAllBooksFragment("reviewBooks", getString(R.string.review_books)));
+        }
         if (detailNewBooks != null) {
-            detailNewBooks.setOnClickListener(v -> navigateToAllBooksFragment("newBooks", "Truyện mới"));
+            detailNewBooks.setOnClickListener(v -> navigateToAllBooksFragment("newBooks", getString(R.string.new_books)));
         }
         if (detailPopularBooks != null) {
-            detailPopularBooks.setOnClickListener(v -> navigateToAllBooksFragment("popularBooks", "Truyện phổ biến"));
+            detailPopularBooks.setOnClickListener(v -> navigateToAllBooksFragment("popularBooks", getString(R.string.popular_books)));
         }
         if (detailTrendBooks != null) {
-            detailTrendBooks.setOnClickListener(v -> navigateToAllBooksFragment("trendBooks", "Xu hướng đọc"));
+            detailTrendBooks.setOnClickListener(v -> navigateToAllBooksFragment("trendBooks", getString(R.string.trend_books)));
         }
     }
 
@@ -233,28 +255,17 @@ public class HomeFragment extends Fragment {
                 if (!list.isEmpty()) {
                     currentViewingBook = list.get(0);
 
-                    // ✅ Preload tất cả PDF
+                    // Preload tất cả PDF
                     for (Book b : list) {
                         pdfViewerUtility.preloadPdf(b);
                     }
 
-                    // ➡️ ĐÃ SỬA: Thay thế loadPdfPreview bằng showPdfPreview
-                    // showPdfPreview đảm bảo cả tên, tác giả và nút chi tiết đều được cập nhật
                     showPdfPreview(currentViewingBook);
 
                     previewAdapter = new BookImageAdapter(getContext(), list, this::onBookClick);
                     recyclerView.setAdapter(previewAdapter);
                     previewAdapter.setSelectedBookId(currentViewingBook.getId());
                     previewAdapter.notifyDataSetChanged();
-
-                    if (detailPreview != null) {
-                        detailPreview.setOnClickListener(v -> navigateToAllBooksFragment("reviewBooks", "Truyện xem trước"));
-                    }
-
-                    // Nút chi tiết (btnDetail) không cần set ở đây nữa vì đã có trong showPdfPreview
-                    // if (btnDetail != null) {
-                    //     btnDetail.setOnClickListener(v -> openReadFragmentDirectly(currentViewingBook));
-                    // }
                 }
             } else {
                 if (!list.isEmpty()) {
@@ -272,7 +283,7 @@ public class HomeFragment extends Fragment {
 
         }).addOnFailureListener(e -> {
             Log.e("HomeFragment", "Lỗi tải " + collectionName + ": " + e.getMessage());
-            Toast.makeText(getContext(), "Lỗi mạng!", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), getString(R.string.network_error), Toast.LENGTH_LONG).show();
             recyclerView.setVisibility(View.GONE);
         });
     }
@@ -283,9 +294,9 @@ public class HomeFragment extends Fragment {
         SeriesFragment seriesFragment = new SeriesFragment();
         Bundle args = new Bundle();
         args.putString("STORY_ID", book.getId());
-        args.putString("STORY_NAME", book.getName() != null ? book.getName() : "Không rõ tên");
-        args.putString("STORY_AUTHOR", book.getAuthor() != null ? book.getAuthor() : "Không rõ tác giả");
-        args.putString("STORY_CATEGORY", book.getCategory() != null ? book.getCategory() : "Khác");
+        args.putString("STORY_NAME", book.getName() != null ? book.getName() : getString(R.string.unknown_name));
+        args.putString("STORY_AUTHOR", book.getAuthor() != null ? book.getAuthor() : getString(R.string.unknown_author));
+        args.putString("STORY_CATEGORY", book.getCategory() != null ? book.getCategory() : getString(R.string.unknown_category));
         args.putString("STORY_IMAGE_URL", book.getImageUrl() != null ? book.getImageUrl() : "");
         seriesFragment.setArguments(args);
 
@@ -299,17 +310,17 @@ public class HomeFragment extends Fragment {
     private void openReadFragmentDirectly(Book book) {
         if (getActivity() == null || book == null) return;
         if (book.getLink() == null || book.getLink().isEmpty()) {
-            Toast.makeText(getContext(), "Không tìm thấy link đọc!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), getString(R.string.pdf_link_not_found), Toast.LENGTH_SHORT).show();
             return;
         }
 
         Bundle args = new Bundle();
         args.putString("PDF_LINK", book.getLink());
         args.putString("STORY_ID", book.getId());
-        args.putString("STORY_TITLE", book.getName() != null ? book.getName() : "Truyện");
-        args.putString("TAP_TITLE", book.getName() != null ? book.getName() : "Tập 1");
-        args.putString("STORY_AUTHOR", book.getAuthor() != null ? book.getAuthor() : "Không rõ tác giả");
-        args.putString("STORY_CATEGORY", book.getCategory() != null ? book.getCategory() : "Khác");
+        args.putString("STORY_TITLE", book.getName() != null ? book.getName() : getString(R.string.default_story_title));
+        args.putString("TAP_TITLE", book.getName() != null ? book.getName() : getString(R.string.default_tap_title));
+        args.putString("STORY_AUTHOR", book.getAuthor() != null ? book.getAuthor() : getString(R.string.unknown_author));
+        args.putString("STORY_CATEGORY", book.getCategory() != null ? book.getCategory() : getString(R.string.unknown_category));
         args.putString("STORY_IMAGE_URL", book.getImageUrl() != null ? book.getImageUrl() : "");
 
         ReadFragment readFragment = ReadFragment.newInstance(args);
@@ -324,7 +335,7 @@ public class HomeFragment extends Fragment {
     private void onBookClick(Book book) {
         if (getActivity() == null || book == null) return;
         if (book.getLink() == null || book.getLink().isEmpty()) {
-            Toast.makeText(getContext(), "Không tìm thấy link đọc!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), getString(R.string.pdf_link_not_found), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -341,7 +352,7 @@ public class HomeFragment extends Fragment {
         if (pdfViewerUtility == null || getContext() == null || pdfViewPager == null || book == null) return;
 
         if (book.getLink() == null || book.getLink().isEmpty()) {
-            Toast.makeText(getContext(), "Không tìm thấy link đọc!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), getString(R.string.pdf_link_not_found), Toast.LENGTH_SHORT).show();
             pdfViewPager.setVisibility(View.GONE);
             if (pdfInfoContainer != null) pdfInfoContainer.setVisibility(View.GONE);
             return;
@@ -350,8 +361,8 @@ public class HomeFragment extends Fragment {
         pdfViewPager.setAdapter(null);
         pdfViewPager.setVisibility(View.VISIBLE);
         if (pdfInfoContainer != null) pdfInfoContainer.setVisibility(View.VISIBLE);
-        txtPdfName.setText(book.getName() != null ? book.getName() : "Không rõ tên");
-        txtPdfAuthor.setText(book.getAuthor() != null ? "Tác giả: " + book.getAuthor() : "Tác giả: ???");
+        txtPdfName.setText(book.getName() != null ? book.getName() : getString(R.string.unknown_name));
+        txtPdfAuthor.setText(getString(R.string.author, book.getAuthor() != null ? book.getAuthor() : getString(R.string.unknown_author)));
 
         pdfViewerUtility.loadPdfPreview(book, 5);
 
@@ -363,7 +374,7 @@ public class HomeFragment extends Fragment {
     private void setupUserGreeting() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null || currentUser.getEmail() == null) {
-            tvGreeting.setText("Chào bạn!");
+            tvGreeting.setText(getString(R.string.hello_user));
             return;
         }
 
@@ -381,7 +392,7 @@ public class HomeFragment extends Fragment {
                         String emailDecrypted = Encryption.decrypt(encryptedEmail.trim());
                         if (userEmail.equals(emailDecrypted)) {
                             String encryptedName = userSnap.child("fullName").getValue(String.class);
-                            String realName = "Bạn";
+                            String realName = getString(R.string.default_user_name);
                             if (encryptedName != null && !encryptedName.isEmpty()) {
                                 realName = Encryption.decrypt(encryptedName.trim());
                             }
@@ -389,24 +400,24 @@ public class HomeFragment extends Fragment {
                             Calendar calendar = Calendar.getInstance();
                             int hour = calendar.get(Calendar.HOUR_OF_DAY);
                             String greeting;
-                            if (hour < 11) greeting = "Chào buổi sáng, ";
-                            else if (hour < 13) greeting = "Chào buổi trưa, ";
-                            else if (hour < 18) greeting = "Chào buổi chiều, ";
-                            else greeting = "Chào buổi tối, ";
+                            if (hour < 11) greeting = getString(R.string.greeting_morning);
+                            else if (hour < 13) greeting = getString(R.string.greeting_noon);
+                            else if (hour < 18) greeting = getString(R.string.greeting_afternoon);
+                            else greeting = getString(R.string.greeting_evening);
 
-                            tvGreeting.setText(greeting + realName + "!");
+                            tvGreeting.setText(greeting + ", " + realName + "!");
                             return;
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
-                tvGreeting.setText("Chào bạn!");
+                tvGreeting.setText(getString(R.string.hello_user));
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                tvGreeting.setText("Chào bạn!");
+                tvGreeting.setText(getString(R.string.hello_user));
             }
         });
     }
@@ -414,5 +425,20 @@ public class HomeFragment extends Fragment {
     private int dpToPx(int dp) {
         float density = getResources().getDisplayMetrics().density;
         return Math.round(dp * density);
+    }
+
+    /** Hàm chuyển đổi ngôn ngữ runtime */
+    public void switchLanguage(String languageCode) {
+        Locale locale = new Locale(languageCode);
+        Locale.setDefault(locale);
+        Resources resources = getResources();
+        Configuration config = resources.getConfiguration();
+        config.setLocale(locale);
+        resources.updateConfiguration(config, resources.getDisplayMetrics());
+
+        // Reload fragment để cập nhật text
+        if (getFragmentManager() != null) {
+            getFragmentManager().beginTransaction().detach(this).attach(this).commit();
+        }
     }
 }

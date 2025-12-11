@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
@@ -35,7 +36,7 @@ public class AllBooksFragment extends Fragment implements AllBooksAdapter.BookCl
 
     private RecyclerView rvAllBooks;
     private TextView toolbarTitle;
-    private TextView tvGreeting; // Biến mới
+    private TextView tvGreeting;
     private FirebaseFirestore db;
     private final List<Book> bookList = new ArrayList<>();
     private AllBooksAdapter adapter;
@@ -44,7 +45,8 @@ public class AllBooksFragment extends Fragment implements AllBooksAdapter.BookCl
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.home_fragment_all_books, container, false);
         db = FirebaseFirestore.getInstance();
 
@@ -61,7 +63,7 @@ public class AllBooksFragment extends Fragment implements AllBooksAdapter.BookCl
         if (collectionName != null) {
             loadBooks(collectionName);
         } else {
-            Toast.makeText(getContext(), "Lỗi: Không tìm thấy danh mục.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), getString(R.string.error_no_category), Toast.LENGTH_SHORT).show();
         }
 
         return view;
@@ -102,21 +104,22 @@ public class AllBooksFragment extends Fragment implements AllBooksAdapter.BookCl
                     bookList.add(b);
                 }
             }
+
             if (bookList.isEmpty()) {
-                Toast.makeText(getContext(), "Không tìm thấy cuốn sách nào trong danh mục này.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.no_books_found), Toast.LENGTH_SHORT).show();
             }
             adapter.notifyDataSetChanged();
 
         }).addOnFailureListener(e -> {
-            Log.e("AllBooksFragment", "Lỗi tải sách: " + e.getMessage());
-            Toast.makeText(getContext(), "Lỗi tải dữ liệu!", Toast.LENGTH_LONG).show();
+            Log.e("AllBooksFragment", "Error loading books: " + e.getMessage());
+            Toast.makeText(getContext(), getString(R.string.network_error), Toast.LENGTH_LONG).show();
         });
     }
 
     private void setupUserGreeting() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null || currentUser.getEmail() == null) {
-            tvGreeting.setText("Chào bạn!");
+            tvGreeting.setText(getString(R.string.hello_user));
             return;
         }
 
@@ -134,7 +137,7 @@ public class AllBooksFragment extends Fragment implements AllBooksAdapter.BookCl
                         String emailDecrypted = Encryption.decrypt(encryptedEmail.trim());
                         if (userEmail.equals(emailDecrypted)) {
                             String encryptedName = userSnap.child("fullName").getValue(String.class);
-                            String realName = "Bạn";
+                            String realName = getString(R.string.default_user_name);
                             if (encryptedName != null && !encryptedName.isEmpty()) {
                                 realName = Encryption.decrypt(encryptedName.trim());
                             }
@@ -142,24 +145,24 @@ public class AllBooksFragment extends Fragment implements AllBooksAdapter.BookCl
                             Calendar calendar = Calendar.getInstance();
                             int hour = calendar.get(Calendar.HOUR_OF_DAY);
                             String greeting;
-                            if (hour < 11) greeting = "Chào buổi sáng, ";
-                            else if (hour < 13) greeting = "Chào buổi trưa, ";
-                            else if (hour < 18) greeting = "Chào buổi chiều, ";
-                            else greeting = "Chào buổi tối, ";
+                            if (hour < 11) greeting = getString(R.string.greeting_morning);
+                            else if (hour < 13) greeting = getString(R.string.greeting_noon);
+                            else if (hour < 18) greeting = getString(R.string.greeting_afternoon);
+                            else greeting = getString(R.string.greeting_evening);
 
-                            tvGreeting.setText(greeting + realName + "!");
+                            tvGreeting.setText(greeting + ", " + realName + "!");
                             return;
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
-                tvGreeting.setText("Chào bạn!");
+                tvGreeting.setText(getString(R.string.hello_user));
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                tvGreeting.setText("Chào bạn!");
+                tvGreeting.setText(getString(R.string.hello_user));
             }
         });
     }
@@ -171,9 +174,9 @@ public class AllBooksFragment extends Fragment implements AllBooksAdapter.BookCl
         SeriesFragment seriesFragment = new SeriesFragment();
         Bundle args = new Bundle();
         args.putString("STORY_ID", book.getId());
-        args.putString("STORY_NAME", book.getName() != null ? book.getName() : "Không rõ tên");
-        args.putString("STORY_AUTHOR", book.getAuthor() != null ? book.getAuthor() : "Không rõ tác giả");
-        args.putString("STORY_CATEGORY", book.getCategory() != null ? book.getCategory() : "Khác");
+        args.putString("STORY_NAME", book.getName() != null ? book.getName() : getString(R.string.unknown_name));
+        args.putString("STORY_AUTHOR", book.getAuthor() != null ? book.getAuthor() : getString(R.string.unknown_author));
+        args.putString("STORY_CATEGORY", book.getCategory() != null ? book.getCategory() : getString(R.string.unknown_category));
         args.putString("STORY_IMAGE_URL", book.getImageUrl() != null ? book.getImageUrl() : "");
         seriesFragment.setArguments(args);
 
@@ -182,5 +185,20 @@ public class AllBooksFragment extends Fragment implements AllBooksAdapter.BookCl
                 .add(R.id.fragment_container, seriesFragment)
                 .addToBackStack(null)
                 .commit();
+    }
+
+    /** Hàm chuyển đổi ngôn ngữ runtime */
+    public void switchLanguage(String languageCode) {
+        java.util.Locale locale = new java.util.Locale(languageCode);
+        java.util.Locale.setDefault(locale);
+        android.content.res.Resources resources = getResources();
+        android.content.res.Configuration config = resources.getConfiguration();
+        config.setLocale(locale);
+        resources.updateConfiguration(config, resources.getDisplayMetrics());
+
+        // Reload fragment để cập nhật text
+        if (getFragmentManager() != null) {
+            getFragmentManager().beginTransaction().detach(this).attach(this).commit();
+        }
     }
 }

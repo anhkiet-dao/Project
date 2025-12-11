@@ -1,5 +1,8 @@
 package com.example.do_an.Statistic;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -64,6 +67,8 @@ public class StatisticFragment extends Fragment {
     private BarChart barChart;
     private PieChart pieChart;
     private List<History> histories = new ArrayList<>();
+    private TextView SumBook, SumHours;
+    private TextView tvTitle, title1, title2, title3;
 
     @Nullable
     @Override
@@ -77,6 +82,12 @@ public class StatisticFragment extends Fragment {
 
         tvTotalBooks = view.findViewById(R.id.tvTotalBooks);
         tvTotalHours = view.findViewById(R.id.tvTotalHours);
+        SumBook = view.findViewById(R.id.SumBook);
+        SumHours = view.findViewById(R.id.SumHours);
+        tvTitle = view.findViewById(R.id.tvTitle);
+        title1 = view.findViewById(R.id.title1);
+        title2 = view.findViewById(R.id.title2);
+        title3 = view.findViewById(R.id.title3);
         lineChart = view.findViewById(R.id.lineChart);
         barChart = view.findViewById(R.id.barChart);
         pieChart = view.findViewById(R.id.pieChart);
@@ -86,22 +97,65 @@ public class StatisticFragment extends Fragment {
         llDates = view.findViewById(R.id.llDates);
         scrollDates = view.findViewById(R.id.scrollDates);
 
+        updateTextResources();
+
         rgTimeFrame.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == R.id.rbDaily) {
-                scrollDates.setVisibility(android.view.View.VISIBLE);
+                scrollDates.setVisibility(View.VISIBLE);
                 showLast5Days();
             } else if (checkedId == R.id.rbWeekly) {
-                scrollDates.setVisibility(android.view.View.GONE);
+                scrollDates.setVisibility(View.GONE);
                 updateStatistics(histories, "weekly");
                 drawChartWeekly(histories);
             }
         });
+
         if (rbDaily.isChecked()) {
-            scrollDates.setVisibility(android.view.View.VISIBLE);
+            scrollDates.setVisibility(View.VISIBLE);
             showLast5Days();
         }
+
+        // --- Lấy dữ liệu từ Firebase ---
         fetchHistoryFromFirebase();
     }
+
+    private void updateTextResources() {
+        SumBook.setText(getString(R.string.sum_book));
+        SumHours.setText(getString(R.string.sum_hours));
+        tvTitle.setText(getString(R.string.tv_title));
+        title1.setText(getString(R.string.title1));
+        title2.setText(getString(R.string.title2));
+        title3.setText(getString(R.string.title3));
+        rbDaily.setText(getString(R.string.daily));
+        rbWeekly.setText(getString(R.string.weekly));
+    }
+
+    /** Chuyển đổi ngôn ngữ */
+    public void switchLanguage(String languageCode) {
+        Locale locale = new Locale(languageCode);
+        Locale.setDefault(locale);
+        Context context = requireContext();
+        Configuration config = context.getResources().getConfiguration();
+        config.setLocale(locale);
+        context.getResources().updateConfiguration(config, context.getResources().getDisplayMetrics());
+
+        // Cập nhật TextView ngay lập tức
+        updateTextResources();
+
+        // Cập nhật các biểu đồ nếu cần
+        if (rbDaily.isChecked() && llDates.getChildCount() > 0) {
+            Button todayBtn = (Button) llDates.getChildAt(0);
+            String today = (String) todayBtn.getTag();
+            updateStatisticsByDate(histories, today);
+            drawChartDaily(histories);
+        } else if (rbWeekly.isChecked()) {
+            updateStatistics(histories, "weekly");
+            drawChartWeekly(histories);
+        }
+        drawBarChart(histories);
+        drawPieChart(histories);
+    }
+
 
     private void showLast5Days() {
         llDates.removeAllViews();
@@ -149,6 +203,7 @@ public class StatisticFragment extends Fragment {
         drawChartDaily(histories);
     }
 
+    @SuppressLint("StringFormatInvalid")
     private void updateStatisticsByDate(List<History> histories, String dateStr) {
         int totalReads = 0;
         long totalMillis = 0;
@@ -182,11 +237,11 @@ public class StatisticFragment extends Fragment {
         tvTotalBooks.setText(String.valueOf(totalReads));
         long totalMinutes = totalMillis / 60000;
         if (totalMinutes < 60) {
-            tvTotalHours.setText(totalMinutes + " phút");
+            tvTotalHours.setText(getString(R.string.minutes, totalMinutes));
         } else {
             long hours = totalMinutes / 60;
             long minutes = totalMinutes % 60;
-            tvTotalHours.setText(hours + " giờ " + minutes + " phút");
+            tvTotalHours.setText(getString(R.string.hours_minutes, hours, minutes));
         }
     }
 
@@ -231,6 +286,7 @@ public class StatisticFragment extends Fragment {
         }
     }
 
+    @SuppressLint("StringFormatInvalid")
     private void updateStatistics(List<History> histories, String timeFrame) {
         int totalReads = 0; // Thay thế Set<String> bằng biến đếm
         long totalMillis = 0;
@@ -257,11 +313,11 @@ public class StatisticFragment extends Fragment {
         tvTotalBooks.setText(String.valueOf(totalReads)); // Sử dụng biến đếm số tập
         long totalMinutes = totalMillis / 60000;
         if (totalMinutes < 60) {
-            tvTotalHours.setText(totalMinutes + " phút");
+            tvTotalHours.setText(getString(R.string.minutes, totalMinutes));
         } else {
             long hours = totalMinutes / 60;
             long minutes = totalMinutes % 60;
-            tvTotalHours.setText(hours + " giờ " + minutes + " phút");
+            tvTotalHours.setText(getString(R.string.hours_minutes, hours, minutes));
         }
     }
 
@@ -714,7 +770,7 @@ public class StatisticFragment extends Fragment {
         pieChart.setTransparentCircleRadius(61f);
         pieChart.setHoleRadius(58f);
 
-        pieChart.setCenterText("TỔNG\nTHỜI GIAN\nĐỌC");
+        pieChart.setCenterText(getString(R.string.total_reading_time));
         pieChart.setCenterTextSize(18f);
         pieChart.setCenterTextColor(Color.BLACK);
 
