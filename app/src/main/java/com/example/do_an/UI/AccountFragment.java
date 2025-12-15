@@ -27,6 +27,7 @@ import com.example.do_an.R;
 import com.example.do_an.application.Encryption;
 import com.example.do_an.application.InforAppFragment;
 import com.example.do_an.auth.LoginActivity;
+import com.example.do_an.chatbot.ChatFragment;
 import com.example.do_an.setting.SettingFragment;
 import com.example.do_an.user.ProfileFragment;
 import com.google.firebase.auth.FirebaseAuth;
@@ -35,7 +36,7 @@ import com.google.firebase.database.*;
 
 public class AccountFragment extends Fragment {
 
-    private TextView tvProfile, tvSettings, tvInformation, tvUsername;
+    private TextView tvProfile, tvSettings, tvInformation, tvUsername, tvChat;
     private Button btnLogout;
     private ImageView imgAvatar;
     private View fragmentContainer;
@@ -61,6 +62,7 @@ public class AccountFragment extends Fragment {
         btnLogout = view.findViewById(R.id.btnLogout);
         tvUsername = view.findViewById(R.id.tvUsername);
         fragmentContainer = view.findViewById(R.id.fragment_container);
+        tvChat = view.findViewById(R.id.tvChat);
 
         if (fragmentContainer != null) fragmentContainer.setVisibility(View.GONE);
 
@@ -83,6 +85,7 @@ public class AccountFragment extends Fragment {
         tvProfile.setOnClickListener(v -> openChildFragment(new ProfileFragment()));
         tvInformation.setOnClickListener(v -> openChildFragment(new InforAppFragment()));
         tvSettings.setOnClickListener(v -> openChildFragment(new SettingFragment()));
+        tvChat.setOnClickListener(v -> openChildFragment(new ChatFragment()));
 
         btnLogout.setOnClickListener(v -> {
             auth.signOut();

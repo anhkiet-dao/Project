@@ -1,12 +1,24 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     alias(libs.plugins.google.gms.google.services)
 }
 
+val localProperties = Properties().apply {
+    load(FileInputStream(rootProject.file("local.properties")))
+}
+val groqApiKey = localProperties.getProperty("GROQ_API_KEY") ?: ""
+
 android {
     namespace = "com.example.do_an"
     compileSdk = 35
+
+    buildFeatures {
+        buildConfig = true   // ⚡ Bật custom BuildConfig
+    }
 
     defaultConfig {
         applicationId = "com.example.do_an"
@@ -14,6 +26,8 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
+
+        buildConfigField("String", "GROQ_API_KEY", "\"$groqApiKey\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -31,6 +45,8 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
+
 }
 
 val room_version = "2.6.1"
