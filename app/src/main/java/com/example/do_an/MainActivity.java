@@ -14,6 +14,7 @@ import com.example.do_an.UI.AccountFragment;
 import com.example.do_an.UI.MyListFragment;
 import com.example.do_an.UI.ReadFragment;
 import com.example.do_an.UI.HomeFragment;
+import com.example.do_an.search.SearchFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.Locale;
@@ -24,7 +25,8 @@ public class MainActivity extends AppCompatActivity implements ReadFragment.Navi
     private Fragment activeFragment;
     private Fragment myListFragment;
     private Fragment accountFragment;
-    private Fragment discoverFragment; // Home fragment
+    private Fragment discoverFragment;
+    private Fragment searchFragment;
     private final FragmentManager fm = getSupportFragmentManager();
     private static final int FRAGMENT_CONTAINER_ID = R.id.fragment_container;
 
@@ -44,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements ReadFragment.Navi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.app_activity_main);
 
         bottomNav = findViewById(R.id.bottomNav);
@@ -52,11 +55,13 @@ public class MainActivity extends AppCompatActivity implements ReadFragment.Navi
             discoverFragment = new HomeFragment();
             myListFragment = new MyListFragment();
             accountFragment = new AccountFragment();
+            searchFragment = new SearchFragment();
 
             fm.beginTransaction()
                     .add(FRAGMENT_CONTAINER_ID, discoverFragment, "nav_home")
                     .add(FRAGMENT_CONTAINER_ID, myListFragment, "nav_read").hide(myListFragment)
                     .add(FRAGMENT_CONTAINER_ID, accountFragment, "nav_profile").hide(accountFragment)
+                    .add(FRAGMENT_CONTAINER_ID, searchFragment, "nav_search").hide(searchFragment)
                     .commit();
 
             activeFragment = discoverFragment;
@@ -64,9 +69,11 @@ public class MainActivity extends AppCompatActivity implements ReadFragment.Navi
             discoverFragment = fm.findFragmentByTag("nav_home");
             myListFragment = fm.findFragmentByTag("nav_read");
             accountFragment = fm.findFragmentByTag("nav_profile");
+            searchFragment = fm.findFragmentByTag("nav_search");
 
             if (discoverFragment != null && !discoverFragment.isHidden()) activeFragment = discoverFragment;
             else if (myListFragment != null && !myListFragment.isHidden()) activeFragment = myListFragment;
+            else if (searchFragment != null && !searchFragment.isHidden()) activeFragment = searchFragment;
             else activeFragment = accountFragment;
         }
 
@@ -76,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements ReadFragment.Navi
             if (item.getItemId() == R.id.nav_read) targetFragment = myListFragment;
             else if (item.getItemId() == R.id.nav_profile) targetFragment = accountFragment;
             else if (item.getItemId() == R.id.nav_home) targetFragment = discoverFragment;
+            else if (item.getItemId() == R.id.nav_search) targetFragment = searchFragment;
 
             if (targetFragment == null) return false;
 
@@ -119,16 +127,13 @@ public class MainActivity extends AppCompatActivity implements ReadFragment.Navi
                 .commit();
     }
 
-    /** Hàm đổi ngôn ngữ app */
     public void updateAppLanguage(String langCode) {
-        // Lưu locale
         Locale locale = new Locale(langCode);
         Locale.setDefault(locale);
         Configuration config = getResources().getConfiguration();
         config.setLocale(locale);
         getResources().updateConfiguration(config, getResources().getDisplayMetrics());
 
-        // Reload activity để áp dụng locale mới
         recreate();
     }
 
