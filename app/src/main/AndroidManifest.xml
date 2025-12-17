@@ -44,12 +44,6 @@
         <activity android:name=".user.UserInfoActivity"
             android:exported="false" />
 
-        <activity android:name=".API.AIReadingAssistant" android:exported="false" />
-        <activity android:name=".API.AISummarizer" android:exported="false" />
-        <activity android:name=".API.AIVoiceReader" />
-        <activity android:name=".API.AIBookRecommender" android:exported="false" />
-        <activity android:name=".API.GeminiAPIHelper" android:exported="false" />
-
         <!--        <activity android:name=".auth.LoginActivity"-->
         <!--            android:exported="false" />-->
         <!--        <activity android:name=".home.HomeActivity"-->

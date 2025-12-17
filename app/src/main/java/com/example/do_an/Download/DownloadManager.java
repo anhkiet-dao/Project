@@ -1,5 +1,6 @@
 package com.example.do_an.Download;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
@@ -92,7 +93,7 @@ public class DownloadManager {
             File localFile = new File(pdfDir, fileName);
 
             if (localFile.exists()) {
-                String msg = context.getString(R.string.file_already_downloaded, fileName.replace(".pdf", ""));
+                @SuppressLint({"StringFormatInvalid", "LocalSuppress"}) String msg = context.getString(R.string.file_already_downloaded, fileName.replace(".pdf", ""));
                 showToast(msg);
                 logDebug(msg);
                 if (loadingListener != null) runOnUiThread(() -> loadingListener.hideDownloadProgress());
@@ -237,6 +238,7 @@ public class DownloadManager {
         return downloadCall;
     }
 
+    @SuppressLint("StringFormatInvalid")
     private void loadPdfFromFirestore(final String storyDocumentId, final PdfSetupCallback callback, final StringConsumer urlConsumer) {
         db.collection("Truyentranh").document(storyDocumentId)
                 .get()
