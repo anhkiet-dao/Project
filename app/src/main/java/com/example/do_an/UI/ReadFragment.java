@@ -197,8 +197,51 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
             Log.d(TAG, "Lệnh nhận: " + cmd);
 
             requireActivity().runOnUiThread(() -> {
-                // 1. LỆNH ĐIỀU HƯỚNG TRANG
-                if (cmd.contains("tiếp") || cmd.contains("sang trang")) {
+
+                if (cmd.contains("mở ghi chú") || cmd.contains("tạo ghi chú")) {
+                    Fragment noteFrag = getParentFragmentManager().findFragmentById(R.id.fragment_container);
+                    if (!(noteFrag instanceof NoteFragment)) {
+                        btnNote.performClick();
+                        speechController.speak("Đã mở ghi chú");
+                    }
+                }
+                else if (cmd.contains("đóng ghi chú") || cmd.contains("thoát ghi chú")) {
+                    Fragment noteFrag = getParentFragmentManager().findFragmentById(R.id.fragment_container);
+                    if (noteFrag instanceof NoteFragment) {
+                        getParentFragmentManager().popBackStack();
+                        speechController.speak("Đã đóng ghi chú");
+                    }
+                }
+
+                else if (cmd.contains("toàn màn hình") || cmd.contains("phóng to")) {
+                    if (!isFullScreenMode) {
+                        toggleFullScreenMode();
+                        speechController.speak("Đã bật toàn màn hình");
+                    }
+                }
+                else if (cmd.contains("thoát toàn màn hình") || cmd.contains("thu nhỏ")) {
+                    if (isFullScreenMode) {
+                        toggleFullScreenMode();
+                        speechController.speak("Đã tắt toàn màn hình");
+                    }
+                }
+
+                else if (cmd.contains("yêu thích") || cmd.contains("thích truyện")) {
+                    Object tag = btnFavorite.getTag();
+                    if (tag == null || !(boolean) tag) {
+                        btnFavorite.performClick();
+                        speechController.speak("Đã thêm yêu thích");
+                    }
+                }
+                else if (cmd.contains("bỏ yêu thích") || cmd.contains("không thích nữa")) {
+                    Object tag = btnFavorite.getTag();
+                    if (tag != null && (boolean) tag) {
+                        btnFavorite.performClick();
+                        speechController.speak("Đã bỏ yêu thích");
+                    }
+                }
+
+                else if (cmd.contains("tiếp") || cmd.contains("sang trang")) {
                     int currentPage = pdfViewerController.getCurrentPage();
                     if (pdfViewPager.getAdapter() != null && currentPage + 1 < pdfViewPager.getAdapter().getItemCount()) {
                         pdfViewPager.setCurrentItem(currentPage + 1, true);
@@ -211,46 +254,10 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
                     }
                 }
 
-                // 2. LỆNH GHI CHÚ (NOTE)
-                else if (cmd.contains("mở ghi chú") || cmd.contains("tạo ghi chú")) {
-                    btnNote.performClick(); // Mở NoteFragment
+                else if (cmd.contains("quay lại")) {
+                    speechController.speak("Đang quay lại");
+                    requireActivity().onBackPressed();
                 }
-                else if (cmd.contains("đóng ghi chú") || cmd.contains("thoát ghi chú")) {
-                    // Kiểm tra nếu NoteFragment đang hiển thị thì đóng lại
-                    Fragment noteFrag = getParentFragmentManager().findFragmentById(R.id.fragment_container);
-                    if (noteFrag instanceof NoteFragment) {
-                        getParentFragmentManager().popBackStack();
-                    }
-                }
-
-                // 3. LỆNH YÊU THÍCH (FAVORITE)
-                else if (cmd.contains("thêm yêu thích") || cmd.contains("thích truyện")) {
-                    // Kiểm tra trạng thái nếu chưa yêu thích thì mới click
-                    if (btnFavorite.getTag() == null || !(boolean)btnFavorite.getTag()) {
-                        btnFavorite.performClick();
-                        speechController.speak("Đã thêm vào yêu thích");
-                    }
-                }
-                else if (cmd.contains("bỏ yêu thích") || cmd.contains("không thích nữa")) {
-                    if (btnFavorite.getTag() != null && (boolean)btnFavorite.getTag()) {
-                        btnFavorite.performClick();
-                        speechController.speak("Đã bỏ yêu thích");
-                    }
-                }
-
-                // 4. LỆNH TOÀN MÀN HÌNH
-                else if (cmd.contains("toàn màn hình") || cmd.contains("thoát toàn màn hình")) {
-                    toggleFullScreenMode();
-                }
-
-                // 5. LỆNH TẢI XUỐNG
-                else if (cmd.contains("tải xuống") || cmd.contains("download")) {
-                    View btnDown = getView().findViewById(R.id.btnDown);
-                    if (btnDown != null) btnDown.performClick();
-                }
-
-                // Gợi ý: Để Xóa/Sửa ghi chú cụ thể bằng giọng nói,
-                // bạn nên thực hiện trong NoteFragment vì ở đó mới có danh sách ID ghi chú.
             });
         });
     }

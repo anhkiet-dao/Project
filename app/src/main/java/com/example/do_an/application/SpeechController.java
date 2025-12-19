@@ -108,7 +108,7 @@ public class SpeechController {
                 speechRecognizer.cancel();
                 startListening(currentListener);
             }
-        }, 500);
+        }, 50);
     }
 
     public void stop() {
