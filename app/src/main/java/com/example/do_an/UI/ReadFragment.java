@@ -2,6 +2,7 @@ package com.example.do_an.UI;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -9,9 +10,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,7 +51,7 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
 
     private TextView txtTieuDe, txtPageIndicator, txtLoading;
     private ViewPager2 pdfViewPager;
-    private ImageView btnFavorite, btnNote, btnFullScreenAction, btnSettings;
+    private ImageView btnFavorite, btnNote, btnFullScreenAction, btnSettings, btnChatbot;
     private LinearLayout topBar, rootLayout, loadingLayout;
     private ProgressBar progressDownload;
     private Switch switchVoiceControl;
@@ -146,6 +149,7 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
         btnNote = view.findViewById(R.id.btnNote);
         btnFullScreenAction = view.findViewById(R.id.btnfull);
         btnSettings = view.findViewById(R.id.btnSettings);
+        btnChatbot = view.findViewById(R.id.btnChatbot); // Khởi tạo nút AI
 
         topBar = view.findViewById(R.id.topBar);
         rootLayout = (LinearLayout) view;
@@ -163,6 +167,8 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
         settingsManager = new SettingsManager(ctx);
         historyManager = new HistoryManager(ctx);
         favoriteHandler = new FavoriteHandler(ctx);
+
+        // Khởi tạo Gemini với Key từ BuildConfig
         geminiChatManager = new GeminiChatManager(BuildConfig.GEMINI_API_KEY);
 
         AppDatabase db = AppDatabase.getDatabase(ctx);
@@ -187,12 +193,42 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
         );
     }
 
-    /* ================= UI + SETTINGS ================= */
+    /* ================= UI + SETTINGS + AI ================= */
 
     private void setupViewsAndListeners(View root) {
 
+        View btnDown = root.findViewById(R.id.btnDown);
+        if (btnDown != null) {
+            btnDown.setOnClickListener(v -> {
+                if (currentReadUrl == null || currentReadUrl.isEmpty()) {
+                    Toast.makeText(getContext(), "Không tìm thấy link để tải", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Hiển thị tiến trình tải
+                if (progressDownload != null) progressDownload.setVisibility(View.VISIBLE);
+
+                // Tạo tên file lưu trữ: "Tên truyện - Tên tập.pdf"
+                String fileName = mainStoryTitle + " - " + currentTitle + ".pdf";
+
+                // Gọi Manager thực hiện tải xuống và lưu vào Room database
+                downloadManager.downloadPdfWithOkHttp(
+                        currentReadUrl,
+                        fileName,
+                        currentStoryId,
+                        currentAuthor,
+                        currentImageUrl
+                );
+            });
+        }
+
         root.findViewById(R.id.btnBack)
                 .setOnClickListener(v -> requireActivity().onBackPressed());
+
+        // Lắng nghe nút Chatbot AI
+        if (btnChatbot != null) {
+            btnChatbot.setOnClickListener(v -> showAIInputDialog());
+        }
 
         favoriteHandler.checkIfFavorite(
                 currentStoryId, mainStoryTitle, currentTitle, userEmail, btnFavorite
@@ -233,6 +269,74 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
             if (checked) setupVoiceControlIfEnabled();
             else if (speechController != null) speechController.stop();
         });
+    }
+
+    /* ================= CHATBOT AI LOGIC ================= */
+
+    private void showAIInputDialog() {
+        if (pdfPath == null || pdfPath.isEmpty()) {
+            Toast.makeText(getContext(), "Vui lòng đợi truyện tải xong hoặc tải về máy để AI đọc toàn bộ!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Hỏi AI về tập truyện này");
+
+        final EditText input = new EditText(requireContext());
+        input.setHint("Ví dụ: Tóm tắt nội dung tập này giúp tôi...");
+        builder.setView(input);
+
+        builder.setPositiveButton("Gửi", (dialog, which) -> {
+            String question = input.getText().toString().trim();
+            if (!question.isEmpty()) {
+                askGemini(question);
+            }
+        });
+        builder.setNegativeButton("Hủy", null);
+        builder.show();
+    }
+
+    private void askGemini(String question) {
+        showLoading();
+        if (txtLoading != null) txtLoading.setText("AI đang đọc toàn bộ tập truyện...");
+
+        geminiChatManager.askAboutLocalPdf(question, pdfPath, currentTitle, new GeminiChatManager.AIResponseCallback() {
+            @Override
+            public void onResponse(String answer) {
+                if (isAdded()) {
+                    requireActivity().runOnUiThread(() -> {
+                        hideLoading();
+                        showAIResponseDialog(answer);
+                    });
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                if (isAdded()) {
+                    requireActivity().runOnUiThread(() -> {
+                        hideLoading();
+                        Toast.makeText(getContext(), "Lỗi AI: " + error, Toast.LENGTH_LONG).show();
+                    });
+                }
+            }
+        });
+    }
+
+    private void showAIResponseDialog(String answer) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Kết quả từ AI");
+
+        ScrollView scrollView = new ScrollView(requireContext());
+        TextView tvAnswer = new TextView(requireContext());
+        tvAnswer.setText(answer);
+        tvAnswer.setPadding(40, 40, 40, 40);
+        tvAnswer.setTextSize(16);
+        scrollView.addView(tvAnswer);
+
+        builder.setView(scrollView);
+        builder.setPositiveButton("Đóng", null);
+        builder.show();
     }
 
     /* ================= FULL SCREEN ================= */
@@ -280,29 +384,14 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
             requireActivity().runOnUiThread(() -> {
 
                 if (cmd.contains("mở ghi chú")) btnNote.performClick();
-
-                else if (cmd.contains("đóng ghi chú"))
-                    getParentFragmentManager().popBackStack();
-
-                else if (cmd.contains("toàn màn hình") && !isFullScreenMode)
-                    toggleFullScreenMode();
-
-                else if (cmd.contains("thoát toàn màn hình") && isFullScreenMode)
-                    toggleFullScreenMode();
-
-                else if (cmd.contains("tiếp"))
-                    pdfViewPager.setCurrentItem(
-                            pdfViewerController.getCurrentPage() + 1, true);
-
-                else if (cmd.contains("trước"))
-                    pdfViewPager.setCurrentItem(
-                            pdfViewerController.getCurrentPage() - 1, true);
-
-                else if (cmd.contains("yêu thích"))
-                    btnFavorite.performClick();
-
-                else if (cmd.contains("quay lại"))
-                    requireActivity().onBackPressed();
+                else if (cmd.contains("hỏi ai") || cmd.contains("chatbot")) showAIInputDialog();
+                else if (cmd.contains("đóng ghi chú")) getParentFragmentManager().popBackStack();
+                else if (cmd.contains("toàn màn hình") && !isFullScreenMode) toggleFullScreenMode();
+                else if (cmd.contains("thoát toàn màn hình") && isFullScreenMode) toggleFullScreenMode();
+                else if (cmd.contains("tiếp")) pdfViewPager.setCurrentItem(pdfViewerController.getCurrentPage() + 1, true);
+                else if (cmd.contains("trước")) pdfViewPager.setCurrentItem(pdfViewerController.getCurrentPage() - 1, true);
+                else if (cmd.contains("yêu thích")) btnFavorite.performClick();
+                else if (cmd.contains("quay lại")) requireActivity().onBackPressed();
             });
         });
     }
@@ -365,9 +454,9 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
 
     /* ================= LOADING ================= */
 
-    @Override public void showLoading() { loadingLayout.setVisibility(View.VISIBLE); }
-    @Override public void hideLoading() { loadingLayout.setVisibility(View.GONE); }
-    @Override public void hideDownloadProgress() { progressDownload.setVisibility(View.GONE); }
+    @Override public void showLoading() { if (loadingLayout != null) loadingLayout.setVisibility(View.VISIBLE); }
+    @Override public void hideLoading() { if (loadingLayout != null) loadingLayout.setVisibility(View.GONE); }
+    @Override public void hideDownloadProgress() { if (progressDownload != null) progressDownload.setVisibility(View.GONE); }
 
     @Override
     public void onDestroyView() {
