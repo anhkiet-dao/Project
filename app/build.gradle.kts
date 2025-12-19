@@ -11,6 +11,7 @@ val localProperties = Properties().apply {
     load(FileInputStream(rootProject.file("local.properties")))
 }
 val groqApiKey = localProperties.getProperty("GROQ_API_KEY") ?: ""
+val GeminiApiKey= localProperties.getProperty("GEMINI_API_KEY") ?: ""
 
 android {
     namespace = "com.example.do_an"
@@ -26,6 +27,8 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
+
+        buildConfigField("String", "GEMINI_API_KEY", "\"$GeminiApiKey\"")
 
         buildConfigField("String", "GROQ_API_KEY", "\"$groqApiKey\"")
 

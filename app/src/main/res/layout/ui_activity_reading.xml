@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="@color/bg_primary"
     android:orientation="vertical"
-    android:paddingTop="10dp"
+    android:paddingTop="20dp"
     android:paddingBottom="47dp">
 
     <LinearLayout
@@ -120,16 +120,32 @@
             android:textColor="@android:color/white"
             android:visibility="gone" />
 
-        <ImageView
-            android:id="@+id/btnNote"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="bottom|start"
             android:layout_margin="5dp"
-            android:contentDescription="Ghi chú"
-            android:elevation="12dp"
-            android:padding="8dp"
-            android:src="@drawable/ic_note" />
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/btnNote"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:contentDescription="Ghi chú"
+                android:elevation="12dp"
+                android:padding="8dp"
+                android:src="@drawable/ic_note" />
+
+            <ImageView
+                android:id="@+id/btnChatbot"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="8dp"
+                android:contentDescription="Chatbot"
+                android:elevation="12dp"
+                android:padding="8dp"
+                android:src="@drawable/ic_chatbot" />
+        </LinearLayout>
 
         <ImageView
             android:id="@+id/btnfull"
