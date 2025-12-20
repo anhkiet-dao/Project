@@ -3,10 +3,13 @@ package com.example.do_an.UI;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -298,9 +301,9 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
 
     private void askGemini(String question) {
         showLoading();
-        if (txtLoading != null) txtLoading.setText("AI đang đọc toàn bộ tập truyện...");
+        if (txtLoading != null) txtLoading.setText("AI đang đọc truyện...");
 
-        geminiChatManager.askAboutLocalPdf(question, pdfPath, currentTitle, new GeminiChatManager.AIResponseCallback() {
+        GeminiChatManager.AIResponseCallback callback = new GeminiChatManager.AIResponseCallback() {
             @Override
             public void onResponse(String answer) {
                 if (isAdded()) {
@@ -316,27 +319,36 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
                 if (isAdded()) {
                     requireActivity().runOnUiThread(() -> {
                         hideLoading();
-                        Toast.makeText(getContext(), "Lỗi AI: " + error, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), "Lỗi: " + error, Toast.LENGTH_LONG).show();
                     });
                 }
             }
-        });
+        };
+
+        boolean isLocalAvailable = (pdfPath != null && !pdfPath.isEmpty() && new java.io.File(pdfPath).exists());
+
+        if (isLocalAvailable) {
+            geminiChatManager.askAboutLocalPdf(question, pdfPath, currentTitle, callback);
+        } else if (currentReadUrl != null && !currentReadUrl.isEmpty()) {
+            geminiChatManager.askAboutOnlinePdf(question, currentReadUrl, currentTitle, callback);
+        } else {
+            hideLoading();
+            Toast.makeText(getContext(), "Không tìm thấy dữ liệu truyện (File hoặc Link)!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void showAIResponseDialog(String answer) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Kết quả từ AI");
-
-        ScrollView scrollView = new ScrollView(requireContext());
         TextView tvAnswer = new TextView(requireContext());
         tvAnswer.setText(answer);
-        tvAnswer.setPadding(40, 40, 40, 40);
-        tvAnswer.setTextSize(16);
-        scrollView.addView(tvAnswer);
+        tvAnswer.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
 
-        builder.setView(scrollView);
-        builder.setPositiveButton("Đóng", null);
-        builder.show();
+        tvAnswer.setTextColor(android.graphics.Color.BLACK);
+
+        tvAnswer.setLineSpacing(0, 1.3f);
+        tvAnswer.setTextIsSelectable(true);
+
+        String cleanText = answer.replace("**", "").replace("##", "");
+        tvAnswer.setText(cleanText);
     }
 
     /* ================= FULL SCREEN ================= */
@@ -383,14 +395,34 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
 
             requireActivity().runOnUiThread(() -> {
 
-                if (cmd.contains("mở ghi chú")) btnNote.performClick();
+                if (cmd.contains("mở ghi chú") || cmd.contains("Thêm ghi chú")) btnNote.performClick();
                 else if (cmd.contains("hỏi ai") || cmd.contains("chatbot")) showAIInputDialog();
                 else if (cmd.contains("đóng ghi chú")) getParentFragmentManager().popBackStack();
                 else if (cmd.contains("toàn màn hình") && !isFullScreenMode) toggleFullScreenMode();
                 else if (cmd.contains("thoát toàn màn hình") && isFullScreenMode) toggleFullScreenMode();
-                else if (cmd.contains("tiếp")) pdfViewPager.setCurrentItem(pdfViewerController.getCurrentPage() + 1, true);
+                else if (cmd.contains("tiếp") || cmd.contains("Sau")) pdfViewPager.setCurrentItem(pdfViewerController.getCurrentPage() + 1, true);
                 else if (cmd.contains("trước")) pdfViewPager.setCurrentItem(pdfViewerController.getCurrentPage() - 1, true);
-                else if (cmd.contains("yêu thích")) btnFavorite.performClick();
+                else if (cmd.contains("tải xuống") || cmd.contains("tải về") || cmd.contains("download")) {
+                    if (getView() != null) {
+                        View btnDown = getView().findViewById(R.id.btnDown);
+                        if (btnDown != null) {
+                            btnDown.performClick();
+                            Toast.makeText(getContext(), "Đang bắt đầu tải...", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getContext(), "Không tìm thấy nút tải", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+                else if (cmd.contains("bỏ yêu thích") || cmd.contains("xóa yêu thích")) {
+                    if (btnFavorite.isSelected()) {
+                        btnFavorite.performClick();
+                    }
+                }
+                else if (cmd.contains("yêu thích")) {
+                    if (!btnFavorite.isSelected()) {
+                        btnFavorite.performClick();
+                    }
+                }
                 else if (cmd.contains("quay lại")) requireActivity().onBackPressed();
             });
         });
@@ -406,7 +438,23 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
         mainStoryTitle = args.getString("STORY_TITLE");
         currentAuthor = args.getString("STORY_AUTHOR");
         currentImageUrl = args.getString("STORY_IMAGE_URL");
-        currentTitle = args.getString("TAP_TITLE", mainStoryTitle);
+
+        // --- SỬA ĐOẠN NÀY ---
+        // Cố gắng lấy chính xác tên tập
+        String tapName = args.getString("TAP_TITLE");
+
+        // Kiểm tra dự phòng: Đôi khi key có thể là "TAP" thay vì "TAP_TITLE"
+        if (tapName == null || tapName.isEmpty()) {
+            tapName = args.getString("TAP");
+        }
+
+        if (tapName != null && !tapName.isEmpty()) {
+            currentTitle = tapName;
+        } else {
+            // Nếu vẫn không có tên tập, thì đặt tạm 1 tên để phân biệt
+            currentTitle = "Tập mới nhất";
+        }
+        // --------------------
     }
 
     private void checkMandatoryStoryInfo() {
@@ -442,9 +490,24 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
             requireActivity().runOnUiThread(() -> {
                 if (e != null) {
                     currentStoryId = e.storyDocumentId;
-                    currentTitle = e.fileName.replace(".pdf", "");
-                    mainStoryTitle = currentTitle;
+
+                    String fileName = e.fileName.replace(".pdf", "");
+
+                    if (fileName.contains(" - ")) {
+                        String[] parts = fileName.split(" - ", 2);
+                        mainStoryTitle = parts[0].trim(); // Tên Truyện
+                        currentTitle = parts[1].trim();   // Tên Tập (Vd: Tập 1)
+                    } else {
+                        mainStoryTitle = fileName;
+                        currentTitle = "Tập đã tải";
+                    }
+                    // --------------------
+
                     currentReadUrl = e.pdfUrl;
+
+                    // Cập nhật lại Text trên giao diện để người dùng thấy tên Tập
+                    if (txtTieuDe != null) txtTieuDe.setText(currentTitle);
+
                     loadPdfContent();
                 }
                 hideLoading();
