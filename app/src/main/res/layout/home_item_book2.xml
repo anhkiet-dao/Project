@@ -24,9 +24,9 @@
         android:id="@+id/txtName"
         android:layout_width="155dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
         android:ellipsize="end"
         android:maxLines="1"
-        android:layout_marginTop="5dp"
         android:text="Tên truyện"
         android:textAppearance="@style/TextAppearance.App.BookTitle" />
 </LinearLayout>

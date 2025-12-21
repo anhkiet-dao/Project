@@ -9,14 +9,14 @@
 
     <Spinner
         android:id="@+id/spinnerLanguage"
-        android:layout_width="wrap_content"
+        android:layout_width="70dp"
         android:layout_height="wrap_content"
-        android:entries="@array/Languages"
-        android:background="@drawable/bg_dialog"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="20dp"
-        android:layout_marginEnd="9dp"/>
+        android:layout_marginEnd="9dp"
+        android:background="@drawable/bg_dialog"
+        android:entries="@array/Languages"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Logo -->
     <ImageView
@@ -130,19 +130,22 @@
             android:id="@+id/alreadyText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Đã có tài khoản? "
+            android:gravity="center"
+            android:minHeight="48dp"
+            android:text="@string/already_have_account"
             android:textAppearance="@style/TextAppearance.Auth.Helper" />
 
         <TextView
             android:id="@+id/loginNowText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
             android:clickable="true"
             android:focusable="true"
+            android:gravity="center"
             android:minHeight="48dp"
-            android:padding="10dp"
-            android:text="Đăng nhập ngay"
-            android:textAppearance="@style/TextAppearance.Auth.Link" /> <!-- ✅ tăng vùng chạm -->
+            android:text="@string/login_now"
+            android:textAppearance="@style/TextAppearance.Auth.Link" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

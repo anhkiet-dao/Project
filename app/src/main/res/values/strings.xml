@@ -5,14 +5,14 @@
     <string name="nav_search">Tìm Kiếm</string>
     <string name="nav_profile">Tài Khoản</string>
 
-    // Account
+    <!--  Account  -->
     <string name="logout">Đăng xuất</string>
     <string name="profile">Hồ sơ</string>
     <string name="language">Ngôn ngữ</string>
     <string name="settings">Cài đặt</string>
-    <string name="informaton">Thông tin</string>
+    <string name="information">Thông tin</string>
 
-    // Mylist
+    <!--  Mylist  -->
     <string name="analytics">Thống kê</string>
     <string name="history">Lịch sử</string>
     <string name="favorite">Yêu thích</string>
@@ -24,7 +24,7 @@
     <string name="good_afternoon">Chào buổi chiều</string>
     <string name="good_evening">Chào buổi tối</string>
 
-    //Download
+    <!--  Download  -->
     <string name="downloaded_list_title">Danh sách đã tải về</string>
     <string name="no_downloads">Chưa có tài liệu tải xuống</string>
     <string name="author_label1">Tác giả: </string>
@@ -56,7 +56,7 @@
     <string name="file_lost_redownload">File tải xuống bị mất, đang tải lại...</string>
 
 
-    //History
+    <!--  History  -->
     <string name="history_empty_no_login">Bạn chưa đăng nhập!</string>
     <string name="history_empty_no_data">Chưa có lịch sử xem.</string>
     <string name="history_error_load">Lỗi tải dữ liệu. Vui lòng kiểm tra kết nối.</string>
@@ -64,7 +64,7 @@
     <string name="history_author">Tác giả: %1$s</string>
     <string name="history_start_time">Bắt đầu: %1$s</string>
 
-    // Favorite
+    <!--  Favorite  -->
     <string name="title_favorite">Truyện yêu thích</string>
     <string name="empty_favorite">Chưa có truyện yêu thích.</string>
     <string name="remove_favorite_success">Đã bỏ yêu thích: %1$s</string>
@@ -81,7 +81,7 @@
     <string name="added_to_favorites">Đã thêm vào yêu thích</string>
     <string name="removed_from_favorites">Đã xóa khỏi yêu thích</string>
 
-    // Home
+    <!--  Home  -->
     <string name="network_error">Lỗi mạng!</string>
     <string name="unknown_name">Không rõ tên</string>
     <string name="unknown_author">Không rõ tác giả</string>
@@ -107,13 +107,13 @@
     <string name="error_no_category">Lỗi: Không tìm thấy danh mục.</string>
     <string name="no_books_found">Không tìm thấy cuốn sách nào trong danh mục này.</string>
 
-    //Series
+    <!--  Series  -->
     <string name="series_list">Danh sách các tập</string>
     <string name="no_series">Không có tập nào</string>
     <string name="error_story_not_found">Không tìm thấy truyện!</string>
     <string name="error_loading_data">Lỗi tải dữ liệu!</string>
 
-    // Analytics
+    <!--  Analytics  -->
     <string name="sum_book">Tổng số sách</string>
     <string name="sum_hours">Tổng số giờ đọc</string>
     <string name="tv_title">Thống kê đọc sách</string>
@@ -128,7 +128,7 @@
     <string name="hours_minutes">%1$d giờ %2$d phút</string>
     <string name="total_reading_time">TỔNG\nTHỜI GIAN\nĐỌC</string>
 
-    // Read
+    <!--  Read  -->
     <string name="pdf_loaded">Bắt đầu đọc!</string>
     <string name="pdf_load_error">Không thể mở file PDF đã tải.</string>
     <string name="second">s</string>
@@ -142,7 +142,7 @@
     <string name="no_pdf_link">Không tìm thấy link PDF!</string>
     <string name="no_fragment_manager">Lỗi: Không tìm thấy Fragment Manager.</string>
 
-    //setting
+    <!--  setting  -->
     <string name="title_setting">Cài đặt</string>
     <string name="Chieudoc">Chiều đọc:</string>
     <string name="rbVertical">Ngang</string>
@@ -156,7 +156,7 @@
     <string name="toast_start_reading">Bắt đầu đọc!</string>
     <string name="toast_cannot_open_pdf">Không thể mở file PDF đã tải.</string>
 
-    // Note
+    <!--  Note  -->
     <string name="error_missing_data">Lỗi: Thiếu dữ liệu bắt buộc.</string>
     <string name="error_no_fragment_data">Lỗi: Không tìm thấy dữ liệu Fragment.</string>
     <string name="error_load_note">Lỗi tải ghi chú: %1$s</string>
@@ -174,7 +174,7 @@
     <string name="btnClose">Đóng</string>
     <string name="page_label">Trang</string>
 
-    // Login
+    <!--  Login  -->
     <string name="login_title">Đăng nhập</string>
     <string name="email_hint">Email</string>
     <string name="password_hint">Mật khẩu</string>
@@ -186,7 +186,7 @@
     <string name="login_fail">Đăng nhập thất bại</string>
     <string name="register_prompt">Chưa có tài khoản?</string>
 
-    // Profile
+    <!--  Profile  -->
     <string name="profile_title">THÔNG TIN NGƯỜI DÙNG</string>
     <string name="email_label">Email: </string>
     <string name="fullname_label">Họ và tên: </string>
@@ -210,7 +210,7 @@
     <string name="user_data_load_fail">Lỗi khi tải dữ liệu người dùng!</string>
     <string name="database_error">Lỗi tải dữ liệu: %1$s</string>
 
-    // Register
+    <!--  Register  -->
     <string name="register_title">Tạo tài khoản</string>
     <string name="confirm_password_hint">Xác nhận mật khẩu</string>
     <string name="register_button">Đăng ký</string>
@@ -222,13 +222,13 @@
     <string name="error">Lỗi</string>
 
     <!-- Spinner ngôn ngữ -->
-    <string name="language_vi">Tiếng Việt</string>
-    <string name="language_en">English</string>
+    <string name="language_vi">VI</string>
+    <string name="language_en">EN</string>
 
     <!-- Forgot Password -->
     <string name="forgot_password_title">Quên mật khẩu</string>
     <string name="email_hint1">Nhập email của bạn</string>
-    <string name="reset_button">Gửi lại</string>
+    <string name="reset_button">Gửi</string>
     <string name="back_to_login">Quay lại đăng nhập</string>
     <string name="reset_email_sent">Đã gửi email đặt lại mật khẩu đến</string>
     <string name="reset_email_fail">Gửi email thất bại</string>

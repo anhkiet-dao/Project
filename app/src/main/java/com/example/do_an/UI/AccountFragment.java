@@ -103,7 +103,7 @@ public class AccountFragment extends Fragment {
     public void updateTexts() {
         tvProfile.setText(getString(R.string.profile));
         tvSettings.setText(getString(R.string.settings));
-        tvInformation.setText(getString(R.string.informaton));
+        tvInformation.setText(getString(R.string.information));
         btnLogout.setText(getString(R.string.logout));
         loadUsername();
     }

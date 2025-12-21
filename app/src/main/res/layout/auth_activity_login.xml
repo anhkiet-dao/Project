@@ -9,14 +9,14 @@
 
     <Spinner
         android:id="@+id/spinnerLanguage"
-        android:layout_width="wrap_content"
+        android:layout_width="70dp"
         android:layout_height="wrap_content"
-        android:entries="@array/Languages"
-        android:background="@drawable/bg_dialog"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="20dp"
-        android:layout_marginEnd="9dp"/>
+        android:layout_marginEnd="9dp"
+        android:background="@drawable/bg_dialog"
+        android:entries="@array/Languages"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/logoImage"
@@ -86,6 +86,7 @@
         android:layout_marginTop="4dp"
         android:clickable="true"
         android:focusable="true"
+        android:includeFontPadding="false"
         android:minHeight="48dp"
         android:padding="8dp"
         android:text="@string/forgot_password"
@@ -122,28 +123,22 @@
             android:id="@+id/registerText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:minHeight="48dp"
-            android:padding="8dp"
-            android:text="Chưa có tài khoản? "
-            android:textAppearance="@style/TextAppearance.Auth.Helper"
-            app:layout_constraintEnd_toEndOf="@id/loginButton"
-            app:layout_constraintStart_toStartOf="@id/loginButton"
-            app:layout_constraintTop_toBottomOf="@id/loginButton" />
+            android:text="@string/register_prompt"
+            android:textAppearance="@style/TextAppearance.Auth.Helper" />
 
         <TextView
             android:id="@+id/registerNowText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
             android:clickable="true"
             android:focusable="true"
+            android:gravity="center"
             android:minHeight="48dp"
-            android:padding="8dp"
             android:text="@string/register_now"
-            android:textAppearance="@style/TextAppearance.Auth.Link"
-            app:layout_constraintEnd_toEndOf="@id/loginButton"
-            app:layout_constraintStart_toStartOf="@id/loginButton"
-            app:layout_constraintTop_toBottomOf="@id/loginButton" />
+            android:textAppearance="@style/TextAppearance.Auth.Link" />
     </LinearLayout>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

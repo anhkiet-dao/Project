@@ -10,7 +10,7 @@
     <string name="profile">Profile</string>
     <string name="language">Language</string>
     <string name="settings">Settings</string>
-    <string name="informaton">Information</string>
+    <string name="information">Information</string>
 
     // Mylist
     <string name="analytics">Analytics</string>
@@ -221,13 +221,13 @@
     <string name="error">Error</string>
 
     <!-- Spinner ngôn ngữ -->
-    <string name="language_vi">Vietnamese</string>
-    <string name="language_en">English</string>
+    <string name="language_vi">VI</string>
+    <string name="language_en">EN</string>
 
     <!-- Forgot Password -->
     <string name="forgot_password_title">Forgot Password</string>
     <string name="email_hint1">Enter your email</string>
-    <string name="reset_button">Send Reset</string>
+    <string name="reset_button">Send</string>
     <string name="back_to_login">Back to Login</string>
     <string name="reset_email_sent">Password reset email sent to</string>
     <string name="reset_email_fail">Failed to send email</string>
