@@ -49,10 +49,15 @@ public class FavoriteHandler {
                 }
             }
 
-            btnFavorite.setTag(isFavorite);
-            btnFavorite.setImageResource(isFavorite
-                    ? R.drawable.ic_favorite_filled
-                    : R.drawable.ic_favorite_border);
+            // SỬA TẠI ĐÂY: Đưa vào Luồng Chính để cập nhật UI
+            final boolean finalIsFavorite = isFavorite;
+            btnFavorite.post(() -> {
+                btnFavorite.setTag(finalIsFavorite);
+                btnFavorite.setImageResource(finalIsFavorite
+                        ? R.drawable.ic_favorite_filled
+                        : R.drawable.ic_favorite_border);
+                btnFavorite.invalidate(); // Buộc view vẽ lại
+            });
         });
     }
 
@@ -60,21 +65,36 @@ public class FavoriteHandler {
                                String author, String category, String imageUrl, String readUrl,
                                ImageView btnFavorite) {
         if (userEmail == null || storyId == null || readUrl == null) {
-            Toast.makeText(context, context.getString(R.string.error_insufficient_info), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Thiếu thông tin", Toast.LENGTH_SHORT).show();
             return;
         }
 
         final String titleForFavorite = getFavoriteTitle(mainTitle, currentTitle);
-        boolean isFavorite = btnFavorite.getTag() != null && (boolean) btnFavorite.getTag();
+
+        // Lấy trạng thái hiện tại từ Tag
+        Object tagValue = btnFavorite.getTag();
+        boolean isFavorite = (tagValue instanceof Boolean) && (Boolean) tagValue;
 
         if (!isFavorite) {
+            // Luồng logic: Thêm vào Firebase
             favoriteManager.addFavorite(userEmail, storyId, titleForFavorite, author, category, null, imageUrl, readUrl);
-            btnFavorite.setImageResource(R.drawable.ic_favorite_filled);
-            btnFavorite.setTag(true);
+
+            // Cập nhật UI ngay lập tức trên Main Thread
+            btnFavorite.post(() -> {
+                btnFavorite.setTag(true); // Gán Tag trước
+                btnFavorite.setImageResource(R.drawable.ic_favorite_filled);
+                btnFavorite.invalidate();
+            });
         } else {
+            // Luồng logic: Xóa khỏi Firebase
             favoriteManager.removeFavorite(userEmail, storyId, titleForFavorite);
-            btnFavorite.setImageResource(R.drawable.ic_favorite_border);
-            btnFavorite.setTag(false);
+
+            // Cập nhật UI ngay lập tức trên Main Thread
+            btnFavorite.post(() -> {
+                btnFavorite.setTag(false); // Gán Tag trước
+                btnFavorite.setImageResource(R.drawable.ic_favorite_border);
+                btnFavorite.invalidate();
+            });
         }
     }
 }

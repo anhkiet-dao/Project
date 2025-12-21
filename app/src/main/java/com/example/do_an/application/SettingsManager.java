@@ -10,6 +10,7 @@ public class SettingsManager {
     private static final String PAGE_MODE = "page_mode";
     private static final String AUTO_NEXT = "auto_next";
     private static final String AUTO_TIME = "auto_time";
+    private static final String VOICE_CONTROL = "voice_control";
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
     private static final String SHOW_PAGE_INDICATOR = "show_page_indicator";
@@ -33,5 +34,12 @@ public class SettingsManager {
     public void setShowPageIndicator(boolean v){ editor.putBoolean(SHOW_PAGE_INDICATOR, v).apply(); }
     public boolean isPageIndicatorEnabled(){
         return pref.getBoolean(SHOW_PAGE_INDICATOR, true);
+    }
+    public void setVoiceControl(boolean enable) {
+        editor.putBoolean(VOICE_CONTROL, enable).apply();
+    }
+
+    public boolean isVoiceControlEnabled() {
+        return pref.getBoolean(VOICE_CONTROL, true); // mặc định bật
     }
 }

@@ -34,7 +34,7 @@ public class PdfViewerController {
     private final StringConsumer urlConsumer;
     private Handler autoHandler = new Handler();
     private Runnable autoRunnable;
-
+    private Runnable onPdfLoaded;
     public interface StringSupplier { String get(); }
     public interface StringConsumer { void set(String value); }
 
@@ -50,44 +50,35 @@ public class PdfViewerController {
         this.urlConsumer = urlConsumer;
     }
 
+    public void setOnPdfLoaded(Runnable callback) { this.onPdfLoaded = callback; }
+
     public void setupPdfRenderer(File pdfFile) {
         this.pdfFile = pdfFile;
 
         if (pdfPageAdapter != null) {
             pdfViewPager.setAdapter(pdfPageAdapter);
             applySettingsToReader();
-            Log.d(TAG, "Renderer đã tồn tại, tái sử dụng Adapter.");
+            if (onPdfLoaded != null) onPdfLoaded.run();
             return;
         }
         try {
             pdfPageAdapter = new PdfPageAdapter(context, pdfFile);
-
-            final int DEFAULT_PAGE_MODE = 0;
-            final int SINGLE_PAGE_MODE = 1;
-            final int DOUBLE_PAGE_MODE = 2;
-
             int savedPageMode = settingsManager.getPageMode();
-
-            if (savedPageMode == DEFAULT_PAGE_MODE) {
-                if (isTablet(context)) {
-                    settingsManager.setPageMode(DOUBLE_PAGE_MODE);
-                } else {
-                    settingsManager.setPageMode(SINGLE_PAGE_MODE);
-                }
+            if (savedPageMode == 0) {
+                settingsManager.setPageMode(isTablet(context) ? 2 : 1);
             }
-
             pdfPageAdapter.setPageMode(settingsManager.getPageMode());
             pdfViewPager.setAdapter(pdfPageAdapter);
-
             applySettingsToReader();
 
             txtTieuDe.setText(titleSupplier.get() + " (" + pdfPageAdapter.getItemCount() + " " +
                     context.getString(R.string.page) + ")");
             Toast.makeText(context, context.getString(R.string.toast_start_reading), Toast.LENGTH_SHORT).show();
-
             updatePageIndicator(pdfViewPager.getCurrentItem(), pdfPageAdapter.getItemCount());
-
             if (settingsManager.isAutoNext()) startAutoNext();
+
+            // Gọi callback khi PDF load xong
+            if (onPdfLoaded != null) onPdfLoaded.run();
 
         } catch (Exception e) {
             Log.e("PdfController", "Lỗi setup PdfRenderer", e);
@@ -105,49 +96,39 @@ public class PdfViewerController {
         }
     }
 
+
     private boolean isTablet(Context ctx) {
         return ctx.getResources().getConfiguration().smallestScreenWidthDp >= 600;
     }
 
     public int getCurrentPage() {
-        if (pdfViewPager != null && pdfPageAdapter != null) {
-            return pdfViewPager.getCurrentItem();
-        }
+        if (pdfViewPager != null && pdfPageAdapter != null) return pdfViewPager.getCurrentItem();
         return 0;
     }
 
     private void updatePageIndicator(int currentPosition, int totalCount) {
-        if (txtPageIndicator != null) {
-            txtPageIndicator.setText((currentPosition + 1) + "/" + totalCount);
-        }
+        if (txtPageIndicator != null) txtPageIndicator.setText((currentPosition + 1) + "/" + totalCount);
     }
 
     public void applySettingsToReader() {
         if (pdfPageAdapter == null || pdfViewPager == null) return;
-
         final int currentPageIndex = pdfViewPager.getCurrentItem();
         final int oldPageMode = pdfPageAdapter.pageMode;
 
-        int newDir = settingsManager.getDirection();
-        pdfViewPager.setOrientation(newDir == 0 ?
+        pdfViewPager.setOrientation(settingsManager.getDirection() == 0 ?
                 ViewPager2.ORIENTATION_VERTICAL : ViewPager2.ORIENTATION_HORIZONTAL);
-
-        final int newPageMode = settingsManager.getPageMode();
-        pdfPageAdapter.setPageMode(newPageMode);
+        pdfPageAdapter.setPageMode(settingsManager.getPageMode());
         pdfPageAdapter.notifyDataSetChanged();
 
         pdfViewPager.post(() -> {
-            int finalPosition = currentPageIndex;
-            if (oldPageMode != newPageMode) {
+            int finalPos = currentPageIndex;
+            if (oldPageMode != settingsManager.getPageMode()) {
                 int currentPdfPage = (oldPageMode == 1) ? currentPageIndex : currentPageIndex * 2;
-                finalPosition = (newPageMode == 1) ? currentPdfPage : currentPdfPage / 2;
+                finalPos = (settingsManager.getPageMode() == 1) ? currentPdfPage : currentPdfPage / 2;
             }
-            int maxPosition = pdfPageAdapter.getItemCount() - 1;
-            if (finalPosition > maxPosition) finalPosition = maxPosition;
-            if (finalPosition < 0) finalPosition = 0;
-
-            pdfViewPager.setCurrentItem(finalPosition, false);
-            updatePageIndicator(finalPosition, pdfPageAdapter.getItemCount());
+            finalPos = Math.max(0, Math.min(finalPos, pdfPageAdapter.getItemCount() - 1));
+            pdfViewPager.setCurrentItem(finalPos, false);
+            updatePageIndicator(finalPos, pdfPageAdapter.getItemCount());
         });
     }
 

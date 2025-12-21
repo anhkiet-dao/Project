@@ -52,10 +52,8 @@ public class PdfPageAdapter extends RecyclerView.Adapter<PdfPageAdapter.PdfPageV
     public void onBindViewHolder(@NonNull PdfPageViewHolder holder, int position) {
         if (pdfRenderer == null) return;
 
-        // --- Khởi tạo cache nếu chưa có ---
         if (bitmapCache == null) bitmapCache = new Bitmap[getItemCount()];
 
-        // --- Nếu bitmap đã cache thì dùng luôn ---
         if (bitmapCache[position] != null) {
             holder.pageImageView.setImageBitmap(bitmapCache[position]);
             return;
@@ -135,7 +133,12 @@ public class PdfPageAdapter extends RecyclerView.Adapter<PdfPageAdapter.PdfPageV
         }
     }
 
-
+    public Bitmap getPageBitmap(int pageIndex) {
+        if (bitmapCache != null && bitmapCache[pageIndex] != null) {
+            return bitmapCache[pageIndex];
+        }
+        return renderSinglePage(pageIndex);
+    }
 
     private void renderPage(ImageView imageView, int pageIndex) {
         PdfRenderer.Page page = null;

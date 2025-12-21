@@ -11,6 +11,7 @@ val localProperties = Properties().apply {
     load(FileInputStream(rootProject.file("local.properties")))
 }
 val groqApiKey = localProperties.getProperty("GROQ_API_KEY") ?: ""
+val GeminiApiKey= localProperties.getProperty("GEMINI_API_KEY") ?: ""
 
 android {
     namespace = "com.example.do_an"
@@ -26,6 +27,8 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
+
+        buildConfigField("String", "GEMINI_API_KEY", "\"$GeminiApiKey\"")
 
         buildConfigField("String", "GROQ_API_KEY", "\"$groqApiKey\"")
 
@@ -100,11 +103,14 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation("com.google.mlkit:text-recognition:16.0.0")
 
     implementation("com.github.chrisbanes:PhotoView:2.3.0")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
 
+    implementation("com.google.ai.client.generativeai:generativeai:0.7.0")
+    implementation("com.google.guava:guava:31.1-android")
 }
 
