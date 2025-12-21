@@ -16,12 +16,17 @@ import java.net.URL;
 public class GroqAPIHelper {
 
     private static final String TAG = "GroqAPI";
-
     private static final String API_KEY = BuildConfig.GROQ_API_KEY;
-
     private static final String API_URL =
             "https://api.groq.com/openai/v1/chat/completions";
 
+    /* ================= CALLBACK ================= */
+    public interface GroqCallback {
+        void onSuccess(String answer);
+        void onError(String error);
+    }
+
+    /* ================= SYNC CALL (GIỮ NGUYÊN) ================= */
     public static String askAI(JSONArray messages) {
 
         HttpURLConnection conn = null;
@@ -30,9 +35,9 @@ public class GroqAPIHelper {
             JSONObject body = new JSONObject();
             body.put("model", "llama-3.1-8b-instant");
             body.put("messages", messages);
-            body.put("temperature", 0.7);
+            body.put("temperature", 0.3);
+            body.put("max_tokens", 500);
 
-            // ===== Kết nối =====
             URL url = new URL(API_URL);
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
@@ -42,7 +47,6 @@ public class GroqAPIHelper {
             conn.setReadTimeout(20000);
             conn.setDoOutput(true);
 
-            // ===== Gửi body =====
             try (OutputStream os = conn.getOutputStream()) {
                 os.write(body.toString().getBytes("UTF-8"));
             }
@@ -66,16 +70,14 @@ public class GroqAPIHelper {
 
             Log.d(TAG, "HTTP " + code + " | " + response);
 
-            // ===== Xử lý lỗi HTTP =====
             if (code == 401) {
-                return "❌ API KEY không hợp lệ hoặc đã bị revoke";
+                return "❌ API KEY không hợp lệ";
             }
 
             if (code >= 400) {
                 return "❌ Groq API lỗi " + code;
             }
 
-            // ===== Parse kết quả =====
             JSONObject json = new JSONObject(response.toString());
             return json
                     .getJSONArray("choices")
@@ -89,5 +91,21 @@ public class GroqAPIHelper {
         } finally {
             if (conn != null) conn.disconnect();
         }
+    }
+
+    /* ================= ASYNC CALL (DÙNG TRONG UI) ================= */
+    public static void askAIAsync(JSONArray messages, GroqCallback callback) {
+
+        new Thread(() -> {
+            String result = askAI(messages);
+
+            if (result == null || result.startsWith("❌")) {
+                callback.onError(
+                        result != null ? result : "Không có phản hồi từ AI"
+                );
+            } else {
+                callback.onSuccess(result);
+            }
+        }).start();
     }
 }

@@ -103,6 +103,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation("com.google.mlkit:text-recognition:16.0.0")
 
     implementation("com.github.chrisbanes:PhotoView:2.3.0")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")

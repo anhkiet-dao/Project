@@ -1,23 +1,17 @@
 package com.example.do_an.UI;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,10 +20,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.do_an.BuildConfig;
-import com.example.do_an.API.GeminiChatManager;
 import com.example.do_an.Note.NoteFragment;
 import com.example.do_an.R;
 import com.example.do_an.application.SettingsManager;
@@ -37,6 +31,8 @@ import com.example.do_an.application.SpeechController;
 import com.example.do_an.Download.DownloadManager;
 import com.example.do_an.Favorite.FavoriteHandler;
 import com.example.do_an.History.HistoryManager;
+import com.example.do_an.pdf.PdfOcrManager;
+import com.example.do_an.pdf.PdfPageAdapter;
 import com.example.do_an.pdf.PdfViewerController;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -74,12 +70,13 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
     private FavoriteHandler favoriteHandler;
     private HistoryManager historyManager;
     private SpeechController speechController;
-    private GeminiChatManager geminiChatManager;
 
     private DownloadedPdfDao pdfDao;
     private Call currentDownloadCall;
     private NavigationListener navigationListener;
 
+    private PdfOcrManager ocrManager;
+    private String cachedOcrText = "";
     /* ================= FACTORY ================= */
 
     public static ReadFragment newInstance(Bundle args) {
@@ -162,6 +159,8 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
         settingsContainer = view.findViewById(R.id.settingsContainer);
         switchVoiceControl = view.findViewById(R.id.switchVoiceControl);
 
+        ocrManager = new PdfOcrManager();
+
         if (currentTitle != null) txtTieuDe.setText(currentTitle);
     }
 
@@ -170,9 +169,6 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
         settingsManager = new SettingsManager(ctx);
         historyManager = new HistoryManager(ctx);
         favoriteHandler = new FavoriteHandler(ctx);
-
-        // Khởi tạo Gemini với Key từ BuildConfig
-        geminiChatManager = new GeminiChatManager(BuildConfig.GEMINI_API_KEY);
 
         AppDatabase db = AppDatabase.getDatabase(ctx);
         pdfDao = db.downloadedPdfDao();
@@ -228,10 +224,6 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
         root.findViewById(R.id.btnBack)
                 .setOnClickListener(v -> requireActivity().onBackPressed());
 
-        // Lắng nghe nút Chatbot AI
-        if (btnChatbot != null) {
-            btnChatbot.setOnClickListener(v -> showAIInputDialog());
-        }
 
         favoriteHandler.checkIfFavorite(
                 currentStoryId, mainStoryTitle, currentTitle, userEmail, btnFavorite
@@ -244,6 +236,10 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
                         currentReadUrl, btnFavorite
                 )
         );
+
+        btnChatbot.setOnClickListener(v -> {
+            ocrCurrentPage();
+        });
 
         btnNote.setOnClickListener(v -> {
             int page = pdfViewerController.getCurrentPage() + 1;
@@ -272,83 +268,6 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
             if (checked) setupVoiceControlIfEnabled();
             else if (speechController != null) speechController.stop();
         });
-    }
-
-    /* ================= CHATBOT AI LOGIC ================= */
-
-    private void showAIInputDialog() {
-        if (pdfPath == null || pdfPath.isEmpty()) {
-            Toast.makeText(getContext(), "Vui lòng đợi truyện tải xong hoặc tải về máy để AI đọc toàn bộ!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Hỏi AI về tập truyện này");
-
-        final EditText input = new EditText(requireContext());
-        input.setHint("Ví dụ: Tóm tắt nội dung tập này giúp tôi...");
-        builder.setView(input);
-
-        builder.setPositiveButton("Gửi", (dialog, which) -> {
-            String question = input.getText().toString().trim();
-            if (!question.isEmpty()) {
-                askGemini(question);
-            }
-        });
-        builder.setNegativeButton("Hủy", null);
-        builder.show();
-    }
-
-    private void askGemini(String question) {
-        showLoading();
-        if (txtLoading != null) txtLoading.setText("AI đang đọc truyện...");
-
-        GeminiChatManager.AIResponseCallback callback = new GeminiChatManager.AIResponseCallback() {
-            @Override
-            public void onResponse(String answer) {
-                if (isAdded()) {
-                    requireActivity().runOnUiThread(() -> {
-                        hideLoading();
-                        showAIResponseDialog(answer);
-                    });
-                }
-            }
-
-            @Override
-            public void onError(String error) {
-                if (isAdded()) {
-                    requireActivity().runOnUiThread(() -> {
-                        hideLoading();
-                        Toast.makeText(getContext(), "Lỗi: " + error, Toast.LENGTH_LONG).show();
-                    });
-                }
-            }
-        };
-
-        boolean isLocalAvailable = (pdfPath != null && !pdfPath.isEmpty() && new java.io.File(pdfPath).exists());
-
-        if (isLocalAvailable) {
-            geminiChatManager.askAboutLocalPdf(question, pdfPath, currentTitle, callback);
-        } else if (currentReadUrl != null && !currentReadUrl.isEmpty()) {
-            geminiChatManager.askAboutOnlinePdf(question, currentReadUrl, currentTitle, callback);
-        } else {
-            hideLoading();
-            Toast.makeText(getContext(), "Không tìm thấy dữ liệu truyện (File hoặc Link)!", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void showAIResponseDialog(String answer) {
-        TextView tvAnswer = new TextView(requireContext());
-        tvAnswer.setText(answer);
-        tvAnswer.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-
-        tvAnswer.setTextColor(android.graphics.Color.BLACK);
-
-        tvAnswer.setLineSpacing(0, 1.3f);
-        tvAnswer.setTextIsSelectable(true);
-
-        String cleanText = answer.replace("**", "").replace("##", "");
-        tvAnswer.setText(cleanText);
     }
 
     /* ================= FULL SCREEN ================= */
@@ -396,7 +315,6 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
             requireActivity().runOnUiThread(() -> {
 
                 if (cmd.contains("mở ghi chú") || cmd.contains("Thêm ghi chú")) btnNote.performClick();
-                else if (cmd.contains("hỏi ai") || cmd.contains("chatbot")) showAIInputDialog();
                 else if (cmd.contains("đóng ghi chú")) getParentFragmentManager().popBackStack();
                 else if (cmd.contains("toàn màn hình") && !isFullScreenMode) toggleFullScreenMode();
                 else if (cmd.contains("thoát toàn màn hình") && isFullScreenMode) toggleFullScreenMode();
@@ -533,4 +451,68 @@ public class ReadFragment extends Fragment implements DownloadManager.LoadingLis
     public interface NavigationListener {
         void setBottomNavVisibility(int visibility);
     }
+
+    private void ocrCurrentPage() {
+
+        if (pdfViewerController == null) {
+            Toast.makeText(getContext(), "PDF chưa sẵn sàng", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        int pageIndex = pdfViewerController.getCurrentPage();
+
+        RecyclerView.Adapter<?> adapter = pdfViewPager.getAdapter();
+        if (!(adapter instanceof PdfPageAdapter)) {
+            Toast.makeText(getContext(), "Không lấy được trang PDF", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        PdfPageAdapter pdfAdapter = (PdfPageAdapter) adapter;
+        Bitmap bitmap = pdfAdapter.getPageBitmap(pageIndex);
+
+        if (bitmap == null) {
+            Toast.makeText(getContext(), "Không lấy được ảnh trang", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        showLoading();
+        txtLoading.setText("Đang phân tích trang...");
+
+        ocrManager.ocr(bitmap, new PdfOcrManager.Callback() {
+            @Override
+            public void onSuccess(String text) {
+                hideLoading();
+                cachedOcrText = text;
+
+                Log.d("OCR", text);
+
+                Toast.makeText(
+                        getContext(),
+                        "Đã phân tích xong nội dung trang",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                /* ===== MỞ CHATBOT ===== */
+                ChatbotFragment chatbotFragment =
+                        ChatbotFragment.newInstance(cachedOcrText);
+
+                getParentFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, chatbotFragment)
+                        .addToBackStack(null)
+                        .commit();
+
+            }
+
+            @Override
+            public void onError(Exception e) {
+                hideLoading();
+                Toast.makeText(
+                        getContext(),
+                        "OCR thất bại",
+                        Toast.LENGTH_SHORT
+                ).show();
+            }
+        });
+    }
+
 }
