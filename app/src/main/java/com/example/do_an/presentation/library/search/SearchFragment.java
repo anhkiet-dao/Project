@@ -171,7 +171,7 @@ public class SearchFragment extends Fragment {
         if (getActivity() != null) {
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.fragment_container, fragment)
+                    .add(R.id.fragmentContainer, fragment)
                     .addToBackStack(null)
                     .commit();
         }

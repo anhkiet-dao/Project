@@ -80,7 +80,7 @@ public class AccountFragment extends Fragment {
                     }
                 } else {
                     Fragment frag = requireActivity().getSupportFragmentManager()
-                            .findFragmentById(R.id.fragment_container);
+                            .findFragmentById(R.id.fragmentContainer);
                     if (frag == null && fragmentContainer.getVisibility() == View.VISIBLE) {
                         fragmentContainer.setVisibility(View.GONE);
                     }
@@ -103,7 +103,7 @@ public class AccountFragment extends Fragment {
         textInformation = view.findViewById(R.id.textInformation);
         btnLogOut = view.findViewById(R.id.btnLogOut);
         textUsername = view.findViewById(R.id.textUsername);
-        fragmentContainer = view.findViewById(R.id.fragment_container);
+        fragmentContainer = view.findViewById(R.id.fragmentContainer);
         textChat = view.findViewById(R.id.textChat);
 
         fragmentContainer.setVisibility(View.GONE);
@@ -172,7 +172,7 @@ public class AccountFragment extends Fragment {
         fragmentContainer.setVisibility(View.VISIBLE);
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container, fragment)
+                .replace(R.id.fragmentContainer, fragment)
                 .addToBackStack(null)
                 .commit();
     }

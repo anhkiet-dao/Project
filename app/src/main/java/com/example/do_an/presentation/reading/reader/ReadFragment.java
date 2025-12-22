@@ -246,7 +246,7 @@ public class ReadFragment extends Fragment implements DownloadInteractor.Loading
                     currentTitle
             );
             getParentFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, f)
+                    .add(R.id.fragmentContainer, f)
                     .addToBackStack(null)
                     .commit();
         });
@@ -494,7 +494,7 @@ public class ReadFragment extends Fragment implements DownloadInteractor.Loading
                         ChatbotFragment.newInstance(cachedOcrText);
 
                 getParentFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, chatbotFragment)
+                        .replace(R.id.fragmentContainer, chatbotFragment)
                         .addToBackStack(null)
                         .commit();
 

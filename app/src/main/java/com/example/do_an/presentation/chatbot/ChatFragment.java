@@ -55,7 +55,7 @@ public class ChatFragment extends Fragment {
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.chatbot_chat_fragment, container, false);
+        View view = inflater.inflate(R.layout.chatbot_fragment_chat, container, false);
 
         recyclerViewChat = view.findViewById(R.id.recyclerViewChat);
         edtMessage = view.findViewById(R.id.edtMessage);
