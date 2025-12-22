@@ -34,15 +34,15 @@
 
         <!-- Màn hình Đăng ký -->
         <activity
-            android:name=".auth.RegisterActivity"
+            android:name=".presentation.auth.register.RegisterActivity"
             android:theme="@style/Theme.Auth"
             android:exported="false" />
 
-        <activity android:name=".auth.ForgotPasswordActivity"
+        <activity android:name=".presentation.auth.forgot_password.ForgotPasswordActivity"
             android:theme="@style/Theme.Auth"
             android:exported="false" />
 
-        <activity android:name=".user.UserInfoActivity"
+        <activity android:name=".presentation.common.UserInfoActivity"
             android:exported="false" />
 
         <!--        <activity android:name=".auth.LoginActivity"-->
@@ -51,7 +51,7 @@
         <!--            android:exported="false"/>-->
 
         <activity
-            android:name=".auth.LoginActivity"
+            android:name=".presentation.auth.login.LoginActivity"
             android:theme="@style/Theme.Auth"
             android:exported="true">
             <intent-filter>

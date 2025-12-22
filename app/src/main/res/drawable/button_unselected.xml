@@ -1,6 +1,15 @@
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#E0E0E0"/> <!-- Màu xám khi chưa chọn -->
-    <corners android:radius="150dp"/>
-    <padding android:left="8dp" android:top="8dp"
-        android:right="8dp" android:bottom="8dp"/>
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <solid android:color="@color/transparent" />
+        </shape>
+    </item>
+
+    <item
+        android:height="2dp"
+        android:gravity="bottom">
+        <shape>
+            <solid android:color="@color/divider" />
+        </shape>
+    </item>
+</layer-list>

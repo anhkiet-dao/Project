@@ -28,7 +28,7 @@
     <string name="downloaded_list_title">Downloaded list</string>
     <string name="no_downloads">No downloaded books</string>
     <string name="author_label1">Author: </string>
-    <string name="delete_text">Delete</string>
+    <string name="remove">Remove</string>
     <string name="cannot_open_file">Cannot open file!</string>
     <string name="deleted_msg">Deleted </string>
     <string name="cannot_delete">Cannot delete </string>
@@ -119,8 +119,9 @@
     <string name="title1">Reading activity</string>
     <string name="title2">Reading frequency by story</string>
     <string name="title3">Reading time ratio by session</string>
-    <string name="daily">Daily</string>
-    <string name="weekly">Weekly</string>
+    <string name="daily">Day</string>
+    <string name="weekly">Week</string>
+    <string name="monthly">Month</string>
     <string name="minutes">%1$d min</string>
     <string name="hours">hours</string>
     <string name="no_data">No data</string>
@@ -259,4 +260,9 @@
     <string name="hint_phone">Phone Number</string>
     <string name="hint_birthdate">Select Birthdate</string>
     <string name="hint_interest">Enter your interests</string>
+    <string name="choose_language">Choose language</string>
+    <string name="save">Save</string>
+    <string name="user">User</string>
+    <string name="no_history_available">No history available.</string>
+    <string name="no_favorites_available">No favorites available.</string>
 </resources>

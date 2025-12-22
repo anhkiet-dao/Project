@@ -5,7 +5,7 @@
     android:id="@+id/register_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".auth.RegisterActivity">
+    tools:context=".presentation.auth.register.RegisterActivity">
 
     <Spinner
         android:id="@+id/spinnerLanguage"
@@ -31,7 +31,7 @@
 
     <!-- Tiêu đề -->
     <TextView
-        android:id="@+id/registerTitle"
+        android:id="@+id/titleText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
@@ -43,18 +43,18 @@
 
     <!-- Email -->
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/emailLayout"
+        android:id="@+id/inputEmail"
         style="@style/Widget.App.TextInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/registerTitle"
+        app:layout_constraintTop_toBottomOf="@id/titleText"
         app:layout_constraintWidth_percent="0.85">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/emailEditText"
+            android:id="@+id/editEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textEmailAddress" />
@@ -62,7 +62,7 @@
 
     <!-- Mật khẩu -->
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/passwordLayout"
+        android:id="@+id/inputPassword"
         style="@style/Widget.App.TextInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -70,11 +70,11 @@
         app:endIconMode="password_toggle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/emailLayout"
+        app:layout_constraintTop_toBottomOf="@id/inputEmail"
         app:layout_constraintWidth_percent="0.85">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/passwordEditText"
+            android:id="@+id/editPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPassword" />
@@ -82,7 +82,7 @@
 
     <!-- Xác nhận mật khẩu -->
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/confirmPasswordLayout"
+        android:id="@+id/inputConfirmPassword"
         style="@style/Widget.App.TextInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -90,11 +90,11 @@
         app:endIconMode="password_toggle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/passwordLayout"
+        app:layout_constraintTop_toBottomOf="@id/inputPassword"
         app:layout_constraintWidth_percent="0.85">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/confirmPasswordEditText"
+            android:id="@+id/editConfirmPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPassword" />
@@ -102,7 +102,7 @@
 
     <!-- Nút đăng ký -->
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/registerButton"
+        android:id="@+id/btnRegister"
         style="@style/Widget.App.Button.Primary"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -111,7 +111,7 @@
         android:textAppearance="@style/TextAppearance.Auth.Button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/confirmPasswordLayout"
+        app:layout_constraintTop_toBottomOf="@id/inputConfirmPassword"
         app:layout_constraintWidth_percent="0.85" />
 
     <!-- Đã có tài khoản -->
@@ -124,10 +124,9 @@
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/registerButton">
+        app:layout_constraintTop_toBottomOf="@id/btnRegister">
 
         <TextView
-            android:id="@+id/alreadyText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -136,7 +135,7 @@
             android:textAppearance="@style/TextAppearance.Auth.Helper" />
 
         <TextView
-            android:id="@+id/loginNowText"
+            android:id="@+id/textLoginNow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"

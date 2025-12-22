@@ -19,7 +19,7 @@
     <color name="accent">#DA7500</color>               <!-- Orange2 - Highlights -->
     <color name="accent_green">#04D000</color>         <!-- Success/Active indicator -->
     <color name="accent_green_light">#2ECC71</color>   <!-- Green2 - Lighter green -->
-    <color name="accent_purple">#7D40FF</color>        <!-- Purpose - Special highlights -->
+<!--    <color name="accent_purple">#7D40FF</color>        &lt;!&ndash; Purpose - Special highlights &ndash;&gt;-->
 
     <!-- Text Colors -->
     <color name="text_primary">#FFFFFF</color>         <!-- Main text (white on dark) -->
@@ -37,11 +37,11 @@
     <!-- Surface Colors -->
     <color name="surface">#212328</color>              <!-- Dark - Cards, dialogs -->
     <color name="surface_elevated">#2E2F37</color>     <!-- Dark2 - Elevated surfaces -->
-    <color name="surface_hover">#3D3D3D</color>        <!-- Dark4 hover - Hover state -->
+<!--    <color name="surface_hover">#3D3D3D</color>        &lt;!&ndash; Dark4 hover - Hover state &ndash;&gt;-->
 
     <!-- Navigation Colors -->
-    <color name="navbar_bg">#2C2C2C</color>            <!-- Dark4 - Navbar background -->
-    <color name="navbar_hover">#3D3D3D</color>         <!-- Dark4 hover - Navbar hover -->
+<!--    <color name="navbar_bg">#2C2C2C</color>            &lt;!&ndash; Dark4 - Navbar background &ndash;&gt;-->
+<!--    <color name="navbar_hover">#3D3D3D</color>         &lt;!&ndash; Dark4 hover - Navbar hover &ndash;&gt;-->
 
     <!-- Border & Divider -->
     <color name="border_default">#3D414A</color>       <!-- Dark3 - Default borders -->
@@ -84,11 +84,11 @@
     <color name="divider_light">#3D414A</color>        <!-- Light divider -->
 
     <!-- Additional Dark Variants -->
-    <color name="dark_surface_1">#212328</color>       <!-- Dark -->
-    <color name="dark_surface_2">#2E2F37</color>       <!-- Dark2 -->
-    <color name="dark_surface_3">#3D414A</color>       <!-- Dark3 -->
-    <color name="dark_surface_4">#2C2C2C</color>       <!-- Dark4 -->
-    <color name="dark_surface_5">#464646</color>       <!-- Dark5 -->
+<!--    <color name="dark_surface_1">#212328</color>       &lt;!&ndash; Dark &ndash;&gt;-->
+<!--    <color name="dark_surface_2">#2E2F37</color>       &lt;!&ndash; Dark2 &ndash;&gt;-->
+<!--    <color name="dark_surface_3">#3D414A</color>       &lt;!&ndash; Dark3 &ndash;&gt;-->
+<!--    <color name="dark_surface_4">#2C2C2C</color>       &lt;!&ndash; Dark4 &ndash;&gt;-->
+<!--    <color name="dark_surface_5">#464646</color>       &lt;!&ndash; Dark5 &ndash;&gt;-->
 
     <!-- Basic Colors -->
     <color name="white">#FFFFFF</color>

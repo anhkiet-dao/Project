@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="4dp"
+    android:background="@color/bg_secondary"
     android:orientation="horizontal"
     android:padding="8dp">
 
@@ -19,8 +20,7 @@
             android:id="@+id/ivCoverImage"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_launcher_background" />
+            android:scaleType="centerCrop" />
 
     </androidx.cardview.widget.CardView>
 
@@ -34,25 +34,28 @@
             android:id="@+id/tvTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:text="Tên truyện"
-            android:textSize="18sp"
-            android:textColor="#000"
-            android:textStyle="bold" />
+            android:textAppearance="@style/TextAppearance.App.CardTitle" />
 
         <TextView
             android:id="@+id/tvAuthor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="2dp"
+            android:layout_marginBottom="2dp"
             android:text="Tác giả"
-            android:textColor="#555555"
-            android:textSize="14sp" />
+            android:textAppearance="@style/TextAppearance.App.Caption" />
 
         <TextView
             android:id="@+id/tvTime"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/history_bg_badge_time"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="3dp"
             android:text="Bắt đầu: 10:00"
-            android:textSize="16sp" />
+            android:textAppearance="@style/TextAppearance.App.Badge" />
+
     </LinearLayout>
 </LinearLayout>

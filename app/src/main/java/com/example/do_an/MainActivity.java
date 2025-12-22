@@ -1,8 +1,5 @@
 package com.example.do_an;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,90 +7,94 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.example.do_an.UI.AccountFragment;
-import com.example.do_an.UI.MyListFragment;
-import com.example.do_an.UI.ReadFragment;
-import com.example.do_an.UI.HomeFragment;
-import com.example.do_an.search.SearchFragment;
+import com.example.do_an.presentation.common.AccountFragment;
+import com.example.do_an.presentation.common.MyListFragment;
+import com.example.do_an.presentation.library.home.HomeFragment;
+import com.example.do_an.presentation.library.search.SearchFragment;
+import com.example.do_an.presentation.reading.reader.ReadFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements ReadFragment.NavigationListener {
 
-    private BottomNavigationView bottomNav;
-    private Fragment activeFragment;
-    private Fragment myListFragment;
-    private Fragment accountFragment;
-    private Fragment discoverFragment;
-    private Fragment searchFragment;
+    private BottomNavigationView bottomNavigation;
+    private Fragment fragmentActive;
+    private Fragment fragmentMyList;
+    private Fragment fragmentAccount;
+    private Fragment fragmentHome;
+    private Fragment fragmentSearch;
+
     private final FragmentManager fm = getSupportFragmentManager();
-    private static final int FRAGMENT_CONTAINER_ID = R.id.fragment_container;
-
-    public BottomNavigationView getBottomNav() {
-        return bottomNav;
-    }
-
-    public interface ResettableFragment {
-        void resetState();
-    }
-
-    @Override
-    public void setBottomNavVisibility(int visibility) {
-        if (bottomNav != null) bottomNav.setVisibility(visibility);
-    }
+    private static final int FRAGMENT_CONTAINER_ID = R.id.fragmentContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.app_activity_main);
 
-        bottomNav = findViewById(R.id.bottomNav);
+        setupViews();
+        loadViews(savedInstanceState);
+        setupListeners();
+    }
 
+    private void setupViews() {
+        bottomNavigation = findViewById(R.id.bottomNavigation);
+    }
+
+    private void loadViews(Bundle savedInstanceState) {
         if (savedInstanceState == null) {
-            discoverFragment = new HomeFragment();
-            myListFragment = new MyListFragment();
-            accountFragment = new AccountFragment();
-            searchFragment = new SearchFragment();
+            fragmentHome = new HomeFragment();
+            fragmentMyList = new MyListFragment();
+            fragmentAccount = new AccountFragment();
+            fragmentSearch = new SearchFragment();
 
             fm.beginTransaction()
-                    .add(FRAGMENT_CONTAINER_ID, discoverFragment, "nav_home")
-                    .add(FRAGMENT_CONTAINER_ID, myListFragment, "nav_read").hide(myListFragment)
-                    .add(FRAGMENT_CONTAINER_ID, accountFragment, "nav_profile").hide(accountFragment)
-                    .add(FRAGMENT_CONTAINER_ID, searchFragment, "nav_search").hide(searchFragment)
+                    .add(FRAGMENT_CONTAINER_ID, fragmentHome, "nav_home")
+                    .add(FRAGMENT_CONTAINER_ID, fragmentMyList, "nav_read").hide(fragmentMyList)
+                    .add(FRAGMENT_CONTAINER_ID, fragmentAccount, "nav_profile").hide(fragmentAccount)
+                    .add(FRAGMENT_CONTAINER_ID, fragmentSearch, "nav_search").hide(fragmentSearch)
                     .commit();
 
-            activeFragment = discoverFragment;
+            fragmentActive = fragmentHome;
+            bottomNavigation.setSelectedItemId(R.id.nav_home);
         } else {
-            discoverFragment = fm.findFragmentByTag("nav_home");
-            myListFragment = fm.findFragmentByTag("nav_read");
-            accountFragment = fm.findFragmentByTag("nav_profile");
-            searchFragment = fm.findFragmentByTag("nav_search");
+            fragmentHome = fm.findFragmentByTag("nav_home");
+            fragmentMyList = fm.findFragmentByTag("nav_read");
+            fragmentAccount = fm.findFragmentByTag("nav_profile");
+            fragmentSearch = fm.findFragmentByTag("nav_search");
 
-            if (discoverFragment != null && !discoverFragment.isHidden()) activeFragment = discoverFragment;
-            else if (myListFragment != null && !myListFragment.isHidden()) activeFragment = myListFragment;
-            else if (searchFragment != null && !searchFragment.isHidden()) activeFragment = searchFragment;
-            else activeFragment = accountFragment;
+            if (fragmentHome != null && !fragmentHome.isHidden())
+                fragmentActive = fragmentHome;
+            else if (fragmentMyList != null && !fragmentMyList.isHidden())
+                fragmentActive = fragmentMyList;
+            else if (fragmentSearch != null && !fragmentSearch.isHidden())
+                fragmentActive = fragmentSearch;
+            else
+                fragmentActive = fragmentAccount;
         }
+    }
 
-        bottomNav.setOnItemSelectedListener(item -> {
+    private void setupListeners() {
+        bottomNavigation.setOnItemSelectedListener(item -> {
             Fragment targetFragment = null;
+            int itemId = item.getItemId();
 
-            if (item.getItemId() == R.id.nav_read) targetFragment = myListFragment;
-            else if (item.getItemId() == R.id.nav_profile) targetFragment = accountFragment;
-            else if (item.getItemId() == R.id.nav_home) targetFragment = discoverFragment;
-            else if (item.getItemId() == R.id.nav_search) targetFragment = searchFragment;
+            if (itemId == R.id.nav_read)
+                targetFragment = fragmentMyList;
+            else if (itemId == R.id.nav_profile)
+                targetFragment = fragmentAccount;
+            else if (itemId == R.id.nav_home)
+                targetFragment = fragmentHome;
+            else if (itemId == R.id.nav_search)
+                targetFragment = fragmentSearch;
 
-            if (targetFragment == null) return false;
+            if (targetFragment == null)
+                return false;
 
             clearBackStack();
 
-            if (activeFragment == targetFragment) {
+            if (fragmentActive == targetFragment) {
                 if (targetFragment instanceof AccountFragment) {
                     ((AccountFragment) targetFragment).resetToMainScreen();
-                } else if (targetFragment instanceof ResettableFragment) {
-                    ((ResettableFragment) targetFragment).resetState();
                 }
                 return true;
             }
@@ -101,16 +102,14 @@ public class MainActivity extends AppCompatActivity implements ReadFragment.Navi
             switchFragment(targetFragment);
             return true;
         });
-
-        if (savedInstanceState == null) bottomNav.setSelectedItemId(R.id.nav_home);
     }
 
     private void switchFragment(Fragment fragmentToShow) {
         FragmentTransaction transaction = fm.beginTransaction();
-        transaction.hide(activeFragment);
+        transaction.hide(fragmentActive);
         transaction.show(fragmentToShow);
         transaction.commit();
-        activeFragment = fragmentToShow;
+        fragmentActive = fragmentToShow;
     }
 
     private void clearBackStack() {
@@ -119,36 +118,10 @@ public class MainActivity extends AppCompatActivity implements ReadFragment.Navi
         }
     }
 
-    public void openFragment(Fragment fragment) {
-        fm.beginTransaction()
-                .hide(activeFragment)
-                .add(FRAGMENT_CONTAINER_ID, fragment)
-                .addToBackStack(null)
-                .commit();
-    }
-
-    public void updateAppLanguage(String langCode) {
-        Locale locale = new Locale(langCode);
-        Locale.setDefault(locale);
-        Configuration config = getResources().getConfiguration();
-        config.setLocale(locale);
-        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
-
-        recreate();
-    }
-
     @Override
-    protected void attachBaseContext(Context newBase) {
-        SharedPreferences prefs = newBase.getSharedPreferences("AppSettings", MODE_PRIVATE);
-        String lang = prefs.getString("App_Lang", "vi");
-
-        Locale locale = new Locale(lang);
-        Locale.setDefault(locale);
-
-        Configuration config = newBase.getResources().getConfiguration();
-        config.setLocale(locale);
-
-        super.attachBaseContext(newBase.createConfigurationContext(config));
+    public void setBottomNavVisibility(int visibility) {
+        if (bottomNavigation != null)
+            bottomNavigation.setVisibility(visibility);
     }
 
     @Override

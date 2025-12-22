@@ -14,9 +14,9 @@
 
     <!--  Mylist  -->
     <string name="analytics">Thống kê</string>
-    <string name="history">Lịch sử</string>
+    <string name="history">Đã xem</string>
     <string name="favorite">Yêu thích</string>
-    <string name="download">Tải xuống</string>
+    <string name="download">Tải về</string>
     <string name="hello_user">Chào bạn!</string>
     <string name="default_user">Bạn</string>
     <string name="good_morning">Chào buổi sáng</string>
@@ -28,7 +28,7 @@
     <string name="downloaded_list_title">Danh sách đã tải về</string>
     <string name="no_downloads">Chưa có tài liệu tải xuống</string>
     <string name="author_label1">Tác giả: </string>
-    <string name="delete_text">Xóa</string>
+    <string name="remove">Xóa</string>
     <string name="cannot_open_file">Không thể mở file!</string>
     <string name="deleted_msg">Đã xóa </string>
     <string name="cannot_delete">Không thể xóa </string>
@@ -120,8 +120,9 @@
     <string name="title1">Hoạt động đọc sách</string>
     <string name="title2">Tần suất đọc theo truyện</string>
     <string name="title3">Tỷ lệ thời gian đọc theo buổi</string>
-    <string name="daily">Hằng ngày</string>
-    <string name="weekly">Hằng tuần</string>
+    <string name="daily">Ngày</string>
+    <string name="weekly">Tuần</string>
+    <string name="monthly">Tháng</string>
     <string name="minutes">%1$d phút</string>
     <string name="hours">giờ</string>
     <string name="no_data">Không có dữ liệu</string>
@@ -260,4 +261,9 @@
     <string name="hint_phone">Số điện thoại</string>
     <string name="hint_birthdate">Chọn ngày sinh</string>
     <string name="hint_interest">Nhập sở thích</string>
+    <string name="choose_language">Chọn ngôn ngữ</string>
+    <string name="save">Lưu</string>
+    <string name="user">Người dùng</string>
+    <string name="no_history_available">Chưa có lịch sử xem.</string>
+    <string name="no_favorites_available">Chưa truyện yêu thích nào.</string>
 </resources>

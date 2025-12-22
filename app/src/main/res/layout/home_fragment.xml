@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_primary"
+    android:orientation="vertical">
+
+    <include layout="@layout/include_header_greeting" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/content_padding_small"
+            android:layout_marginTop="@dimen/content_padding_small"
+            android:orientation="vertical">
+
+            <!-- Featured Book Card -->
+            <androidx.cardview.widget.CardView
+                style="@style/FeaturedBookCard"
+                app:cardCornerRadius="10dp"
+                app:strokeColor="#4EB0BCB5">
+
+                <ImageView
+                    android:id="@+id/imageBanner"
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:contentDescription="Ảnh truyện"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/bg_splash" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- Section 1: Truyện gần đây -->
+            <LinearLayout style="@style/SectionHeader">
+
+                <TextView
+                    android:id="@+id/textTitlePreview"
+                    style="@style/SectionTitleText"
+                    android:text="Truyện gần đây" />
+
+                <TextView
+                    android:id="@+id/textDetailPreview"
+                    style="@style/SectionDetailLink" />
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerPreview"
+                style="@style/BookRecyclerView.Horizontal" />
+
+            <!-- PDF ViewPager -->
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/pdfViewPager"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/card_viewpager_height"
+                android:layout_marginTop="@dimen/content_padding_small" />
+
+            <!-- PDF Info Card -->
+            <LinearLayout style="@style/PdfInfoCard">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/textPdfName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="Tên PDF"
+                        android:textAppearance="@style/TextAppearance.App.CardTitle" />
+
+                    <TextView
+                        android:id="@+id/textPdfAuthor"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="Tác giả: ???"
+                        android:textAppearance="@style/TextAppearance.App.CardSubtitle" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/btnDetail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="6dp"
+                    android:text=">"
+                    android:textColor="#FFFFFF"
+                    android:textSize="20sp" />
+
+            </LinearLayout>
+
+            <!-- Section 2: Truyện mới -->
+            <LinearLayout style="@style/SectionHeader">
+
+                <TextView
+                    android:id="@+id/textTitleNewBooks"
+                    style="@style/SectionTitleText"
+                    android:text="Truyện mới" />
+
+                <TextView
+                    android:id="@+id/textDetailNewBooks"
+                    style="@style/SectionDetailLink" />
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerNewBooks"
+                style="@style/BookRecyclerView" />
+
+            <!-- Section 3: Truyện phổ biến -->
+            <LinearLayout style="@style/SectionHeader">
+
+                <TextView
+                    android:id="@+id/textTitlePopularBooks"
+                    style="@style/SectionTitleText"
+                    android:text="Truyện phổ biến" />
+
+                <TextView
+                    android:id="@+id/textDetailPopularBooks"
+                    style="@style/SectionDetailLink" />
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerPopularBooks"
+                style="@style/BookRecyclerView" />
+
+            <!-- Section 4: Xu hướng đọc -->
+            <LinearLayout style="@style/SectionHeader">
+
+                <TextView
+                    android:id="@+id/textTitleTrendBooks"
+                    style="@style/SectionTitleText"
+                    android:text="Xu hướng đọc" />
+
+                <TextView
+                    android:id="@+id/textDetailTrendBooks"
+                    style="@style/SectionDetailLink" />
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerTrendBooks"
+                style="@style/BookRecyclerView" />
+        </LinearLayout>
+
+    </ScrollView>
+</LinearLayout>

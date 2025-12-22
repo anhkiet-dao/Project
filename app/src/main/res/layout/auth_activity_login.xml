@@ -5,7 +5,7 @@
     android:id="@+id/login_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".auth.LoginActivity">
+    tools:context=".presentation.auth.login.LoginActivity">
 
     <Spinner
         android:id="@+id/spinnerLanguage"
@@ -29,7 +29,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/loginTitle"
+        android:id="@+id/titleText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
@@ -41,18 +41,18 @@
 
     <!-- Email -->
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/emailLayout"
+        android:id="@+id/inputEmail"
         style="@style/Widget.App.TextInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/loginTitle"
+        app:layout_constraintTop_toBottomOf="@id/titleText"
         app:layout_constraintWidth_percent="0.85">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/emailEditText"
+            android:id="@+id/editEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textEmailAddress" />
@@ -60,7 +60,7 @@
 
     <!-- Password -->
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/passwordLayout"
+        android:id="@+id/inputPassword"
         style="@style/Widget.App.TextInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -68,11 +68,11 @@
         app:endIconMode="password_toggle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/emailLayout"
+        app:layout_constraintTop_toBottomOf="@id/inputEmail"
         app:layout_constraintWidth_percent="0.85">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/passwordEditText"
+            android:id="@+id/editPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPassword" />
@@ -80,7 +80,7 @@
 
     <!-- Quên mật khẩu -->
     <TextView
-        android:id="@+id/forgotPasswordText"
+        android:id="@+id/textForgotPassword"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
@@ -91,12 +91,12 @@
         android:padding="8dp"
         android:text="@string/forgot_password"
         android:textAppearance="@style/TextAppearance.Auth.Link"
-        app:layout_constraintEnd_toEndOf="@id/passwordLayout"
-        app:layout_constraintTop_toBottomOf="@id/passwordLayout" />
+        app:layout_constraintEnd_toEndOf="@id/inputPassword"
+        app:layout_constraintTop_toBottomOf="@id/inputPassword" />
 
     <!-- Nút đăng nhập -->
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/loginButton"
+        android:id="@+id/btnLogin"
         style="@style/Widget.App.Button.Primary"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -105,7 +105,7 @@
         android:textAppearance="@style/TextAppearance.Auth.Button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/forgotPasswordText"
+        app:layout_constraintTop_toBottomOf="@id/textForgotPassword"
         app:layout_constraintWidth_percent="0.85" />
 
     <LinearLayout
@@ -117,10 +117,10 @@
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/loginButton">
+        app:layout_constraintTop_toBottomOf="@id/btnLogin">
 
         <TextView
-            android:id="@+id/registerText"
+            android:id="@+id/textNoAccount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -129,7 +129,7 @@
             android:textAppearance="@style/TextAppearance.Auth.Helper" />
 
         <TextView
-            android:id="@+id/registerNowText"
+            android:id="@+id/textRegister"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"

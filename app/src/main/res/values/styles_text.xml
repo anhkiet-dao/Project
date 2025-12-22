@@ -42,7 +42,7 @@
     <style name="TextAppearance.App.Title" parent="TextAppearance.Material3.TitleLarge">
         <item name="fontFamily">@font/poppins</item>
         <item name="android:fontFamily">@font/poppins</item>
-        <item name="android:textSize">22sp</item>
+        <item name="android:textSize">20sp</item>
         <item name="android:textColor">@color/text_primary</item>
     </style>
 
@@ -120,6 +120,7 @@
         <item name="android:textSize">16sp</item>
         <item name="fontWeight">600</item>
         <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <!-- Card Subtitle -->
@@ -181,6 +182,17 @@
         <item name="android:textSize">10sp</item>
         <item name="fontWeight">600</item>
         <item name="android:textColor">@color/text_on_primary</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <!-- Delete Button (Small text in delete) -->
+    <style name="TextAppearance.App.DeleteText" parent="TextAppearance.Material3.LabelSmall">
+        <item name="fontFamily">@font/poppins</item>
+        <item name="android:fontFamily">@font/poppins</item>
+        <item name="android:textSize">14sp</item>
+        <item name="fontWeight">700</item>
+        <item name="android:textColor">@color/text_on_primary</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 
     <!-- Toolbar Title -->
@@ -307,6 +319,7 @@
         <item name="android:textSize">16sp</item>
         <item name="fontWeight">600</item>
         <item name="android:textColor">@color/text_primary</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 
     <!-- Body Large (16sp) -->

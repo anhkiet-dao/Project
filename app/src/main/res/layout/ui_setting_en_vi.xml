@@ -1,48 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:padding="16dp"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
 
     <TextView
-        android:id="@+id/tvLanguageTitle"
+        android:id="@+id/textTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Chọn ngôn ngữ"
+        android:paddingBottom="8dp"
+        android:text="@string/choose_language"
         android:textSize="20sp"
-        android:textStyle="bold"
-        android:paddingBottom="8dp"/>
+        android:textStyle="bold" />
 
     <LinearLayout
-        android:id="@+id/languageSelector"
-        android:orientation="horizontal"
+        android:id="@+id/layoutLanguageSelector"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp"
         android:background="?attr/selectableItemBackground"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="12dp">
 
         <TextView
-            android:id="@+id/tvSelectedLanguage"
+            android:id="@+id/textSelectedLanguage"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Tiếng Việt"
             android:layout_weight="1"
-            android:textSize="18sp"/>
+            android:text="Tiếng Việt"
+            android:textSize="18sp" />
 
         <ImageView
-            android:id="@+id/ivDropdown"
+            android:id="@+id/imageDropdown"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@android:drawable/arrow_down_float"/>
+            android:src="@android:drawable/arrow_down_float" />
     </LinearLayout>
 
     <Button
-        android:id="@+id/btnSaveLanguage"
+        android:id="@+id/btnSave"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Lưu"
-        android:layout_marginTop="24dp"/>
+        android:layout_marginTop="24dp"
+        android:text="@string/save" />
 </LinearLayout>

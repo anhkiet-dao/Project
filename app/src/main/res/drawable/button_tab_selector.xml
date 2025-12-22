@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Selected state -->
+    <item android:state_selected="true">
+        <layer-list>
+            <item>
+                <shape>
+                    <solid android:color="@color/transparent" />
+                </shape>
+            </item>
+            <item
+                android:height="2dp"
+                android:gravity="bottom">
+                <shape>
+                    <solid android:color="@color/primary" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+
+    <!-- Unselected state (default) -->
+    <item>
+        <layer-list>
+            <item>
+                <shape>
+                    <solid android:color="@color/transparent" />
+                </shape>
+            </item>
+            <item
+                android:height="2dp"
+                android:gravity="bottom">
+                <shape>
+                    <solid android:color="@color/divider" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+</selector>
