@@ -23,115 +23,183 @@ import com.google.firebase.auth.FirebaseAuth;
 public class ForgotPasswordActivity extends AppCompatActivity {
 
     private TextInputEditText editEmail;
-    private TextInputLayout textInputLayoutEmail;
+    private TextInputLayout inputEmail;
     private MaterialButton btnReset;
     private View textBackToLogin;
     private Spinner spinnerLanguage;
 
-    private LocalePreferences prefs;
-    private boolean spinnerInitialized = false;
+    private FirebaseAuth auth;
+    private LocalePreferences localePrefs;
 
-    private FirebaseAuth mAuth;
+    private boolean spinnerInitialized = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.auth_activity_forgot_password);
 
-        mAuth = FirebaseAuth.getInstance();
-        prefs = new LocalePreferences(this);
-
-        setupViews();
-        loadViews();
-        setupListeners();
+        bindViews();
+        initDependencies();
+        setupUi();
+        bindActions();
     }
 
-    private void setupViews() {
+    // =========================================================
+    // 1️⃣ Setup phase
+    // =========================================================
+
+    private void bindViews() {
         editEmail = findViewById(R.id.editEmail);
-        textInputLayoutEmail = findViewById(R.id.inputEmail);
+        inputEmail = findViewById(R.id.inputEmail);
         btnReset = findViewById(R.id.btnReset);
         textBackToLogin = findViewById(R.id.textBackToLogin);
         spinnerLanguage = findViewById(R.id.spinnerLanguage);
     }
 
-    private void loadViews() {
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                this, R.array.Languages, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerLanguage.setAdapter(adapter);
-
-        Language lang = prefs.getLanguage();
-        spinnerLanguage.setSelection(lang.getPosition());
+    private void initDependencies() {
+        auth = FirebaseAuth.getInstance();
+        localePrefs = new LocalePreferences(this);
     }
 
-    private void setupListeners() {
+    private void setupUi() {
+        setupLanguageSpinner();
+        clearErrors();
+    }
+
+    private void bindActions() {
+        btnReset.setOnClickListener(v -> onResetPasswordIntent());
+        textBackToLogin.setOnClickListener(v -> onBackToLoginIntent());
+
         spinnerLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                handleSelectLanguage(position);
+                onLanguageSelected(position);
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
-        btnReset.setOnClickListener(v -> handleSendResetEmail());
-        textBackToLogin.setOnClickListener(v -> navigateToLogin());
     }
 
-    private void handleSelectLanguage(int position) {
+    // =========================================================
+    // 2️⃣ UI helpers
+    // =========================================================
+
+    private void setupLanguageSpinner() {
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                this,
+                R.array.Languages,
+                android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerLanguage.setAdapter(adapter);
+
+        Language current = localePrefs.getLanguage();
+        spinnerLanguage.setSelection(current.getPosition());
+    }
+
+    private void clearErrors() {
+        inputEmail.setError(null);
+    }
+
+    private String getText(TextInputEditText e) {
+        return e.getText() == null ? "" : e.getText().toString().trim();
+    }
+
+    private void showLoading(boolean show) {
+        btnReset.setEnabled(!show);
+    }
+
+    // =========================================================
+    // 3️⃣ Intent handlers
+    // =========================================================
+
+    private void onResetPasswordIntent() {
+        clearErrors();
+
+        String email = getText(editEmail);
+
+        if (!validateInput(email)) {
+            return;
+        }
+
+        doSendResetEmail(email);
+    }
+
+    private void onBackToLoginIntent() {
+        navigateToLogin();
+    }
+
+    private void onLanguageSelected(int position) {
         if (!spinnerInitialized) {
             spinnerInitialized = true;
             return;
         }
 
-        Language selectedLang = Language.fromPosition(position);
-
-        if (selectedLang != prefs.getLanguage()) {
-            spinnerLanguage.setSelection(selectedLang.getPosition());
-            LocaleManager.setLocale(selectedLang);
+        Language selected = Language.fromPosition(position);
+        if (selected != localePrefs.getLanguage()) {
+            localePrefs.setLanguage(selected);
+            spinnerLanguage.setSelection(selected.getPosition());
+            LocaleManager.setLocale(selected);
         }
     }
 
-    private void handleSendResetEmail() {
-        String email = editEmail.getText() != null
-                ? editEmail.getText().toString().trim()
-                : "";
+    // =========================================================
+    // 4️⃣ Validation
+    // =========================================================
 
-        textInputLayoutEmail.setError(null);
-
+    private boolean validateInput(String email) {
         if (email.isEmpty()) {
-            textInputLayoutEmail.setError(getString(R.string.error_empty_fields));
-            return;
+            inputEmail.setError(getString(R.string.error_empty_fields));
+            return false;
         }
 
-        mAuth.sendPasswordResetEmail(email)
+        return true;
+    }
+
+    // =========================================================
+    // 5️⃣ Business actions
+    // =========================================================
+
+    private void doSendResetEmail(String email) {
+        showLoading(true);
+
+        auth.sendPasswordResetEmail(email)
                 .addOnCompleteListener(task -> {
+                    showLoading(false);
 
                     if (task.isSuccessful()) {
-                        var message = getString(R.string.reset_email_sent) + " " + email;
-                        showSuccess(message);
-                        navigateToLogin();
+                        onResetEmailSuccess(email);
                     } else {
-                        String error = task.getException() != null
-                                ? task.getException().getMessage()
-                                : getString(R.string.error_unknown);
-                        var message = getString(R.string.reset_email_fail) + ": " + error;
-                        showError(message);
+                        onResetEmailFailed(task.getException());
                     }
                 });
     }
 
+    // =========================================================
+    // 6️⃣ Result handlers
+    // =========================================================
+
+    private void onResetEmailSuccess(String email) {
+        String message = getString(R.string.reset_email_sent) + " " + email;
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        navigateToLogin();
+    }
+
+    private void onResetEmailFailed(Exception exception) {
+        String error = exception != null
+                ? exception.getMessage()
+                : getString(R.string.error_unknown);
+        String message = getString(R.string.reset_email_fail) + ": " + error;
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    }
+
+    // =========================================================
+    // 7️⃣ Navigation
+    // =========================================================
+
     private void navigateToLogin() {
         startActivity(new Intent(this, LoginActivity.class));
         finish();
-    }
-
-    private void showSuccess(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
-
-    private void showError(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 }

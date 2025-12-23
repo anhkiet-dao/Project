@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity implements ReadFragment.Navi
     private Fragment fragmentHome;
     private Fragment fragmentSearch;
 
-    private final FragmentManager fm = getSupportFragmentManager();
+    private FragmentManager fragmentManager;
     private static final int FRAGMENT_CONTAINER_ID = R.id.fragmentContainer;
 
     @Override
@@ -31,49 +31,29 @@ public class MainActivity extends AppCompatActivity implements ReadFragment.Navi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.app_activity_main);
 
-        setupViews();
-        loadViews(savedInstanceState);
-        setupListeners();
+        bindViews();
+        initDependencies();
+        setupUi(savedInstanceState);
+        bindActions();
     }
 
-    private void setupViews() {
+    // =========================================================
+    // 1️⃣ Setup phase
+    // =========================================================
+
+    private void bindViews() {
         bottomNavigation = findViewById(R.id.bottomNavigation);
     }
 
-    private void loadViews(Bundle savedInstanceState) {
-        if (savedInstanceState == null) {
-            fragmentHome = new HomeFragment();
-            fragmentMyList = new MyListFragment();
-            fragmentAccount = new AccountFragment();
-            fragmentSearch = new SearchFragment();
-
-            fm.beginTransaction()
-                    .add(FRAGMENT_CONTAINER_ID, fragmentHome, "nav_home")
-                    .add(FRAGMENT_CONTAINER_ID, fragmentMyList, "nav_read").hide(fragmentMyList)
-                    .add(FRAGMENT_CONTAINER_ID, fragmentAccount, "nav_profile").hide(fragmentAccount)
-                    .add(FRAGMENT_CONTAINER_ID, fragmentSearch, "nav_search").hide(fragmentSearch)
-                    .commit();
-
-            fragmentActive = fragmentHome;
-            bottomNavigation.setSelectedItemId(R.id.nav_home);
-        } else {
-            fragmentHome = fm.findFragmentByTag("nav_home");
-            fragmentMyList = fm.findFragmentByTag("nav_read");
-            fragmentAccount = fm.findFragmentByTag("nav_profile");
-            fragmentSearch = fm.findFragmentByTag("nav_search");
-
-            if (fragmentHome != null && !fragmentHome.isHidden())
-                fragmentActive = fragmentHome;
-            else if (fragmentMyList != null && !fragmentMyList.isHidden())
-                fragmentActive = fragmentMyList;
-            else if (fragmentSearch != null && !fragmentSearch.isHidden())
-                fragmentActive = fragmentSearch;
-            else
-                fragmentActive = fragmentAccount;
-        }
+    private void initDependencies() {
+        fragmentManager = getSupportFragmentManager();
     }
 
-    private void setupListeners() {
+    private void setupUi(Bundle savedInstanceState) {
+        setupFragments(savedInstanceState);
+    }
+
+    private void bindActions() {
         bottomNavigation.setOnItemSelectedListener(item -> {
             Fragment targetFragment = null;
             int itemId = item.getItemId();
@@ -104,8 +84,63 @@ public class MainActivity extends AppCompatActivity implements ReadFragment.Navi
         });
     }
 
+    // =========================================================
+    // 2️⃣ UI helpers
+    // =========================================================
+
+    private void setupFragments(Bundle savedInstanceState) {
+        if (savedInstanceState == null) {
+            createFragments();
+            addFragmentsToContainer();
+            setDefaultFragment();
+        } else {
+            restoreFragments();
+        }
+    }
+
+    private void createFragments() {
+        fragmentHome = new HomeFragment();
+        fragmentMyList = new MyListFragment();
+        fragmentAccount = new AccountFragment();
+        fragmentSearch = new SearchFragment();
+    }
+
+    private void addFragmentsToContainer() {
+        fragmentManager.beginTransaction()
+                .add(FRAGMENT_CONTAINER_ID, fragmentHome, "nav_home")
+                .add(FRAGMENT_CONTAINER_ID, fragmentMyList, "nav_read").hide(fragmentMyList)
+                .add(FRAGMENT_CONTAINER_ID, fragmentAccount, "nav_profile").hide(fragmentAccount)
+                .add(FRAGMENT_CONTAINER_ID, fragmentSearch, "nav_search").hide(fragmentSearch)
+                .commit();
+    }
+
+    private void setDefaultFragment() {
+        fragmentActive = fragmentHome;
+        bottomNavigation.setSelectedItemId(R.id.nav_home);
+    }
+
+    private void restoreFragments() {
+        fragmentHome = fragmentManager.findFragmentByTag("nav_home");
+        fragmentMyList = fragmentManager.findFragmentByTag("nav_read");
+        fragmentAccount = fragmentManager.findFragmentByTag("nav_profile");
+        fragmentSearch = fragmentManager.findFragmentByTag("nav_search");
+
+        if (fragmentHome != null && !fragmentHome.isHidden())
+            fragmentActive = fragmentHome;
+        else if (fragmentMyList != null && !fragmentMyList.isHidden())
+            fragmentActive = fragmentMyList;
+        else if (fragmentSearch != null && !fragmentSearch.isHidden())
+            fragmentActive = fragmentSearch;
+        else
+            fragmentActive = fragmentAccount;
+    }
+
+    // =========================================================
+    // 3️⃣ Fragment operations
+    // =========================================================
+
     private void switchFragment(Fragment fragmentToShow) {
-        FragmentTransaction transaction = fm.beginTransaction();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.hide(fragmentActive);
         transaction.show(fragmentToShow);
         transaction.commit();
@@ -113,10 +148,14 @@ public class MainActivity extends AppCompatActivity implements ReadFragment.Navi
     }
 
     private void clearBackStack() {
-        if (fm.getBackStackEntryCount() > 0) {
-            fm.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        if (fragmentManager.getBackStackEntryCount() > 0) {
+            fragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
     }
+
+    // =========================================================
+    // 4️⃣ Interface implementations
+    // =========================================================
 
     @Override
     public void setBottomNavVisibility(int visibility) {
@@ -126,8 +165,8 @@ public class MainActivity extends AppCompatActivity implements ReadFragment.Navi
 
     @Override
     public void onBackPressed() {
-        if (fm.getBackStackEntryCount() > 0) {
-            fm.popBackStack();
+        if (fragmentManager.getBackStackEntryCount() > 0) {
+            fragmentManager.popBackStack();
         } else {
             super.onBackPressed();
         }

@@ -28,15 +28,27 @@ import com.google.firebase.auth.FirebaseUser;
 public class LoginActivity extends AppCompatActivity {
 
     private TextInputEditText editEmail, editPassword;
-    private TextInputLayout textInputLayoutEmail, textInputLayoutPassword;
+    private TextInputLayout inputEmail, inputPassword;
     private MaterialButton btnLogin;
     private TextView textForgotPassword, textRegister;
     private Spinner spinnerLanguage;
 
-    private FirebaseAuth mAuth;
-    private LocalePreferences prefs;
+    private FirebaseAuth auth;
+    private LocalePreferences localePrefs;
     private UserPreferences userPrefs;
+
     private boolean spinnerInitialized = false;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.auth_activity_login);
+
+        bindViews();
+        initDependencies();
+        setupUi();
+        bindActions();
+    }
 
     @Override
     protected void onStart() {
@@ -44,122 +56,193 @@ public class LoginActivity extends AppCompatActivity {
         checkCurrentUser();
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.auth_activity_login);
+    // =========================================================
+    // 1️⃣ Setup phase
+    // =========================================================
 
-        mAuth = FirebaseAuth.getInstance();
-        prefs = new LocalePreferences(this);
-        userPrefs = new UserPreferences(this);
-
-        setupViews();
-        loadViews();
-        setupListeners();
-    }
-
-    private void setupViews() {
+    private void bindViews() {
         editEmail = findViewById(R.id.editEmail);
         editPassword = findViewById(R.id.editPassword);
-        textInputLayoutEmail = findViewById(R.id.inputEmail);
-        textInputLayoutPassword = findViewById(R.id.inputPassword);
+        inputEmail = findViewById(R.id.inputEmail);
+        inputPassword = findViewById(R.id.inputPassword);
         btnLogin = findViewById(R.id.btnLogin);
         textForgotPassword = findViewById(R.id.textForgotPassword);
         textRegister = findViewById(R.id.textRegister);
         spinnerLanguage = findViewById(R.id.spinnerLanguage);
     }
 
-    private void loadViews() {
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                this, R.array.Languages, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerLanguage.setAdapter(adapter);
-
-        Language lang = prefs.getLanguage();
-        spinnerLanguage.setSelection(lang.getPosition());
-
-        // Populate email if saved
-        String savedEmail = userPrefs.getEmail();
-        if (savedEmail != null) {
-            editEmail.setText(savedEmail);
-        }
+    private void initDependencies() {
+        auth = FirebaseAuth.getInstance();
+        localePrefs = new LocalePreferences(this);
+        userPrefs = new UserPreferences(this);
     }
 
-    private void setupListeners() {
+    private void setupUi() {
+        setupLanguageSpinner();
+        populateSavedEmail();
+        clearErrors();
+    }
+
+    private void bindActions() {
+        btnLogin.setOnClickListener(v -> onLoginIntent());
+        textForgotPassword.setOnClickListener(v -> onForgotPasswordIntent());
+        textRegister.setOnClickListener(v -> onRegisterIntent());
+
         spinnerLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                handleSelectLanguage(position);
+                onLanguageSelected(position);
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
-
-        btnLogin.setOnClickListener(v -> handleLogin());
-        textForgotPassword.setOnClickListener(v -> navigateToForgotPassword());
-        textRegister.setOnClickListener(v -> navigateToRegister());
     }
 
-    private void handleSelectLanguage(int position) {
+    // =========================================================
+    // 2️⃣ UI helpers
+    // =========================================================
+
+    private void setupLanguageSpinner() {
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                this,
+                R.array.Languages,
+                android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerLanguage.setAdapter(adapter);
+
+        Language current = localePrefs.getLanguage();
+        spinnerLanguage.setSelection(current.getPosition());
+    }
+
+    private void populateSavedEmail() {
+        String savedEmail = userPrefs.getEmail();
+        if (savedEmail != null) {
+            editEmail.setText(savedEmail);
+        }
+    }
+
+    private void clearErrors() {
+        inputEmail.setError(null);
+        inputPassword.setError(null);
+    }
+
+    private String getText(TextInputEditText e) {
+        return e.getText() == null ? "" : e.getText().toString().trim();
+    }
+
+    private void showLoading(boolean show) {
+        btnLogin.setEnabled(!show);
+    }
+
+    // =========================================================
+    // 3️⃣ Intent handlers
+    // =========================================================
+
+    private void onLoginIntent() {
+        clearErrors();
+
+        String email = getText(editEmail);
+        String password = getText(editPassword);
+
+        if (!validateInput(email, password)) {
+            return;
+        }
+
+        doLogin(email, password);
+    }
+
+    private void onForgotPasswordIntent() {
+        navigateToForgotPassword();
+    }
+
+    private void onRegisterIntent() {
+        navigateToRegister();
+    }
+
+    private void onLanguageSelected(int position) {
         if (!spinnerInitialized) {
             spinnerInitialized = true;
             return;
         }
 
-        Language selectedLang = Language.fromPosition(position);
-
-        if (selectedLang != prefs.getLanguage()) {
-            spinnerLanguage.setSelection(selectedLang.getPosition());
-            LocaleManager.setLocale(selectedLang);
+        Language selected = Language.fromPosition(position);
+        if (selected != localePrefs.getLanguage()) {
+            localePrefs.setLanguage(selected);
+            spinnerLanguage.setSelection(selected.getPosition());
+            LocaleManager.setLocale(selected);
         }
     }
 
-    private void handleLogin() {
-        String email = editEmail.getText() != null ? editEmail.getText().toString().trim() : "";
-        String password = editPassword.getText() != null ? editPassword.getText().toString().trim() : "";
+    // =========================================================
+    // 4️⃣ Validation
+    // =========================================================
 
-        textInputLayoutEmail.setError(null);
-        textInputLayoutPassword.setError(null);
-
+    private boolean validateInput(String email, String password) {
         if (email.isEmpty()) {
-            textInputLayoutEmail.setError(getString(R.string.error_empty_fields));
-            return;
+            inputEmail.setError(getString(R.string.error_empty_fields));
+            return false;
         }
 
         if (password.isEmpty()) {
-            textInputLayoutPassword.setError(getString(R.string.error_empty_fields));
-            return;
+            inputPassword.setError(getString(R.string.error_empty_fields));
+            return false;
         }
 
-        mAuth.signInWithEmailAndPassword(email, password)
+        return true;
+    }
+
+    // =========================================================
+    // 5️⃣ Business actions
+    // =========================================================
+
+    private void doLogin(String email, String password) {
+        showLoading(true);
+
+        auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
+                    showLoading(false);
+
                     if (task.isSuccessful()) {
-                        FirebaseUser user = mAuth.getCurrentUser();
-                        if (user != null) {
-                            userPrefs.saveUser(email, password);
-                            showSuccess(getString(R.string.login_success));
-                            navigateToMain(user.getEmail());
-                        }
+                        onLoginSuccess(email, password);
                     } else {
-                        String error = task.getException() != null ? task.getException().getMessage() : "Unknown error";
-                        showError(getString(R.string.login_fail) + ": " + error);
+                        onLoginFailed(task.getException());
                     }
                 });
     }
 
     private void checkCurrentUser() {
-        FirebaseUser user = mAuth.getCurrentUser();
+        FirebaseUser user = auth.getCurrentUser();
         if (user != null) {
             navigateToMain(user.getEmail());
         }
     }
 
+    // =========================================================
+    // 6️⃣ Result handlers
+    // =========================================================
+
+    private void onLoginSuccess(String email, String password) {
+        userPrefs.saveUser(email, password);
+        Toast.makeText(this, getString(R.string.login_success), Toast.LENGTH_SHORT).show();
+        checkCurrentUser();
+    }
+
+    private void onLoginFailed(Exception exception) {
+        String error = exception != null ? exception.getMessage() : "Unknown error";
+        String message = getString(R.string.login_fail) + ": " + error;
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    }
+
+    // =========================================================
+    // 7️⃣ Navigation
+    // =========================================================
+
     private void navigateToMain(String email) {
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra("userEmail", email);
-        startActivity(intent);
+        Intent i = new Intent(this, MainActivity.class);
+        i.putExtra(LoginExtraConstant.EMAIL, email);
+        startActivity(i);
         finish();
     }
 
@@ -169,13 +252,5 @@ public class LoginActivity extends AppCompatActivity {
 
     private void navigateToRegister() {
         startActivity(new Intent(this, RegisterActivity.class));
-    }
-
-    private void showSuccess(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
-
-    private void showError(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 }

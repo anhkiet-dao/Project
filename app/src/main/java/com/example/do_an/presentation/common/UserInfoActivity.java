@@ -45,11 +45,12 @@ public class UserInfoActivity extends AppCompatActivity {
     private MaterialButton btnSave;
     private ImageView imageAvatar;
 
-    private Uri imageUri;
     private DatabaseReference databaseRef;
+    private ActivityResultLauncher<String> pickImageLauncher;
+
+    private Uri imageUri;
     private String userId, email;
 
-    private ActivityResultLauncher<String> pickImageLauncher;
     private static final int REQUEST_PERMISSION_CODE = 101;
 
     @Override
@@ -57,43 +58,17 @@ public class UserInfoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.user_activity_user_info);
 
-        setupLaunchers();
-        if (!checkIncomingIntent()) {
-            return;
-        }
-
-        databaseRef = FirebaseDatabase.getInstance(FirebaseConstants.DATABASE_URL)
-                .getReference(FirebaseConstants.USERS_PATH);
-        requestImagePermission();
-
-        setupViews();
-        setupListeners();
+        bindViews();
+        initDependencies();
+        setupUi();
+        bindActions();
     }
 
-    private void setupLaunchers() {
-        pickImageLauncher = registerForActivityResult(
-                new ActivityResultContracts.GetContent(),
-                uri -> {
-                    if (uri != null) {
-                        imageUri = uri;
-                        imageAvatar.setImageURI(uri);
-                    }
-                });
-    }
+    // =========================================================
+    // 1️⃣ Setup phase
+    // =========================================================
 
-    private boolean checkIncomingIntent() {
-        userId = getIntent().getStringExtra("uid");
-        email = getIntent().getStringExtra("email");
-
-        if (userId == null || email == null) {
-            showError(getString(R.string.toast_missing_account));
-            finish();
-            return false;
-        }
-        return true;
-    }
-
-    private void setupViews() {
+    private void bindViews() {
         imageAvatar = findViewById(R.id.imageAvatar);
 
         inputFullName = findViewById(R.id.inputFullName);
@@ -113,11 +88,48 @@ public class UserInfoActivity extends AppCompatActivity {
         btnSave = findViewById(R.id.btnSave);
     }
 
-    private void setupListeners() {
-        imageAvatar.setOnClickListener(v -> pickImageLauncher.launch("image/*"));
-        editBirthDate.setOnClickListener(v -> showDateDialog());
-        inputBirthDate.setEndIconOnClickListener(v -> showDateDialog());
-        btnSave.setOnClickListener(v -> handleSaveUserInfo());
+    private void initDependencies() {
+        databaseRef = FirebaseDatabase.getInstance(FirebaseConstants.DATABASE_URL)
+                .getReference(FirebaseConstants.USERS_PATH);
+
+        setupImagePicker();
+        extractIntentData();
+    }
+
+    private void setupUi() {
+        requestImagePermission();
+    }
+
+    private void bindActions() {
+        imageAvatar.setOnClickListener(v -> onSelectImageIntent());
+        editBirthDate.setOnClickListener(v -> onSelectDateIntent());
+        inputBirthDate.setEndIconOnClickListener(v -> onSelectDateIntent());
+        btnSave.setOnClickListener(v -> onSaveUserInfoIntent());
+    }
+
+    // =========================================================
+    // 2️⃣ UI helpers
+    // =========================================================
+
+    private void setupImagePicker() {
+        pickImageLauncher = registerForActivityResult(
+                new ActivityResultContracts.GetContent(),
+                uri -> {
+                    if (uri != null) {
+                        imageUri = uri;
+                        imageAvatar.setImageURI(uri);
+                    }
+                });
+    }
+
+    private void extractIntentData() {
+        userId = getIntent().getStringExtra("uid");
+        email = getIntent().getStringExtra("email");
+
+        if (userId == null || email == null) {
+            Toast.makeText(this, getString(R.string.toast_missing_account), Toast.LENGTH_LONG).show();
+            finish();
+        }
     }
 
     private void requestImagePermission() {
@@ -127,7 +139,7 @@ public class UserInfoActivity extends AppCompatActivity {
 
                 ActivityCompat.requestPermissions(
                         this,
-                        new String[]{Manifest.permission.READ_MEDIA_IMAGES},
+                        new String[] { Manifest.permission.READ_MEDIA_IMAGES },
                         REQUEST_PERMISSION_CODE);
             }
         } else {
@@ -136,38 +148,80 @@ public class UserInfoActivity extends AppCompatActivity {
 
                 ActivityCompat.requestPermissions(
                         this,
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        new String[] { Manifest.permission.READ_EXTERNAL_STORAGE },
                         REQUEST_PERMISSION_CODE);
             }
         }
     }
 
-    private void showDateDialog() {
+    private void showDatePicker() {
         final Calendar calendar = Calendar.getInstance();
-        int y = calendar.get(Calendar.YEAR);
-        int m = calendar.get(Calendar.MONTH);
-        int d = calendar.get(Calendar.DAY_OF_MONTH);
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
 
         DatePickerDialog dialog = new DatePickerDialog(
                 this,
-                (view, year, month, dayOfMonth) -> {
-                    String date = dayOfMonth + "/" + (month + 1) + "/" + year;
+                (view, y, m, d) -> {
+                    String date = d + "/" + (m + 1) + "/" + y;
                     editBirthDate.setText(date);
                 },
-                y, m, d);
+                year, month, day);
         dialog.show();
     }
 
-    private void handleSaveUserInfo() {
-        String fullName = editFullName.getText() != null ? editFullName.getText().toString().trim() : "";
-        String phone = editPhone.getText() != null ? editPhone.getText().toString().trim() : "";
-        String birthDate = editBirthDate.getText() != null ? editBirthDate.getText().toString().trim() : "";
-        String interest = editInterest.getText() != null ? editInterest.getText().toString().trim() : "";
-
+    private void clearErrors() {
         inputFullName.setError(null);
         inputPhone.setError(null);
         inputBirthDate.setError(null);
+    }
 
+    private String getText(TextInputEditText e) {
+        return e.getText() == null ? "" : e.getText().toString().trim();
+    }
+
+    private void showLoading(boolean show) {
+        btnSave.setEnabled(!show);
+    }
+
+    // =========================================================
+    // 3️⃣ Intent handlers
+    // =========================================================
+
+    private void onSelectImageIntent() {
+        pickImageLauncher.launch("image/*");
+    }
+
+    private void onSelectDateIntent() {
+        showDatePicker();
+    }
+
+    private void onSaveUserInfoIntent() {
+        clearErrors();
+
+        String fullName = getText(editFullName);
+        String phone = getText(editPhone);
+        String birthDate = getText(editBirthDate);
+        String interest = getText(editInterest);
+
+        if (!validateInput(fullName, phone, birthDate)) {
+            return;
+        }
+
+        String gender = getSelectedGender();
+        if (gender == null) {
+            Toast.makeText(this, getString(R.string.toast_missing_info), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        doSaveUserInfo(fullName, phone, birthDate, gender, interest);
+    }
+
+    // =========================================================
+    // 4️⃣ Validation
+    // =========================================================
+
+    private boolean validateInput(String fullName, String phone, String birthDate) {
         boolean isValid = true;
 
         if (fullName.isEmpty()) {
@@ -185,19 +239,31 @@ public class UserInfoActivity extends AppCompatActivity {
             isValid = false;
         }
 
-        if (!isValid)
-            return;
+        return isValid;
+    }
 
+    private String getSelectedGender() {
         int selectedId = radioGroupGender.getCheckedRadioButtonId();
         RadioButton selectedGender = findViewById(selectedId);
+        return selectedGender != null ? selectedGender.getText().toString() : null;
+    }
 
-        if (selectedGender == null) {
-            showError(getString(R.string.toast_missing_info));
-            return;
-        }
+    // =========================================================
+    // 5️⃣ Business actions
+    // =========================================================
 
-        String gender = selectedGender.getText().toString();
+    private void doSaveUserInfo(String fullName, String phone, String birthDate, String gender, String interest) {
+        showLoading(true);
 
+        Map<String, Object> userData = buildUserData(fullName, phone, birthDate, gender, interest);
+
+        databaseRef.child(userId).setValue(userData)
+                .addOnSuccessListener(a -> onSaveSuccess())
+                .addOnFailureListener(e -> onSaveFailed(e));
+    }
+
+    private Map<String, Object> buildUserData(String fullName, String phone, String birthDate, String gender,
+            String interest) {
         Map<String, Object> map = new HashMap<>();
         map.put("fullName", Encryption.encrypt(fullName));
         map.put("phone", Encryption.encrypt(phone));
@@ -206,34 +272,50 @@ public class UserInfoActivity extends AppCompatActivity {
         map.put("interest", Encryption.encrypt(interest));
         map.put("email", Encryption.encrypt(email));
 
-        // Process Image
         if (imageUri != null) {
-            try (InputStream is = getContentResolver().openInputStream(imageUri)) {
-                Bitmap bmp = android.graphics.BitmapFactory.decodeStream(is);
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                bmp.compress(Bitmap.CompressFormat.JPEG, 80, baos);
-                String encodedImage = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-
+            String encodedImage = encodeImage(imageUri);
+            if (encodedImage != null) {
                 map.put("avatarBase64", encodedImage);
-
-            } catch (IOException e) {
-                showError(getString(R.string.toast_image_error));
             }
         }
 
-        // Save to Firebase
-        databaseRef.child(userId).setValue(map)
-                .addOnSuccessListener(a -> {
-                    Toast.makeText(this, getString(R.string.toast_save_success), Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(UserInfoActivity.this, MainActivity.class));
-                    finish();
-                })
-                .addOnFailureListener(e -> {
-                    showError(getString(R.string.toast_save_failed) + ": " + e.getMessage());
-                });
+        return map;
     }
 
-    private void showError(String message) {
+    private String encodeImage(Uri uri) {
+        try (InputStream is = getContentResolver().openInputStream(uri)) {
+            Bitmap bmp = android.graphics.BitmapFactory.decodeStream(is);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bmp.compress(Bitmap.CompressFormat.JPEG, 80, baos);
+            return Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+        } catch (IOException e) {
+            Toast.makeText(this, getString(R.string.toast_image_error), Toast.LENGTH_SHORT).show();
+            return null;
+        }
+    }
+
+    // =========================================================
+    // 6️⃣ Result handlers
+    // =========================================================
+
+    private void onSaveSuccess() {
+        showLoading(false);
+        Toast.makeText(this, getString(R.string.toast_save_success), Toast.LENGTH_SHORT).show();
+        navigateToMain();
+    }
+
+    private void onSaveFailed(Exception exception) {
+        showLoading(false);
+        String message = getString(R.string.toast_save_failed) + ": " + exception.getMessage();
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    }
+
+    // =========================================================
+    // 7️⃣ Navigation
+    // =========================================================
+
+    private void navigateToMain() {
+        startActivity(new Intent(this, MainActivity.class));
+        finish();
     }
 }

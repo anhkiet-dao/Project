@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
@@ -27,6 +28,10 @@ import com.example.do_an.presentation.reading.chatbot.ChatbotFragment;
 import com.example.do_an.presentation.reading.note.NoteFragment;
 import com.example.do_an.R;
 import com.example.do_an.presentation.reading.reader.adapter.PdfPageAdapter;
+import com.example.do_an.presentation.reading.reader.util.FullScreenManager;
+import com.example.do_an.presentation.reading.reader.util.OcrProcessor;
+import com.example.do_an.presentation.reading.reader.util.ReadFragmentDataExtractor;
+import com.example.do_an.presentation.reading.reader.util.VoiceCommandHandler;
 import com.example.do_an.presentation.reading.settings.SettingsManager;
 import com.example.do_an.presentation.reading.settings.SpeechController;
 import com.example.do_an.presentation.library.downloads.DownloadInteractor;
@@ -45,21 +50,17 @@ public class ReadFragment extends Fragment implements DownloadInteractor.Loading
     private static final String TAG = "ReadFragment";
     private static final int REQUEST_AUDIO_PERMISSION = 1001;
 
-    private TextView txtTieuDe, txtPageIndicator, txtLoading;
+    private TextView textTitle, textPageIndicator, textLoading;
     private ViewPager2 pdfViewPager;
-    private ImageView btnFavorite, btnNote, btnFullScreenAction, btnSettings, btnChatbot;
+    private ImageView btnFavorite, btnNote, btnFullScreen, btnSettings, btnChatbot;
     private LinearLayout topBar, rootLayout, loadingLayout;
     private ProgressBar progressDownload;
     private Switch switchVoiceControl;
     private View settingsContainer;
 
     private String userEmail;
-    private String currentStoryId, currentTitle, mainStoryTitle;
-    private String currentAuthor, currentCategory, currentImageUrl;
     private String currentReadUrl = "";
-    private String episodePdfLink, pdfPath;
-
-    private boolean isFullScreenMode = false;
+    private String currentCategory;
 
     private SettingsManager settingsManager;
     private PdfViewerController pdfViewerController;
@@ -68,12 +69,17 @@ public class ReadFragment extends Fragment implements DownloadInteractor.Loading
     private HistoryManager historyManager;
     private SpeechController speechController;
 
+    private ReadFragmentDataExtractor dataExtractor;
+    private VoiceCommandHandler voiceCommandHandler;
+    private OcrProcessor ocrProcessor;
+    private FullScreenManager fullScreenManager;
+
     private DownloadedPdfDao pdfDao;
     private Call currentDownloadCall;
     private NavigationListener navigationListener;
 
-    private PdfOcrManager ocrManager;
     private String cachedOcrText = "";
+
     /* ================= FACTORY ================= */
 
     public static ReadFragment newInstance(Bundle args) {
@@ -82,7 +88,7 @@ public class ReadFragment extends Fragment implements DownloadInteractor.Loading
         return fragment;
     }
 
-    /* ================= LIFE CYCLE ================= */
+    /* ================= LIFECYCLE ================= */
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -101,14 +107,16 @@ public class ReadFragment extends Fragment implements DownloadInteractor.Loading
             return;
         }
         userEmail = user.getEmail();
-        setupIntentData(getArguments());
+
+        dataExtractor = new ReadFragmentDataExtractor();
+        dataExtractor.extractFromBundle(getArguments());
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.ui_activity_reading, container, false);
     }
 
@@ -116,13 +124,13 @@ public class ReadFragment extends Fragment implements DownloadInteractor.Loading
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        initViews(view);
-        initManagers();
-        setupPdfController();
-        setupViewsAndListeners(view);
+        bindViews(view);
+        initDependencies();
+        setupUi();
+        bindActions(view);
 
-        if (pdfPath != null && !pdfPath.isEmpty()) {
-            findAndSetupStoryInfoFromRoom(pdfPath);
+        if (dataExtractor.getPdfPath() != null && !dataExtractor.getPdfPath().isEmpty()) {
+            loadPdfFromLocalStorage(dataExtractor.getPdfPath());
         } else {
             checkMandatoryStoryInfo();
             loadPdfContent();
@@ -130,23 +138,34 @@ public class ReadFragment extends Fragment implements DownloadInteractor.Loading
         }
 
         if (settingsManager.isVoiceControlEnabled()) {
-            setupVoiceControlIfEnabled();
+            setupVoiceControl();
         }
     }
 
-    /* ================= INIT ================= */
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (speechController != null)
+            speechController.shutdown();
+        if (currentDownloadCall != null)
+            currentDownloadCall.cancel();
+    }
 
-    private void initViews(View view) {
-        txtTieuDe = view.findViewById(R.id.txtTieuDe);
-        txtPageIndicator = view.findViewById(R.id.txtPageIndicator);
-        txtLoading = view.findViewById(R.id.txtLoading);
+    // =========================================================
+    // 1️⃣ Setup phase
+    // =========================================================
+
+    private void bindViews(View view) {
+        textTitle = view.findViewById(R.id.txtTieuDe);
+        textPageIndicator = view.findViewById(R.id.txtPageIndicator);
+        textLoading = view.findViewById(R.id.txtLoading);
 
         pdfViewPager = view.findViewById(R.id.pdfViewPager);
         btnFavorite = view.findViewById(R.id.btnFavorite);
         btnNote = view.findViewById(R.id.btnNote);
-        btnFullScreenAction = view.findViewById(R.id.btnfull);
+        btnFullScreen = view.findViewById(R.id.btnfull);
         btnSettings = view.findViewById(R.id.btnSettings);
-        btnChatbot = view.findViewById(R.id.btnChatbot); // Khởi tạo nút AI
+        btnChatbot = view.findViewById(R.id.btnChatbot);
 
         topBar = view.findViewById(R.id.topBar);
         rootLayout = (LinearLayout) view;
@@ -155,13 +174,9 @@ public class ReadFragment extends Fragment implements DownloadInteractor.Loading
 
         settingsContainer = view.findViewById(R.id.settingsContainer);
         switchVoiceControl = view.findViewById(R.id.switchVoiceControl);
-
-        ocrManager = new PdfOcrManager();
-
-        if (currentTitle != null) txtTieuDe.setText(currentTitle);
     }
 
-    private void initManagers() {
+    private void initDependencies() {
         Context ctx = requireContext();
         settingsManager = new SettingsManager(ctx);
         historyManager = new HistoryManager(ctx);
@@ -171,286 +186,210 @@ public class ReadFragment extends Fragment implements DownloadInteractor.Loading
         pdfDao = db.downloadedPdfDao();
         downloadInteractor = new DownloadInteractor(ctx, pdfDao);
         downloadInteractor.setLoadingListener(this);
-        downloadInteractor.setTxtPageIndicator(txtPageIndicator);
+        downloadInteractor.setTxtPageIndicator(textPageIndicator);
+
+        voiceCommandHandler = new VoiceCommandHandler(createVoiceCommandCallback());
+        ocrProcessor = new OcrProcessor(createOcrCallback());
+
+        int paddingDp = (int) (getResources().getDisplayMetrics().density * 47);
+        fullScreenManager = new FullScreenManager(
+                topBar, rootLayout, btnFullScreen,
+                createFullScreenCallback(), paddingDp);
     }
+
+    private void setupUi() {
+        if (dataExtractor.getCurrentTitle() != null) {
+            textTitle.setText(dataExtractor.getCurrentTitle());
+        }
+        setupPdfController();
+    }
+
+    private void bindActions(View root) {
+        View btnDown = root.findViewById(R.id.btnDown);
+        View btnBack = root.findViewById(R.id.btnBack);
+        View btnCloseSettings = root.findViewById(R.id.btnCloseSettings);
+
+        if (btnDown != null) {
+            btnDown.setOnClickListener(v -> onDownloadIntent());
+        }
+
+        btnBack.setOnClickListener(v -> onBackIntent());
+        btnFavorite.setOnClickListener(v -> onFavoriteIntent());
+        btnChatbot.setOnClickListener(v -> onChatbotIntent());
+        btnNote.setOnClickListener(v -> onNoteIntent());
+        btnFullScreen.setOnClickListener(v -> onFullScreenIntent());
+
+        pdfViewerController.setupSettingsView(settingsContainer, (AppCompatButton) btnCloseSettings, btnSettings);
+
+        switchVoiceControl.setChecked(settingsManager.isVoiceControlEnabled());
+        switchVoiceControl.setOnCheckedChangeListener((b, checked) -> onVoiceControlToggled(checked));
+
+        favoriteHandler.checkIfFavorite(
+                dataExtractor.getCurrentStoryId(),
+                dataExtractor.getMainStoryTitle(),
+                dataExtractor.getCurrentTitle(),
+                userEmail,
+                btnFavorite);
+    }
+
+    // =========================================================
+    // 2️⃣ UI helpers
+    // =========================================================
 
     private void setupPdfController() {
         pdfViewerController = new PdfViewerController(
                 requireContext(),
                 pdfViewPager,
-                txtTieuDe,
+                textTitle,
                 settingsManager,
-                txtPageIndicator,
+                textPageIndicator,
                 this::getCurrentTitle,
-                url -> currentReadUrl = url
-        );
+                url -> currentReadUrl = url);
         pdfViewPager.registerOnPageChangeCallback(
-                pdfViewerController.getPageChangeCallback()
-        );
+                pdfViewerController.getPageChangeCallback());
     }
 
-    /* ================= UI + SETTINGS + AI ================= */
+    @Override
+    public void showLoading() {
+        if (loadingLayout != null)
+            loadingLayout.setVisibility(View.VISIBLE);
+    }
 
-    private void setupViewsAndListeners(View root) {
+    @Override
+    public void hideLoading() {
+        if (loadingLayout != null)
+            loadingLayout.setVisibility(View.GONE);
+    }
 
-        View btnDown = root.findViewById(R.id.btnDown);
-        if (btnDown != null) {
-            btnDown.setOnClickListener(v -> {
-                if (currentReadUrl == null || currentReadUrl.isEmpty()) {
-                    Toast.makeText(getContext(), "Không tìm thấy link để tải", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+    @Override
+    public void hideDownloadProgress() {
+        if (progressDownload != null)
+            progressDownload.setVisibility(View.GONE);
+    }
 
-                // Hiển thị tiến trình tải
-                if (progressDownload != null) progressDownload.setVisibility(View.VISIBLE);
+    private void showDownloadProgress() {
+        if (progressDownload != null)
+            progressDownload.setVisibility(View.VISIBLE);
+    }
 
-                // Tạo tên file lưu trữ: "Tên truyện - Tên tập.pdf"
-                String fileName = mainStoryTitle + " - " + currentTitle + ".pdf";
+    // =========================================================
+    // 3️⃣ Intent handlers
+    // =========================================================
 
-                // Gọi Manager thực hiện tải xuống và lưu vào Room database
-                downloadInteractor.downloadPdfWithOkHttp(
-                        currentReadUrl,
-                        fileName,
-                        currentStoryId,
-                        currentAuthor,
-                        currentImageUrl
-                );
-            });
+    private void onDownloadIntent() {
+        if (currentReadUrl == null || currentReadUrl.isEmpty()) {
+            Toast.makeText(getContext(), "Không tìm thấy link để tải", Toast.LENGTH_SHORT).show();
+            return;
         }
 
-        root.findViewById(R.id.btnBack)
-                .setOnClickListener(v -> requireActivity().onBackPressed());
+        showDownloadProgress();
 
+        String fileName = dataExtractor.getMainStoryTitle() + " - " + dataExtractor.getCurrentTitle() + ".pdf";
 
-        favoriteHandler.checkIfFavorite(
-                currentStoryId, mainStoryTitle, currentTitle, userEmail, btnFavorite
-        );
-
-        btnFavorite.setOnClickListener(v ->
-                favoriteHandler.toggleFavorite(
-                        userEmail, currentStoryId, mainStoryTitle, currentTitle,
-                        currentAuthor, currentCategory, currentImageUrl,
-                        currentReadUrl, btnFavorite
-                )
-        );
-
-        btnChatbot.setOnClickListener(v -> {
-            ocrCurrentPage();
-        });
-
-        btnNote.setOnClickListener(v -> {
-            int page = pdfViewerController.getCurrentPage() + 1;
-            NoteFragment f = NoteFragment.newInstance(
-                    currentStoryId + "_" + currentTitle,
-                    page,
-                    currentTitle
-            );
-            getParentFragmentManager().beginTransaction()
-                    .add(R.id.fragmentContainer, f)
-                    .addToBackStack(null)
-                    .commit();
-        });
-
-        btnFullScreenAction.setOnClickListener(v -> toggleFullScreenMode());
-
-        pdfViewerController.setupSettingsView(
-                settingsContainer,
-                root.findViewById(R.id.btnCloseSettings),
-                btnSettings
-        );
-
-        switchVoiceControl.setChecked(settingsManager.isVoiceControlEnabled());
-        switchVoiceControl.setOnCheckedChangeListener((b, checked) -> {
-            settingsManager.setVoiceControl(checked);
-            if (checked) setupVoiceControlIfEnabled();
-            else if (speechController != null) speechController.stop();
-        });
+        downloadInteractor.downloadPdfWithOkHttp(
+                currentReadUrl,
+                fileName,
+                dataExtractor.getCurrentStoryId(),
+                dataExtractor.getCurrentAuthor(),
+                dataExtractor.getCurrentImageUrl());
     }
 
-    /* ================= FULL SCREEN ================= */
+    private void onBackIntent() {
+        requireActivity().onBackPressed();
+    }
 
-    private void toggleFullScreenMode() {
-        isFullScreenMode = !isFullScreenMode;
-        int paddingBottom = (int) (getResources().getDisplayMetrics().density * 47);
+    private void onFavoriteIntent() {
+        favoriteHandler.toggleFavorite(
+                userEmail,
+                dataExtractor.getCurrentStoryId(),
+                dataExtractor.getMainStoryTitle(),
+                dataExtractor.getCurrentTitle(),
+                dataExtractor.getCurrentAuthor(),
+                currentCategory,
+                dataExtractor.getCurrentImageUrl(),
+                currentReadUrl,
+                btnFavorite);
+    }
 
-        if (isFullScreenMode) {
-            topBar.setVisibility(View.GONE);
-            rootLayout.setPadding(0, 0, 0, 0);
-            navigationListener.setBottomNavVisibility(View.GONE);
-            btnFullScreenAction.setImageResource(R.drawable.ic_exit_full);
-        } else {
-            topBar.setVisibility(View.VISIBLE);
-            rootLayout.setPadding(0, 0, 0, paddingBottom);
-            navigationListener.setBottomNavVisibility(View.VISIBLE);
-            btnFullScreenAction.setImageResource(R.drawable.ic_fullscreen);
+    private void onChatbotIntent() {
+        performOcrOnCurrentPage();
+    }
+
+    private void onNoteIntent() {
+        int page = pdfViewerController.getCurrentPage() + 1;
+        NoteFragment f = NoteFragment.newInstance(
+                dataExtractor.getCurrentStoryId() + "_" + dataExtractor.getCurrentTitle(),
+                page,
+                dataExtractor.getCurrentTitle());
+        getParentFragmentManager().beginTransaction()
+                .add(R.id.fragmentContainer, f)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    private void onFullScreenIntent() {
+        fullScreenManager.toggle();
+    }
+
+    private void onVoiceControlToggled(boolean enabled) {
+        settingsManager.setVoiceControl(enabled);
+        if (enabled) {
+            setupVoiceControl();
+        } else if (speechController != null) {
+            speechController.stop();
         }
     }
 
-    /* ================= VOICE CONTROL ================= */
-
-    private void setupVoiceControlIfEnabled() {
-        if (speechController == null)
-            speechController = new SpeechController(requireContext(), settingsManager);
-
-        if (ActivityCompat.checkSelfPermission(
-                requireContext(), Manifest.permission.RECORD_AUDIO)
-                != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(
-                    new String[]{Manifest.permission.RECORD_AUDIO},
-                    REQUEST_AUDIO_PERMISSION
-            );
-        } else {
-            startVoiceControl();
-        }
-    }
-
-    private void startVoiceControl() {
-        speechController.startListening(command -> {
-            String cmd = command.toLowerCase().trim();
-            Log.d(TAG, "Voice: " + cmd);
-
-            requireActivity().runOnUiThread(() -> {
-
-                if (cmd.contains("mở ghi chú") || cmd.contains("Thêm ghi chú")) btnNote.performClick();
-                else if (cmd.contains("đóng ghi chú")) getParentFragmentManager().popBackStack();
-                else if (cmd.contains("toàn màn hình") && !isFullScreenMode) toggleFullScreenMode();
-                else if (cmd.contains("thoát toàn màn hình") && isFullScreenMode) toggleFullScreenMode();
-                else if (cmd.contains("tiếp") || cmd.contains("Sau")) pdfViewPager.setCurrentItem(pdfViewerController.getCurrentPage() + 1, true);
-                else if (cmd.contains("trước")) pdfViewPager.setCurrentItem(pdfViewerController.getCurrentPage() - 1, true);
-                else if (cmd.contains("tải xuống") || cmd.contains("tải về") || cmd.contains("download")) {
-                    if (getView() != null) {
-                        View btnDown = getView().findViewById(R.id.btnDown);
-                        if (btnDown != null) {
-                            btnDown.performClick();
-                            Toast.makeText(getContext(), "Đang bắt đầu tải...", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(getContext(), "Không tìm thấy nút tải", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }
-                else if (cmd.contains("bỏ yêu thích") || cmd.contains("xóa yêu thích")) {
-                    if (btnFavorite.isSelected()) {
-                        btnFavorite.performClick();
-                    }
-                }
-                else if (cmd.contains("yêu thích")) {
-                    if (!btnFavorite.isSelected()) {
-                        btnFavorite.performClick();
-                    }
-                }
-                else if (cmd.contains("quay lại")) requireActivity().onBackPressed();
-            });
-        });
-    }
-
-    /* ================= DATA ================= */
-
-    private void setupIntentData(Bundle args) {
-        if (args == null) return;
-        episodePdfLink = args.getString("PDF_LINK");
-        pdfPath = args.getString("PDF_PATH");
-        currentStoryId = args.getString("STORY_ID");
-        mainStoryTitle = args.getString("STORY_TITLE");
-        currentAuthor = args.getString("STORY_AUTHOR");
-        currentImageUrl = args.getString("STORY_IMAGE_URL");
-
-        // --- SỬA ĐOẠN NÀY ---
-        // Cố gắng lấy chính xác tên tập
-        String tapName = args.getString("TAP_TITLE");
-
-        // Kiểm tra dự phòng: Đôi khi key có thể là "TAP" thay vì "TAP_TITLE"
-        if (tapName == null || tapName.isEmpty()) {
-            tapName = args.getString("TAP");
-        }
-
-        if (tapName != null && !tapName.isEmpty()) {
-            currentTitle = tapName;
-        } else {
-            // Nếu vẫn không có tên tập, thì đặt tạm 1 tên để phân biệt
-            currentTitle = "Tập mới nhất";
-        }
-        // --------------------
-    }
+    // =========================================================
+    // 4️⃣ Data validation
+    // =========================================================
 
     private void checkMandatoryStoryInfo() {
-        if (currentStoryId == null) currentStoryId = currentTitle;
-        if (currentAuthor == null) currentAuthor = getString(R.string.author_unknown);
+        if (dataExtractor.getCurrentStoryId() == null) {
+            dataExtractor.setCurrentStoryId(dataExtractor.getCurrentTitle());
+        }
+        if (dataExtractor.getCurrentAuthor() == null) {
+            dataExtractor.setCurrentAuthor(getString(R.string.author_unknown));
+        }
     }
+
+    // =========================================================
+    // 5️⃣ Business actions
+    // =========================================================
 
     private void loadPdfContent() {
         currentDownloadCall = downloadInteractor.loadAndSetupPdf(
-                episodePdfLink,
-                pdfPath,
-                mainStoryTitle,
+                dataExtractor.getEpisodePdfLink(),
+                dataExtractor.getPdfPath(),
+                dataExtractor.getMainStoryTitle(),
                 pdfViewerController::setupPdfRenderer,
-                url -> currentReadUrl = url
-        );
+                url -> currentReadUrl = url);
     }
 
     private void saveStartHistory() {
         historyManager.saveStartReadingHistory(
                 userEmail,
-                currentStoryId,
-                mainStoryTitle,
-                currentTitle,
-                currentAuthor,
-                currentImageUrl
-        );
+                dataExtractor.getCurrentStoryId(),
+                dataExtractor.getMainStoryTitle(),
+                dataExtractor.getCurrentTitle(),
+                dataExtractor.getCurrentAuthor(),
+                dataExtractor.getCurrentImageUrl());
     }
 
-    private void findAndSetupStoryInfoFromRoom(String path) {
+    private void loadPdfFromLocalStorage(String path) {
         showLoading();
         new Thread(() -> {
             DownloadedPdfEntity e = pdfDao.getPdfByFilePath(path);
             requireActivity().runOnUiThread(() -> {
                 if (e != null) {
-                    currentStoryId = e.storyDocumentId;
-
-                    String fileName = e.fileName.replace(".pdf", "");
-
-                    if (fileName.contains(" - ")) {
-                        String[] parts = fileName.split(" - ", 2);
-                        mainStoryTitle = parts[0].trim(); // Tên Truyện
-                        currentTitle = parts[1].trim();   // Tên Tập (Vd: Tập 1)
-                    } else {
-                        mainStoryTitle = fileName;
-                        currentTitle = "Tập đã tải";
-                    }
-                    // --------------------
-
-                    currentReadUrl = e.pdfUrl;
-
-                    // Cập nhật lại Text trên giao diện để người dùng thấy tên Tập
-                    if (txtTieuDe != null) txtTieuDe.setText(currentTitle);
-
-                    loadPdfContent();
+                    onLocalPdfLoaded(e);
                 }
                 hideLoading();
             });
         }).start();
     }
 
-    /* ================= LOADING ================= */
-
-    @Override public void showLoading() { if (loadingLayout != null) loadingLayout.setVisibility(View.VISIBLE); }
-    @Override public void hideLoading() { if (loadingLayout != null) loadingLayout.setVisibility(View.GONE); }
-    @Override public void hideDownloadProgress() { if (progressDownload != null) progressDownload.setVisibility(View.GONE); }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        if (speechController != null) speechController.shutdown();
-        if (currentDownloadCall != null) currentDownloadCall.cancel();
-    }
-
-    public String getCurrentTitle() { return currentTitle; }
-
-    public interface NavigationListener {
-        void setBottomNavVisibility(int visibility);
-    }
-
-    private void ocrCurrentPage() {
-
+    private void performOcrOnCurrentPage() {
         if (pdfViewerController == null) {
             Toast.makeText(getContext(), "PDF chưa sẵn sàng", Toast.LENGTH_SHORT).show();
             return;
@@ -467,49 +406,190 @@ public class ReadFragment extends Fragment implements DownloadInteractor.Loading
         PdfPageAdapter pdfAdapter = (PdfPageAdapter) adapter;
         Bitmap bitmap = pdfAdapter.getPageBitmap(pageIndex);
 
-        if (bitmap == null) {
-            Toast.makeText(getContext(), "Không lấy được ảnh trang", Toast.LENGTH_SHORT).show();
-            return;
+        ocrProcessor.processBitmap(bitmap, textLoading);
+    }
+
+    // =========================================================
+    // 6️⃣ Result handlers
+    // =========================================================
+
+    private void onLocalPdfLoaded(DownloadedPdfEntity entity) {
+        dataExtractor.setCurrentStoryId(entity.storyDocumentId);
+
+        String fileName = entity.fileName.replace(".pdf", "");
+
+        if (fileName.contains(" - ")) {
+            String[] parts = fileName.split(" - ", 2);
+            dataExtractor.setMainStoryTitle(parts[0].trim());
+            dataExtractor.setCurrentTitle(parts[1].trim());
+        } else {
+            dataExtractor.setMainStoryTitle(fileName);
+            dataExtractor.setCurrentTitle("Tập đã tải");
         }
 
-        showLoading();
-        txtLoading.setText("Đang phân tích trang...");
+        currentReadUrl = entity.pdfUrl;
 
-        ocrManager.ocr(bitmap, new PdfOcrManager.Callback() {
+        if (textTitle != null) {
+            textTitle.setText(dataExtractor.getCurrentTitle());
+        }
+
+        loadPdfContent();
+    }
+
+    // =========================================================
+    // 7️⃣ Voice control
+    // =========================================================
+
+    private void setupVoiceControl() {
+        if (speechController == null)
+            speechController = new SpeechController(requireContext(), settingsManager);
+
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(
+                    new String[] { Manifest.permission.RECORD_AUDIO },
+                    REQUEST_AUDIO_PERMISSION);
+        } else {
+            startVoiceListening();
+        }
+    }
+
+    private void startVoiceListening() {
+        speechController.startListening(command -> {
+            Log.d(TAG, "Voice: " + command);
+            requireActivity().runOnUiThread(() -> {
+                voiceCommandHandler.handleCommand(command);
+            });
+        });
+    }
+
+    private VoiceCommandHandler.VoiceCommandCallback createVoiceCommandCallback() {
+        return new VoiceCommandHandler.VoiceCommandCallback() {
+            @Override
+            public void onOpenNote() {
+                btnNote.performClick();
+            }
+
+            @Override
+            public void onCloseNote() {
+                getParentFragmentManager().popBackStack();
+            }
+
+            @Override
+            public void onToggleFullScreen() {
+                fullScreenManager.toggle();
+            }
+
+            @Override
+            public void onNextPage() {
+                pdfViewPager.setCurrentItem(pdfViewerController.getCurrentPage() + 1, true);
+            }
+
+            @Override
+            public void onPreviousPage() {
+                pdfViewPager.setCurrentItem(pdfViewerController.getCurrentPage() - 1, true);
+            }
+
+            @Override
+            public void onDownload() {
+                if (getView() != null) {
+                    View btnDown = getView().findViewById(R.id.btnDown);
+                    if (btnDown != null) {
+                        btnDown.performClick();
+                        Toast.makeText(getContext(), "Đang bắt đầu tải...", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getContext(), "Không tìm thấy nút tải", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onToggleFavorite() {
+                btnFavorite.performClick();
+            }
+
+            @Override
+            public void onBack() {
+                requireActivity().onBackPressed();
+            }
+
+            @Override
+            public boolean isFullScreen() {
+                return fullScreenManager.isFullScreen();
+            }
+
+            @Override
+            public boolean isFavorite() {
+                return btnFavorite.isSelected();
+            }
+        };
+    }
+
+    private OcrProcessor.OcrCallback createOcrCallback() {
+        return new OcrProcessor.OcrCallback() {
+            @Override
+            public void onStart() {
+                showLoading();
+            }
+
             @Override
             public void onSuccess(String text) {
                 hideLoading();
                 cachedOcrText = text;
-
                 Log.d("OCR", text);
-
-                Toast.makeText(
-                        getContext(),
-                        "Đã phân tích xong nội dung trang",
-                        Toast.LENGTH_SHORT
-                ).show();
-
-                /* ===== MỞ CHATBOT ===== */
-                ChatbotFragment chatbotFragment =
-                        ChatbotFragment.newInstance(cachedOcrText);
-
-                getParentFragmentManager().beginTransaction()
-                        .replace(R.id.fragmentContainer, chatbotFragment)
-                        .addToBackStack(null)
-                        .commit();
-
+                Toast.makeText(getContext(), "Đã phân tích xong nội dung trang", Toast.LENGTH_SHORT).show();
+                navigateToChatbot(cachedOcrText);
             }
 
             @Override
-            public void onError(Exception e) {
+            public void onError(String message) {
                 hideLoading();
-                Toast.makeText(
-                        getContext(),
-                        "OCR thất bại",
-                        Toast.LENGTH_SHORT
-                ).show();
+                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
             }
-        });
+        };
     }
 
+    private FullScreenManager.FullScreenCallback createFullScreenCallback() {
+        return new FullScreenManager.FullScreenCallback() {
+            @Override
+            public void onFullScreenChanged(int bottomNavVisibility) {
+                navigationListener.setBottomNavVisibility(bottomNavVisibility);
+            }
+
+            @Override
+            public int getEnterFullScreenIcon() {
+                return R.drawable.ic_fullscreen;
+            }
+
+            @Override
+            public int getExitFullScreenIcon() {
+                return R.drawable.ic_exit_full;
+            }
+        };
+    }
+
+    // =========================================================
+    // 8️⃣ Navigation
+    // =========================================================
+
+    private void navigateToChatbot(String ocrText) {
+        ChatbotFragment chatbotFragment = ChatbotFragment.newInstance(ocrText);
+
+        getParentFragmentManager().beginTransaction()
+                .replace(R.id.fragmentContainer, chatbotFragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    // =========================================================
+    // 9️⃣ Public interface
+    // =========================================================
+
+    public String getCurrentTitle() {
+        return dataExtractor.getCurrentTitle();
+    }
+
+    public interface NavigationListener {
+        void setBottomNavVisibility(int visibility);
+    }
 }

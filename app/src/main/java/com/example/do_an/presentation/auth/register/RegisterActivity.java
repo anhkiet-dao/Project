@@ -27,14 +27,15 @@ import com.google.firebase.auth.FirebaseUser;
 public class RegisterActivity extends AppCompatActivity {
 
     private TextInputEditText editEmail, editPassword, editConfirmPassword;
-    private TextInputLayout textInputLayoutEmail, textInputLayoutPassword, textInputLayoutConfirmPassword;
+    private TextInputLayout inputEmail, inputPassword, inputConfirmPassword;
     private MaterialButton btnRegister;
     private TextView textLoginNow;
     private Spinner spinnerLanguage;
 
-    private FirebaseAuth mAuth;
-    private LocalePreferences prefs;
+    private FirebaseAuth auth;
+    private LocalePreferences localePrefs;
     private UserPreferences userPrefs;
+
     private boolean spinnerInitialized = false;
 
     @Override
@@ -42,140 +43,208 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.auth_activity_register);
 
-        mAuth = FirebaseAuth.getInstance();
-        prefs = new LocalePreferences(this);
-        userPrefs = new UserPreferences(this);
-
-        setupViews();
-        loadViews();
-        setupListeners();
+        bindViews();
+        initDependencies();
+        setupUi();
+        bindActions();
     }
 
-    private void setupViews() {
+    // =========================================================
+    // 1️⃣ Setup phase
+    // =========================================================
+
+    private void bindViews() {
         editEmail = findViewById(R.id.editEmail);
         editPassword = findViewById(R.id.editPassword);
         editConfirmPassword = findViewById(R.id.editConfirmPassword);
 
-        textInputLayoutEmail = findViewById(R.id.inputEmail);
-        textInputLayoutPassword = findViewById(R.id.inputPassword);
-        textInputLayoutConfirmPassword = findViewById(R.id.inputConfirmPassword);
+        inputEmail = findViewById(R.id.inputEmail);
+        inputPassword = findViewById(R.id.inputPassword);
+        inputConfirmPassword = findViewById(R.id.inputConfirmPassword);
 
         btnRegister = findViewById(R.id.btnRegister);
         textLoginNow = findViewById(R.id.textLoginNow);
         spinnerLanguage = findViewById(R.id.spinnerLanguage);
     }
 
-    private void loadViews() {
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                this, R.array.Languages, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerLanguage.setAdapter(adapter);
-
-        Language lang = prefs.getLanguage();
-        spinnerLanguage.setSelection(lang.getPosition());
+    private void initDependencies() {
+        auth = FirebaseAuth.getInstance();
+        localePrefs = new LocalePreferences(this);
+        userPrefs = new UserPreferences(this);
     }
 
-    private void setupListeners() {
+    private void setupUi() {
+        setupLanguageSpinner();
+        clearErrors();
+    }
+
+    private void bindActions() {
+        btnRegister.setOnClickListener(v -> onRegisterIntent());
+        textLoginNow.setOnClickListener(v -> onLoginIntent());
+
         spinnerLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                handleSelectLanguage(position);
+                onLanguageSelected(position);
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
-
-        textLoginNow.setOnClickListener(v -> navigateToLogin());
-        btnRegister.setOnClickListener(v -> handleRegister());
     }
 
-    private void handleSelectLanguage(int position) {
+    // =========================================================
+    // 2️⃣ UI helpers
+    // =========================================================
+
+    private void setupLanguageSpinner() {
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                this,
+                R.array.Languages,
+                android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerLanguage.setAdapter(adapter);
+
+        Language current = localePrefs.getLanguage();
+        spinnerLanguage.setSelection(current.getPosition());
+    }
+
+    private void clearErrors() {
+        inputEmail.setError(null);
+        inputPassword.setError(null);
+        inputConfirmPassword.setError(null);
+    }
+
+    private String getText(TextInputEditText e) {
+        return e.getText() == null ? "" : e.getText().toString().trim();
+    }
+
+    private void showLoading(boolean show) {
+        btnRegister.setEnabled(!show);
+    }
+
+    // =========================================================
+    // 3️⃣ Intent handlers
+    // =========================================================
+
+    private void onRegisterIntent() {
+        clearErrors();
+
+        String email = getText(editEmail);
+        String password = getText(editPassword);
+        String confirmPassword = getText(editConfirmPassword);
+
+        if (!validateInput(email, password, confirmPassword)) {
+            return;
+        }
+
+        doRegister(email, password);
+    }
+
+    private void onLoginIntent() {
+        navigateToLogin();
+    }
+
+    private void onLanguageSelected(int position) {
         if (!spinnerInitialized) {
             spinnerInitialized = true;
             return;
         }
 
-        Language selectedLang = Language.fromPosition(position);
-
-        if (selectedLang != prefs.getLanguage()) {
-            spinnerLanguage.setSelection(selectedLang.getPosition());
-            LocaleManager.setLocale(selectedLang);
+        Language selected = Language.fromPosition(position);
+        if (selected != localePrefs.getLanguage()) {
+            localePrefs.setLanguage(selected);
+            spinnerLanguage.setSelection(selected.getPosition());
+            LocaleManager.setLocale(selected);
         }
     }
 
-    private void handleRegister() {
-        String email = editEmail.getText() != null ? editEmail.getText().toString().trim() : "";
-        String password = editPassword.getText() != null ? editPassword.getText().toString().trim() : "";
-        String confirmPassword = editConfirmPassword.getText() != null
-                ? editConfirmPassword.getText().toString().trim()
-                : "";
+    // =========================================================
+    // 4️⃣ Validation
+    // =========================================================
 
-        textInputLayoutEmail.setError(null);
-        textInputLayoutPassword.setError(null);
-        textInputLayoutConfirmPassword.setError(null);
-
+    private boolean validateInput(String email, String password, String confirmPassword) {
         if (email.isEmpty()) {
-            textInputLayoutEmail.setError(getString(R.string.error_empty_fields));
-            return;
+            inputEmail.setError(getString(R.string.error_empty_fields));
+            return false;
         }
 
         if (password.isEmpty()) {
-            textInputLayoutPassword.setError(getString(R.string.error_empty_fields));
-            return;
+            inputPassword.setError(getString(R.string.error_empty_fields));
+            return false;
         }
 
         if (confirmPassword.isEmpty()) {
-            textInputLayoutConfirmPassword.setError(getString(R.string.error_empty_fields));
-            return;
+            inputConfirmPassword.setError(getString(R.string.error_empty_fields));
+            return false;
         }
 
         if (!password.equals(confirmPassword)) {
-            textInputLayoutConfirmPassword.setError(getString(R.string.password_not_match));
-            return;
+            inputConfirmPassword.setError(getString(R.string.password_not_match));
+            return false;
         }
 
         if (password.length() < 6) {
-            textInputLayoutPassword.setError(getString(R.string.password_min_length));
-            return;
+            inputPassword.setError(getString(R.string.password_min_length));
+            return false;
         }
 
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
-                        FirebaseUser user = mAuth.getCurrentUser();
-                        showSuccess(getString(R.string.register_success));
+        return true;
+    }
 
+    // =========================================================
+    // 5️⃣ Business actions
+    // =========================================================
+
+    private void doRegister(String email, String password) {
+        showLoading(true);
+
+        auth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, task -> {
+                    showLoading(false);
+
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = auth.getCurrentUser();
                         if (user != null) {
-                            userPrefs.saveUser(email, password);
-                            navigateToUserInfo(user);
+                            onRegisterSuccess(email, password, user);
                         }
                     } else {
-                        String error = task.getException() != null ? task.getException().getMessage() : "Unknown error";
-                        showError(getString(R.string.error) + ": " + error);
+                        onRegisterFailed(task.getException());
                     }
                 });
     }
 
+    // =========================================================
+    // 6️⃣ Result handlers
+    // =========================================================
+
+    private void onRegisterSuccess(String email, String password, FirebaseUser user) {
+        userPrefs.saveUser(email, password);
+        Toast.makeText(this, getString(R.string.register_success), Toast.LENGTH_SHORT).show();
+        navigateToUserInfo(user);
+    }
+
+    private void onRegisterFailed(Exception exception) {
+        String error = exception != null ? exception.getMessage() : "Unknown error";
+        String message = getString(R.string.error) + ": " + error;
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    // =========================================================
+    // 7️⃣ Navigation
+    // =========================================================
+
     private void navigateToUserInfo(FirebaseUser user) {
-        Intent intent = new Intent(RegisterActivity.this, UserInfoActivity.class);
-        intent.putExtra("uid", user.getUid());
-        intent.putExtra("email", user.getEmail());
-        startActivity(intent);
+        Intent i = new Intent(this, UserInfoActivity.class);
+        i.putExtra("uid", user.getUid());
+        i.putExtra("email", user.getEmail());
+        startActivity(i);
         finish();
     }
 
     private void navigateToLogin() {
-        startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+        startActivity(new Intent(this, LoginActivity.class));
         finish();
-    }
-
-    private void showSuccess(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
-
-    private void showError(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }

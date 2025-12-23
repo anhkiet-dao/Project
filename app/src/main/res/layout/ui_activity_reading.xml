@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg_primary"
-    android:orientation="vertical"
-    android:paddingTop="20dp"
-    android:paddingBottom="47dp">
+    android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/topBar"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_marginTop="10dp"
         android:elevation="4dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
@@ -22,7 +18,7 @@
             android:id="@+id/btnBack"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:src="@drawable/ic_back" />
+            android:src="@drawable/ic_arrow_left" />
 
         <TextView
             android:id="@+id/txtTieuDe"
@@ -64,7 +60,7 @@
                 android:layout_height="30dp"
                 android:layout_marginStart="10dp"
                 android:contentDescription="Cài đặt"
-                android:src="@drawable/ic_setting" />
+                android:src="@drawable/ic_settings" />
         </LinearLayout>
     </LinearLayout>
 
@@ -72,14 +68,13 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@drawable/bg_pdf_frame"
+        android:background="@color/bg_primary"
         android:elevation="8dp">
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/pdfViewPager"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-
 
         <LinearLayout
             android:id="@+id/loadingLayout"
