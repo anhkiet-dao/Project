@@ -265,4 +265,8 @@
     <string name="user">User</string>
     <string name="no_history_available">No history available.</string>
     <string name="no_favorites_available">No favorites available.</string>
+    <string name="chatbot_welcome_message">Welcome! I am AI consultant 🤖</string>
+    <string name="chatbot_typing_indicator">Replying…</string>
+    <string name="chatbot_error_message">❌ An error occurred</string>
+    <string name="pdf_download_missing">Link download does not exits</string>
 </resources>

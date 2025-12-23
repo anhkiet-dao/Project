@@ -1,5 +1,6 @@
 package com.example.do_an.presentation.profile.settings;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.do_an.R;
@@ -21,6 +24,7 @@ public class SettingFragment extends Fragment {
 
     private View layoutLanguageSelector;
     private TextView textSelectedLanguage;
+    private SwitchCompat switchDarkMode;
     private Button btnSave;
 
     private String[] languages;
@@ -47,7 +51,7 @@ public class SettingFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+            @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.ui_setting_en_vi, container, false);
     }
 
@@ -63,6 +67,7 @@ public class SettingFragment extends Fragment {
     private void setupViews(View view) {
         layoutLanguageSelector = view.findViewById(R.id.layoutLanguageSelector);
         textSelectedLanguage = view.findViewById(R.id.textSelectedLanguage);
+        switchDarkMode = view.findViewById(R.id.switchDarkMode);
         btnSave = view.findViewById(R.id.btnSave);
     }
 
@@ -70,10 +75,18 @@ public class SettingFragment extends Fragment {
         Language currentLang = prefs.getLanguage();
         selectedLangCode = currentLang.getCode();
         textSelectedLanguage.setText(getLanguageName(selectedLangCode));
+
+        // Load dark mode state
+        boolean isDarkMode = isDarkModeEnabled();
+        switchDarkMode.setChecked(isDarkMode);
     }
 
     private void setupListeners() {
         layoutLanguageSelector.setOnClickListener(v -> showLanguageDialog());
+
+        switchDarkMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            setDarkMode(isChecked);
+        });
 
         btnSave.setOnClickListener(v -> {
             Language lang = Language.fromCode(selectedLangCode);
@@ -109,5 +122,18 @@ public class SettingFragment extends Fragment {
                 return languages[i];
         }
         return Language.VI.getDisplayName();
+    }
+
+    private boolean isDarkModeEnabled() {
+        SharedPreferences prefs = requireContext().getSharedPreferences("app_settings", 0);
+        return prefs.getBoolean("dark_mode", false);
+    }
+
+    private void setDarkMode(boolean enabled) {
+        SharedPreferences prefs = requireContext().getSharedPreferences("app_settings", 0);
+        prefs.edit().putBoolean("dark_mode", enabled).apply();
+
+        int mode = enabled ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO;
+        AppCompatDelegate.setDefaultNightMode(mode);
     }
 }

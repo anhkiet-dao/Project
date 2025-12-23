@@ -34,7 +34,7 @@ import com.example.do_an.presentation.reading.reader.util.ReadFragmentDataExtrac
 import com.example.do_an.presentation.reading.reader.util.VoiceCommandHandler;
 import com.example.do_an.presentation.reading.settings.SettingsManager;
 import com.example.do_an.presentation.reading.settings.SpeechController;
-import com.example.do_an.presentation.library.downloads.DownloadInteractor;
+import com.example.do_an.presentation.library.downloads.DownloadController;
 import com.example.do_an.domain.reading.repository.HistoryManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -45,7 +45,7 @@ import com.example.do_an.core.database.AppDatabase;
 import com.example.do_an.data.library.local.dao.DownloadedPdfDao;
 import com.example.do_an.data.library.local.entity.DownloadedPdfEntity;
 
-public class ReadFragment extends Fragment implements DownloadInteractor.LoadingListener {
+public class ReadFragment extends Fragment implements DownloadController.LoadingListener {
 
     private static final String TAG = "ReadFragment";
     private static final int REQUEST_AUDIO_PERMISSION = 1001;
@@ -64,7 +64,7 @@ public class ReadFragment extends Fragment implements DownloadInteractor.Loading
 
     private SettingsManager settingsManager;
     private PdfViewerController pdfViewerController;
-    private DownloadInteractor downloadInteractor;
+    private DownloadController downloadController;
     private FavoriteHandler favoriteHandler;
     private HistoryManager historyManager;
     private SpeechController speechController;
@@ -130,11 +130,11 @@ public class ReadFragment extends Fragment implements DownloadInteractor.Loading
         bindActions(view);
 
         if (dataExtractor.getPdfPath() != null && !dataExtractor.getPdfPath().isEmpty()) {
-            loadPdfFromLocalStorage(dataExtractor.getPdfPath());
+            loadPdfFromDb(dataExtractor.getPdfPath());
         } else {
-            checkMandatoryStoryInfo();
-            loadPdfContent();
-            saveStartHistory();
+            validateStoryInfo();
+            doLoadPdf();
+            doSaveHistory();
         }
 
         if (settingsManager.isVoiceControlEnabled()) {
@@ -184,9 +184,9 @@ public class ReadFragment extends Fragment implements DownloadInteractor.Loading
 
         AppDatabase db = AppDatabase.getDatabase(ctx);
         pdfDao = db.downloadedPdfDao();
-        downloadInteractor = new DownloadInteractor(ctx, pdfDao);
-        downloadInteractor.setLoadingListener(this);
-        downloadInteractor.setTxtPageIndicator(textPageIndicator);
+        downloadController = new DownloadController(ctx, pdfDao);
+        downloadController.setLoadingListener(this);
+        downloadController.setTxtPageIndicator(textPageIndicator);
 
         voiceCommandHandler = new VoiceCommandHandler(createVoiceCommandCallback());
         ocrProcessor = new OcrProcessor(createOcrCallback());
@@ -278,7 +278,8 @@ public class ReadFragment extends Fragment implements DownloadInteractor.Loading
 
     private void onDownloadIntent() {
         if (currentReadUrl == null || currentReadUrl.isEmpty()) {
-            Toast.makeText(getContext(), "Không tìm thấy link để tải", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), getString(R.string.pdf_download_missing),
+                    Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -286,7 +287,7 @@ public class ReadFragment extends Fragment implements DownloadInteractor.Loading
 
         String fileName = dataExtractor.getMainStoryTitle() + " - " + dataExtractor.getCurrentTitle() + ".pdf";
 
-        downloadInteractor.downloadPdfWithOkHttp(
+        downloadController.downloadPdfWithOkHttp(
                 currentReadUrl,
                 fileName,
                 dataExtractor.getCurrentStoryId(),
@@ -312,7 +313,7 @@ public class ReadFragment extends Fragment implements DownloadInteractor.Loading
     }
 
     private void onChatbotIntent() {
-        performOcrOnCurrentPage();
+        doOcr();
     }
 
     private void onNoteIntent() {
@@ -344,7 +345,7 @@ public class ReadFragment extends Fragment implements DownloadInteractor.Loading
     // 4️⃣ Data validation
     // =========================================================
 
-    private void checkMandatoryStoryInfo() {
+    private void validateStoryInfo() {
         if (dataExtractor.getCurrentStoryId() == null) {
             dataExtractor.setCurrentStoryId(dataExtractor.getCurrentTitle());
         }
@@ -357,8 +358,8 @@ public class ReadFragment extends Fragment implements DownloadInteractor.Loading
     // 5️⃣ Business actions
     // =========================================================
 
-    private void loadPdfContent() {
-        currentDownloadCall = downloadInteractor.loadAndSetupPdf(
+    private void doLoadPdf() {
+        currentDownloadCall = downloadController.loadAndSetupPdf(
                 dataExtractor.getEpisodePdfLink(),
                 dataExtractor.getPdfPath(),
                 dataExtractor.getMainStoryTitle(),
@@ -366,7 +367,7 @@ public class ReadFragment extends Fragment implements DownloadInteractor.Loading
                 url -> currentReadUrl = url);
     }
 
-    private void saveStartHistory() {
+    private void doSaveHistory() {
         historyManager.saveStartReadingHistory(
                 userEmail,
                 dataExtractor.getCurrentStoryId(),
@@ -376,7 +377,7 @@ public class ReadFragment extends Fragment implements DownloadInteractor.Loading
                 dataExtractor.getCurrentImageUrl());
     }
 
-    private void loadPdfFromLocalStorage(String path) {
+    private void loadPdfFromDb(String path) {
         showLoading();
         new Thread(() -> {
             DownloadedPdfEntity e = pdfDao.getPdfByFilePath(path);
@@ -389,7 +390,7 @@ public class ReadFragment extends Fragment implements DownloadInteractor.Loading
         }).start();
     }
 
-    private void performOcrOnCurrentPage() {
+    private void doOcr() {
         if (pdfViewerController == null) {
             Toast.makeText(getContext(), "PDF chưa sẵn sàng", Toast.LENGTH_SHORT).show();
             return;
@@ -433,7 +434,7 @@ public class ReadFragment extends Fragment implements DownloadInteractor.Loading
             textTitle.setText(dataExtractor.getCurrentTitle());
         }
 
-        loadPdfContent();
+        doLoadPdf();
     }
 
     // =========================================================

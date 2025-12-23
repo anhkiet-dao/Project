@@ -41,7 +41,8 @@
     <string name="start_download">Bắt đầu tải xuống</string>
     <string name="pdf_not_downloaded">Không tải được PDF!</string>
     <string name="download_success">Tải xuống thành công</string>
-    <string name="entity_deleted_for_redownload">Entity tồn tại nhưng file bị mất, xóa Entity và tải lại.</string>
+    <string name="entity_deleted_for_redownload">Entity tồn tại nhưng file bị mất, xóa Entity và tải
+        lại.</string>
     <string name="download_canceled">Đã hủy tải do thoát màn hình hoặc bị hủy thủ công</string>
     <string name="download_ready">PDF đã sẵn sàng để sử dụng</string>
     <string name="no_pdf_file">Truyện này không có file PDF!</string>
@@ -139,7 +140,8 @@
     <string name="no_story_data">Lỗi: Không có thông tin truyện để đọc!</string>
     <string name="author_unknown">Tác giả: Đang cập nhật</string>
     <string name="downloaded">Đã tải xuống</string>
-    <string name="story_not_found_room">Lỗi: Không tìm thấy thông tin chi tiết truyện đã tải trong CSDL.</string>
+    <string name="story_not_found_room">Lỗi: Không tìm thấy thông tin chi tiết truyện đã tải trong
+        CSDL.</string>
     <string name="no_pdf_link">Không tìm thấy link PDF!</string>
     <string name="no_fragment_manager">Lỗi: Không tìm thấy Fragment Manager.</string>
 
@@ -263,7 +265,12 @@
     <string name="hint_interest">Nhập sở thích</string>
     <string name="choose_language">Chọn ngôn ngữ</string>
     <string name="save">Lưu</string>
+    <string name="dark_mode">Chế độ tối</string>
     <string name="user">Người dùng</string>
     <string name="no_history_available">Chưa có lịch sử xem.</string>
     <string name="no_favorites_available">Chưa truyện yêu thích nào.</string>
+    <string name="chatbot_welcome_message">Xin chào! Tôi là AI trợ lý 🤖</string>
+    <string name="chatbot_typing_indicator">Đang trả lời…</string>
+    <string name="chatbot_error_message">❌ Có lỗi xảy ra</string>
+    <string name="pdf_download_missing">Không tìm thấy link để tải</string>
 </resources>

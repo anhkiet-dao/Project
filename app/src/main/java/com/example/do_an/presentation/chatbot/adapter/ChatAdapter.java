@@ -13,77 +13,76 @@ import com.example.do_an.domain.chatbot.model.Message;
 
 import java.util.List;
 
-public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.MessageViewHolder> {
+public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
     private static final int TYPE_USER = Message.TYPE_USER;
     private static final int TYPE_BOT = Message.TYPE_BOT;
 
-    private final List<Message> messages;
+    private List<Message> items;
 
-    public ChatAdapter(List<Message> messages) {
-        this.messages = messages;
+    // =========================================================
+    // Constructor
+    // =========================================================
+
+    public ChatAdapter(List<Message> items) {
+        this.items = items;
     }
 
-    // 1. Xác định loại View dựa trên Message.type
+    // =========================================================
+    // RecyclerView Methods
+    // =========================================================
+
     @Override
     public int getItemViewType(int position) {
-        return messages.get(position).type;
+        return items.get(position).type;
     }
 
     @NonNull
     @Override
-    public MessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view;
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == TYPE_USER) {
-            // Dùng layout cho tin nhắn User (bong bóng xanh, căn phải)
-            view = LayoutInflater.from(parent.getContext())
+            View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.chatbot_message_user, parent, false);
-            return new UserMessageViewHolder(view);
-        } else { // TYPE_BOT
-            // Dùng layout cho tin nhắn Bot (bong bóng xám, căn trái)
-            view = LayoutInflater.from(parent.getContext())
+            return new ViewHolder(view, viewType);
+        } else {
+            View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.chatbot_message_bot, parent, false);
-            return new BotMessageViewHolder(view);
+            return new ViewHolder(view, viewType);
         }
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
-        Message message = messages.get(position);
-
-        if (holder.getItemViewType() == TYPE_USER) {
-            ((UserMessageViewHolder) holder).txtMessageUser.setText(message.content);
-        } else {
-            ((BotMessageViewHolder) holder).txtMessageBot.setText(message.content);
-        }
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        Message message = items.get(position);
+        holder.bind(message);
     }
 
     @Override
     public int getItemCount() {
-        return messages.size();
+        return items.size();
     }
 
-    public static abstract class MessageViewHolder extends RecyclerView.ViewHolder {
-        public MessageViewHolder(@NonNull View itemView) {
+    // =========================================================
+    // ViewHolder
+    // =========================================================
+
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView textMessage;
+        int viewType;
+
+        ViewHolder(@NonNull View itemView, int viewType) {
             super(itemView);
+            this.viewType = viewType;
+
+            if (viewType == TYPE_USER) {
+                textMessage = itemView.findViewById(R.id.txtMessageUser);
+            } else {
+                textMessage = itemView.findViewById(R.id.txtMessageBot);
+            }
         }
-    }
 
-    public static class UserMessageViewHolder extends MessageViewHolder {
-        TextView txtMessageUser;
-
-        public UserMessageViewHolder(@NonNull View itemView) {
-            super(itemView);
-            txtMessageUser = itemView.findViewById(R.id.txtMessageUser);
-        }
-    }
-
-    public static class BotMessageViewHolder extends MessageViewHolder {
-        TextView txtMessageBot;
-
-        public BotMessageViewHolder(@NonNull View itemView) {
-            super(itemView);
-            txtMessageBot = itemView.findViewById(R.id.txtMessageBot);
+        void bind(Message message) {
+            textMessage.setText(message.content);
         }
     }
 }

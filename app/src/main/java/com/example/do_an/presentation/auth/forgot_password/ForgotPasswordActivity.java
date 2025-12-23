@@ -166,6 +166,8 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
         auth.sendPasswordResetEmail(email)
                 .addOnCompleteListener(task -> {
+                    if (isFinishing()) return;
+
                     showLoading(false);
 
                     if (task.isSuccessful()) {

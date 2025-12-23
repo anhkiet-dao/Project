@@ -202,6 +202,8 @@ public class RegisterActivity extends AppCompatActivity {
 
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
+                    if (isFinishing()) return;
+
                     showLoading(false);
 
                     if (task.isSuccessful()) {
@@ -237,8 +239,8 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void navigateToUserInfo(FirebaseUser user) {
         Intent i = new Intent(this, UserInfoActivity.class);
-        i.putExtra("uid", user.getUid());
-        i.putExtra("email", user.getEmail());
+        i.putExtra(RegisterExtraConstant.USER_ID, user.getUid());
+        i.putExtra(RegisterExtraConstant.EMAIL, user.getEmail());
         startActivity(i);
         finish();
     }

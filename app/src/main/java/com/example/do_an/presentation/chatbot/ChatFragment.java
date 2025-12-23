@@ -14,31 +14,31 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.do_an.data.chatbot.remote.ai.GroqAPIHelper;
 import com.example.do_an.R;
 import com.example.do_an.domain.chatbot.model.Message;
 import com.example.do_an.presentation.reading.reader.ReadFragment;
 import com.example.do_an.presentation.chatbot.adapter.ChatAdapter;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.example.do_an.data.chatbot.remote.ai.ChatAIHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ChatFragment extends Fragment {
 
-    private RecyclerView recyclerViewChat;
-    private EditText edtMessage;
+    private RecyclerView recyclerChat;
+    private EditText editMessage;
     private ImageButton btnSend;
 
-    // Sử dụng List<Message> mới
     private List<Message> messages;
     private ChatAdapter adapter;
     private LinearLayoutManager layoutManager;
+    private ChatAIHelper aiHelper;
 
     private ReadFragment.NavigationListener navigationListener;
-    private JSONArray conversation = new JSONArray();
+
+    // =========================================================
+    // Lifecycle
+    // =========================================================
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -50,41 +50,22 @@ public class ChatFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(
-            @NonNull LayoutInflater inflater,
+    public View onCreateView(@NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.chatbot_fragment_chat, container, false);
+    }
 
-        View view = inflater.inflate(R.layout.chatbot_fragment_chat, container, false);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        recyclerViewChat = view.findViewById(R.id.recyclerViewChat);
-        edtMessage = view.findViewById(R.id.edtMessage);
-        btnSend = view.findViewById(R.id.btnSend);
+        bindViews(view);
+        initDependencies();
+        setupUi();
+        bindActions();
 
-        messages = new ArrayList<>();
-        adapter = new ChatAdapter(messages);
-
-        layoutManager = new LinearLayoutManager(requireContext());
-        layoutManager.setStackFromEnd(true);
-
-        recyclerViewChat.setLayoutManager(layoutManager);
-        recyclerViewChat.setAdapter(adapter);
-
-        try {
-            JSONObject system = new JSONObject();
-            system.put("role", "system");
-            system.put("content", "Bạn là một AI trợ lý thân thiện, nhiệt tình và gần gũi. Hãy trả lời người dùng bằng tiếng Việt với giọng điệu tự nhiên, chân thành và mang tính chất chia sẻ, gợi mở. Dùng từ ngữ đơn giản, dễ hiểu. QUAN TRỌNG: Không được sử dụng bất kỳ ký tự hoặc cú pháp định dạng Markdown nào (như **in đậm** hoặc #heading).");
-            conversation.put(system);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        messages.add(new Message(Message.TYPE_BOT, "Xin chào! Tôi là AI trợ lý 🤖"));
-        adapter.notifyDataSetChanged();
-
-        btnSend.setOnClickListener(v -> sendMessage());
-
-        return view;
+        addWelcomeMessage();
     }
 
     @Override
@@ -109,66 +90,125 @@ public class ChatFragment extends Fragment {
         navigationListener = null;
     }
 
-    private void sendMessage() {
-        String userMsg = edtMessage.getText().toString().trim();
-        if (userMsg.isEmpty()) return;
+    // =========================================================
+    // 1️⃣ Setup phase
+    // =========================================================
 
-        btnSend.setEnabled(false);
+    private void bindViews(View view) {
+        recyclerChat = view.findViewById(R.id.recyclerViewChat);
+        editMessage = view.findViewById(R.id.edtMessage);
+        btnSend = view.findViewById(R.id.btnSend);
+    }
 
-        messages.add(new Message(Message.TYPE_USER, userMsg));
+    private void initDependencies() {
+        messages = new ArrayList<>();
+        adapter = new ChatAdapter(messages);
+        layoutManager = new LinearLayoutManager(requireContext());
+        layoutManager.setStackFromEnd(true);
+        aiHelper = new ChatAIHelper();
+    }
+
+    private void setupUi() {
+        recyclerChat.setLayoutManager(layoutManager);
+        recyclerChat.setAdapter(adapter);
+    }
+
+    private void bindActions() {
+        btnSend.setOnClickListener(v -> onSendIntent());
+    }
+
+    // =========================================================
+    // 2️⃣ UI helpers
+    // =========================================================
+
+    private void addWelcomeMessage() {
+        messages.add(new Message(Message.TYPE_BOT, getString(R.string.chatbot_welcome_message)));
+        adapter.notifyDataSetChanged();
+    }
+
+    private void addUserMessage(String text) {
+        messages.add(new Message(Message.TYPE_USER, text));
         adapter.notifyItemInserted(messages.size() - 1);
-        edtMessage.setText("");
+        scrollToBottom();
+    }
 
-        recyclerViewChat.smoothScrollToPosition(messages.size() - 1);
-
-        messages.add(new Message(Message.TYPE_BOT, "Đang trả lời..."));
+    private void addBotMessage(String text) {
+        messages.add(new Message(Message.TYPE_BOT, text));
         adapter.notifyItemInserted(messages.size() - 1);
-        recyclerViewChat.smoothScrollToPosition(messages.size() - 1);
+        scrollToBottom();
+    }
 
-        final int botIndex = messages.size() - 1;
+    private void updateBotMessage(int index, String text) {
+        messages.get(index).content = text;
+        adapter.notifyItemChanged(index);
+        scrollToBottom();
+    }
 
-        new Thread(() -> {
-            try {
-                JSONObject user = new JSONObject();
-                user.put("role", "user");
-                user.put("content", userMsg);
-                conversation.put(user);
+    private void scrollToBottom() {
+        recyclerChat.smoothScrollToPosition(messages.size() - 1);
+    }
 
-                String reply = GroqAPIHelper.askAI(conversation);
+    private void showLoading(boolean show) {
+        btnSend.setEnabled(!show);
+    }
 
-                if (reply == null || reply.startsWith("❌")) {
-                    reply = "Xin lỗi, hiện tại tôi không thể trả lời 😥";
-                }
+    // =========================================================
+    // 3️⃣ Intent handlers
+    // =========================================================
 
-                String cleanReply = reply
-                        .replace("**", "")
-                        .replace("*", "");
+    private void onSendIntent() {
+        String userMsg = editMessage.getText().toString().trim();
+        if (userMsg.isEmpty())
+            return;
 
-                JSONObject bot = new JSONObject();
-                bot.put("role", "assistant");
-                bot.put("content", cleanReply);
-                conversation.put(bot);
+        showLoading(true);
+        editMessage.setText("");
 
-                if (isAdded()) {
-                    requireActivity().runOnUiThread(() -> {
-                        messages.get(botIndex).content = cleanReply;
-                        adapter.notifyItemChanged(botIndex);
+        addUserMessage(userMsg);
+        addBotMessage(getString(R.string.chatbot_typing_indicator));
 
-                        recyclerViewChat.smoothScrollToPosition(messages.size() - 1);
-                        btnSend.setEnabled(true);
-                    });
-                }
+        doAskAI(userMsg, messages.size() - 1);
+    }
 
-            } catch (Exception e) {
-                e.printStackTrace();
-                if (isAdded()) {
-                    requireActivity().runOnUiThread(() -> {
-                        messages.get(botIndex).content = "❌ Có lỗi xảy ra";
-                        adapter.notifyItemChanged(botIndex);
-                        btnSend.setEnabled(true);
-                    });
-                }
+    // =========================================================
+    // 4️⃣ Business actions
+    // =========================================================
+
+    private void doAskAI(String userMsg, int botIndex) {
+        aiHelper.askAI(userMsg, new ChatAIHelper.AICallback() {
+            @Override
+            public void onSuccess(String reply) {
+                onAISuccess(botIndex, reply);
             }
-        }).start();
+
+            @Override
+            public void onError(String error) {
+                onAIFailed(botIndex);
+            }
+        });
+    }
+
+    // =========================================================
+    // 5️⃣ Result handlers
+    // =========================================================
+
+    private void onAISuccess(int botIndex, String reply) {
+        if (!isAdded())
+            return;
+
+        requireActivity().runOnUiThread(() -> {
+            updateBotMessage(botIndex, reply);
+            showLoading(false);
+        });
+    }
+
+    private void onAIFailed(int botIndex) {
+        if (!isAdded())
+            return;
+
+        requireActivity().runOnUiThread(() -> {
+            updateBotMessage(botIndex, getString(R.string.chatbot_error_message));
+            showLoading(false);
+        });
     }
 }

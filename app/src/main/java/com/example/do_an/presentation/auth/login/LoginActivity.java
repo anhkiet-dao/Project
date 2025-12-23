@@ -202,6 +202,8 @@ public class LoginActivity extends AppCompatActivity {
 
         auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
+                    if (isFinishing()) return;
+
                     showLoading(false);
 
                     if (task.isSuccessful()) {

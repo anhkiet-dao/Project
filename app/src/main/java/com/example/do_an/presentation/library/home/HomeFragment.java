@@ -18,7 +18,6 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.bumptech.glide.Glide;
 import com.example.do_an.R;
 import com.example.do_an.domain.library.model.Book;
-import com.example.do_an.domain.library.repository.PdfViewerUtility;
 import com.example.do_an.presentation.library.home.adapter.BookHomeAdapter;
 import com.example.do_an.presentation.library.home.adapter.BookImageAdapter;
 import com.example.do_an.presentation.library.series.SeriesFragment;

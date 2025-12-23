@@ -29,7 +29,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class DownloadInteractor {
+public class DownloadController {
     private static final String TAG = "DownloadManager";
     private final Context context;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -61,7 +61,7 @@ public class DownloadInteractor {
 
     private LoadingListener loadingListener;
 
-    public DownloadInteractor(Context context, DownloadedPdfDao pdfDao) {
+    public DownloadController(Context context, DownloadedPdfDao pdfDao) {
         this.context = context;
         this.pdfDao = pdfDao;
     }
