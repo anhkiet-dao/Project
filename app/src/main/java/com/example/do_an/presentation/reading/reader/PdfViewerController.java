@@ -25,7 +25,8 @@ public class PdfViewerController {
     private final Context context;
     private ViewPager2 pdfViewPager;
     private TextView txtTieuDe;
-    private TextView txtPageIndicator;
+    private View progressContainer;
+    private android.widget.ProgressBar readingProgressBar;
     private final SettingsManager settingsManager;
     private PdfPageAdapter pdfPageAdapter;
     private File pdfFile;
@@ -34,22 +35,41 @@ public class PdfViewerController {
     private Handler autoHandler = new Handler();
     private Runnable autoRunnable;
     private Runnable onPdfLoaded;
-    public interface StringSupplier { String get(); }
-    public interface StringConsumer { void set(String value); }
+    private Runnable hideProgressRunnable;
+
+    public interface StringSupplier {
+        String get();
+    }
+
+    public interface StringConsumer {
+        void set(String value);
+    }
 
     public PdfViewerController(Context context, ViewPager2 viewPager, TextView tieuDe,
-                               SettingsManager settingsManager, TextView pageIndicator,
-                               StringSupplier titleSupplier, StringConsumer urlConsumer) {
+            SettingsManager settingsManager, View progressContainer,
+            StringSupplier titleSupplier, StringConsumer urlConsumer) {
         this.context = context;
         this.pdfViewPager = viewPager;
         this.txtTieuDe = tieuDe;
         this.settingsManager = settingsManager;
-        this.txtPageIndicator = pageIndicator;
+        this.progressContainer = progressContainer;
+        this.readingProgressBar = progressContainer.findViewById(R.id.readingProgressBar);
         this.titleSupplier = titleSupplier;
         this.urlConsumer = urlConsumer;
+
+        // Initialize hide runnable
+        hideProgressRunnable = () -> {
+            progressContainer.animate()
+                    .alpha(0f)
+                    .setDuration(200)
+                    .withEndAction(() -> progressContainer.setVisibility(View.GONE))
+                    .start();
+        };
     }
 
-    public void setOnPdfLoaded(Runnable callback) { this.onPdfLoaded = callback; }
+    public void setOnPdfLoaded(Runnable callback) {
+        this.onPdfLoaded = callback;
+    }
 
     public void setupPdfRenderer(File pdfFile) {
         this.pdfFile = pdfFile;
@@ -57,7 +77,8 @@ public class PdfViewerController {
         if (pdfPageAdapter != null) {
             pdfViewPager.setAdapter(pdfPageAdapter);
             applySettingsToReader();
-            if (onPdfLoaded != null) onPdfLoaded.run();
+            if (onPdfLoaded != null)
+                onPdfLoaded.run();
             return;
         }
         try {
@@ -74,10 +95,12 @@ public class PdfViewerController {
                     context.getString(R.string.page) + ")");
             Toast.makeText(context, context.getString(R.string.toast_start_reading), Toast.LENGTH_SHORT).show();
             updatePageIndicator(pdfViewPager.getCurrentItem(), pdfPageAdapter.getItemCount());
-            if (settingsManager.isAutoNext()) startAutoNext();
+            if (settingsManager.isAutoNext())
+                startAutoNext();
 
             // Gọi callback khi PDF load xong
-            if (onPdfLoaded != null) onPdfLoaded.run();
+            if (onPdfLoaded != null)
+                onPdfLoaded.run();
 
         } catch (Exception e) {
             Log.e("PdfController", "Lỗi setup PdfRenderer", e);
@@ -85,37 +108,55 @@ public class PdfViewerController {
         }
     }
 
-    public void setViews(ViewPager2 viewPager, TextView tieuDe, TextView pageIndicator) {
+    public void setViews(ViewPager2 viewPager, TextView tieuDe, View progressContainer) {
         this.pdfViewPager = viewPager;
         this.txtTieuDe = tieuDe;
-        this.txtPageIndicator = pageIndicator;
+        this.progressContainer = progressContainer;
+        this.readingProgressBar = progressContainer.findViewById(R.id.readingProgressBar);
 
         if (pdfPageAdapter != null) {
             setupPdfRenderer(this.pdfFile);
         }
     }
 
-
     private boolean isTablet(Context ctx) {
         return ctx.getResources().getConfiguration().smallestScreenWidthDp >= 600;
     }
 
     public int getCurrentPage() {
-        if (pdfViewPager != null && pdfPageAdapter != null) return pdfViewPager.getCurrentItem();
+        if (pdfViewPager != null && pdfPageAdapter != null)
+            return pdfViewPager.getCurrentItem();
         return 0;
     }
 
     private void updatePageIndicator(int currentPosition, int totalCount) {
-        if (txtPageIndicator != null) txtPageIndicator.setText((currentPosition + 1) + "/" + totalCount);
+        if (progressContainer == null || totalCount == 0)
+            return;
+
+        int progress = (int) ((currentPosition + 1) * 100.0 / totalCount);
+
+        readingProgressBar.setProgress(progress);
+
+        // Show with fade animation
+        if (progressContainer.getVisibility() == View.GONE) {
+            progressContainer.setVisibility(View.VISIBLE);
+            progressContainer.setAlpha(0f);
+            progressContainer.animate().alpha(1f).setDuration(200).start();
+        }
+
+        // Auto-hide after 2 seconds
+        progressContainer.removeCallbacks(hideProgressRunnable);
+        progressContainer.postDelayed(hideProgressRunnable, 2000);
     }
 
     public void applySettingsToReader() {
-        if (pdfPageAdapter == null || pdfViewPager == null) return;
+        if (pdfPageAdapter == null || pdfViewPager == null)
+            return;
         final int currentPageIndex = pdfViewPager.getCurrentItem();
         final int oldPageMode = pdfPageAdapter.pageMode;
 
-        pdfViewPager.setOrientation(settingsManager.getDirection() == 0 ?
-                ViewPager2.ORIENTATION_VERTICAL : ViewPager2.ORIENTATION_HORIZONTAL);
+        pdfViewPager.setOrientation(settingsManager.getDirection() == 0 ? ViewPager2.ORIENTATION_HORIZONTAL
+                : ViewPager2.ORIENTATION_VERTICAL);
         pdfPageAdapter.setPageMode(settingsManager.getPageMode());
         pdfPageAdapter.notifyDataSetChanged();
 
@@ -141,8 +182,10 @@ public class PdfViewerController {
         RadioButton rbHorizontal = settingsContainer.findViewById(R.id.rbHorizontal);
         rbVertical.setText(context.getString(R.string.rbVertical));
         rbHorizontal.setText(context.getString(R.string.rbHorizontal));
-        if (settingsManager.getDirection() == 0) rgDirection.check(R.id.rbVertical);
-        else rgDirection.check(R.id.rbHorizontal);
+        if (settingsManager.getDirection() == 0)
+            rgDirection.check(R.id.rbVertical);
+        else
+            rgDirection.check(R.id.rbHorizontal);
 
         TextView txtPageModeTitle = settingsContainer.findViewById(R.id.txtPageMode);
         txtPageModeTitle.setText(context.getString(R.string.txtPageMode));
@@ -152,8 +195,10 @@ public class PdfViewerController {
         RadioButton rbDoublePage = settingsContainer.findViewById(R.id.rbDoublePage);
         rbSinglePage.setText(context.getString(R.string.rbSinglePage));
         rbDoublePage.setText(context.getString(R.string.rbDoublePage));
-        if (settingsManager.getPageMode() == 1) rgPageMode.check(R.id.rbSinglePage);
-        else rgPageMode.check(R.id.rbDoublePage);
+        if (settingsManager.getPageMode() == 1)
+            rgPageMode.check(R.id.rbSinglePage);
+        else
+            rgPageMode.check(R.id.rbDoublePage);
 
         Switch switchAutoNext = settingsContainer.findViewById(R.id.switchAutoNext);
         switchAutoNext.setText(context.getString(R.string.switchAutoNext));
@@ -184,37 +229,51 @@ public class PdfViewerController {
             if (layoutAutoTime != null) {
                 layoutAutoTime.setVisibility(isChecked ? View.VISIBLE : View.GONE);
             }
-            if (isChecked) startAutoNext();
-            else stopAutoNext();
+            if (isChecked)
+                startAutoNext();
+            else
+                stopAutoNext();
         });
         seekAutoTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (progress < 1) progress = 1;
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (progress < 1)
+                    progress = 1;
                 txtAutoTime.setText(progress + "s");
             }
-            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
-            @Override public void onStopTrackingTouch(SeekBar seekBar) {
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
                 int p = seekBar.getProgress();
-                if (p < 1) p = 1;
+                if (p < 1)
+                    p = 1;
                 settingsManager.setAutoTime(p);
-                if (settingsManager.isAutoNext()) { stopAutoNext(); startAutoNext(); }
+                if (settingsManager.isAutoNext()) {
+                    stopAutoNext();
+                    startAutoNext();
+                }
             }
         });
 
         btnSettings.setOnClickListener(v -> {
             settingsContainer.setVisibility(View.VISIBLE);
-            txtPageIndicator.setVisibility(View.GONE);
+            progressContainer.setVisibility(View.GONE);
         });
         btnCloseSettings.setText(context.getString(R.string.close));
         btnCloseSettings.setOnClickListener(v -> {
             settingsContainer.setVisibility(View.GONE);
-            txtPageIndicator.setVisibility(View.VISIBLE);
+            progressContainer.setVisibility(View.VISIBLE);
         });
     }
 
     public void startAutoNext() {
         stopAutoNext();
-        if (pdfViewPager == null) return;
+        if (pdfViewPager == null)
+            return;
 
         int delaySec = settingsManager.getAutoTime();
         final long delayMs = (delaySec < 1 ? 3 : delaySec) * 1000L;
@@ -222,13 +281,15 @@ public class PdfViewerController {
         autoRunnable = new Runnable() {
             @Override
             public void run() {
-                if (pdfPageAdapter == null || pdfViewPager == null) return;
+                if (pdfPageAdapter == null || pdfViewPager == null)
+                    return;
                 int current = pdfViewPager.getCurrentItem();
                 int total = pdfPageAdapter.getItemCount();
                 if (current + 1 < total) {
                     pdfViewPager.setCurrentItem(current + 1, true);
                     autoHandler.postDelayed(this, delayMs);
-                } else stopAutoNext();
+                } else
+                    stopAutoNext();
             }
         };
         autoHandler.postDelayed(autoRunnable, delayMs);
@@ -256,7 +317,8 @@ public class PdfViewerController {
     public void clearView() {
         this.pdfViewPager = null;
         this.txtTieuDe = null;
-        this.txtPageIndicator = null;
+        this.progressContainer = null;
+        this.readingProgressBar = null;
         stopAutoNext();
         Log.d("PdfController", "Đã xóa tham chiếu View.");
     }

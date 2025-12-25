@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.do_an.R;
 import com.example.do_an.domain.library.model.FavoriteStory;
-import com.example.do_an.presentation.library.series.SeriesFragment;
+import com.example.do_an.presentation.reading.reader.ReadFragment;
 
 import java.util.List;
 
@@ -58,8 +58,8 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.FavVie
 
         loadStoryImage(holder.imageStory, story.getImageUrl());
 
-        // Click listener to open SeriesFragment
-        holder.itemView.setOnClickListener(v -> navigateToSeriesFragment(story));
+        // Click listener to open ReadFragment
+        holder.itemView.setOnClickListener(v -> navigateToReadFragment(story));
 
         // Remove favorite button
         holder.btnRemoveFav.setOnClickListener(v -> {
@@ -104,20 +104,23 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.FavVie
         return imageUrl;
     }
 
-    private void navigateToSeriesFragment(FavoriteStory story) {
+    private void navigateToReadFragment(FavoriteStory story) {
         Bundle args = new Bundle();
-        args.putString("STORY_NAME", story.getTitle());
+        args.putString("STORY_TITLE", story.getTitle());
         args.putString("STORY_AUTHOR", story.getAuthor());
         args.putString("STORY_ID", story.getStoryId());
         args.putString("STORY_IMAGE_URL", story.getImageUrl());
+        args.putString("PDF_LINK", story.getReadUrl());
+        args.putString("TAP_TITLE", story.getTitle());
+        args.putBoolean("IS_FROM_FAVORITE", true);
 
         if (context instanceof AppCompatActivity) {
             AppCompatActivity activity = (AppCompatActivity) context;
-            SeriesFragment seriesFragment = SeriesFragment.newInstance(args);
+            ReadFragment readFragment = ReadFragment.newInstance(args);
 
             activity.getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.fragmentContainer, seriesFragment)
+                    .replace(R.id.fragmentContainer, readFragment)
                     .addToBackStack(null)
                     .commit();
         } else {

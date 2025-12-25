@@ -70,7 +70,8 @@ public class StatisticFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.statistic_fragment_statistics, container, false);
     }
 
@@ -138,8 +139,7 @@ public class StatisticFragment extends Fragment {
 
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-            );
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
             params.setMargins(8, 0, 8, 0);
             dayButton.setLayoutParams(params);
 
@@ -167,11 +167,13 @@ public class StatisticFragment extends Fragment {
                 String startStr = Encryption.decrypt(h.getStartTime());
                 String endStr = Encryption.decrypt(h.getEndTime());
                 String title = Encryption.decrypt(h.getTitle());
-                if (startStr == null || endStr == null) continue;
+                if (startStr == null || endStr == null)
+                    continue;
 
                 Date startDate = sdfFull.parse(startStr);
                 Date endDate = sdfFull.parse(endStr);
-                if (startDate == null || endDate == null) continue;
+                if (startDate == null || endDate == null)
+                    continue;
 
                 String startDay = sdfDayMonth.format(startDate);
                 String endDay = sdfDayMonth.format(endDate);
@@ -211,7 +213,8 @@ public class StatisticFragment extends Fragment {
                     histories.clear();
                     for (DataSnapshot child : snapshot.getChildren()) {
                         History h = child.getValue(History.class);
-                        if (h != null) histories.add(h);
+                        if (h != null)
+                            histories.add(h);
                     }
                     if (rbDaily.isChecked() && llDates.getChildCount() > 0) {
                         Button todayBtn = (Button) llDates.getChildAt(0);
@@ -294,11 +297,13 @@ public class StatisticFragment extends Fragment {
                 try {
                     String startStr = Encryption.decrypt(h.getStartTime());
                     String endStr = Encryption.decrypt(h.getEndTime());
-                    if (startStr == null || endStr == null) continue;
+                    if (startStr == null || endStr == null)
+                        continue;
 
                     Date startDate = sdfFull.parse(startStr);
                     Date endDate = sdfFull.parse(endStr);
-                    if (startDate == null || endDate == null) continue;
+                    if (startDate == null || endDate == null)
+                        continue;
 
                     String startDay = sdfDay.format(startDate);
                     String endDay = sdfDay.format(endDate);
@@ -312,8 +317,7 @@ public class StatisticFragment extends Fragment {
                 }
             }
 
-            float
-                    hours = totalMillis / 3600000f;
+            float hours = totalMillis / 3600000f;
             entries.add(new Entry(i, hours));
             cal.add(Calendar.DAY_OF_YEAR, 1);
         }
@@ -338,7 +342,7 @@ public class StatisticFragment extends Fragment {
 
         dataSet.setDrawValues(true);
         dataSet.setValueTextSize(10f);
-        dataSet.setValueTextColor(getResources().getColor(R.color.text_primary));
+        dataSet.setValueTextColor(getResources().getColor(R.color.text_on_primary));
         dataSet.setValueFormatter(new ValueFormatter() {
             private final DecimalFormat mFormat = new DecimalFormat("0.000"); // Định dạng 3 chữ số sau dấu phẩy
 
@@ -356,14 +360,15 @@ public class StatisticFragment extends Fragment {
             @Override
             public String getFormattedValue(float value) {
                 int idx = Math.round(value);
-                if (idx >= 0 && idx < labels.size()) return labels.get(idx);
+                if (idx >= 0 && idx < labels.size())
+                    return labels.get(idx);
                 return "";
             }
         });
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setGranularity(1f);
         xAxis.setDrawGridLines(false);
-        xAxis.setTextColor(Color.BLACK);
+        xAxis.setTextColor(getResources().getColor(R.color.text_on_primary));
         xAxis.setTextSize(10f);
         xAxis.setLabelCount(labels.size(), true);
 
@@ -372,19 +377,23 @@ public class StatisticFragment extends Fragment {
         leftAxis.setDrawAxisLine(false);
         leftAxis.setGridColor(getResources().getColor(R.color.bg_overlay));
         leftAxis.enableGridDashedLine(10f, 10f, 0f);
-        leftAxis.setTextColor(Color.BLACK);
+        leftAxis.setTextColor(getResources().getColor(R.color.text_on_primary));
         leftAxis.setTextSize(10f);
         leftAxis.setLabelCount(5, true);
 
         lineChart.getAxisRight().setEnabled(false);
 
-        lineChart.setBackgroundColor(getResources().getColor(R.color.bg_overlay));
+        lineChart.setBackgroundColor(getResources().getColor(R.color.bg_tertiary));
         lineChart.getLegend().setEnabled(true);
-        lineChart.getLegend().setTextColor(getResources().getColor(R.color.text_primary));
+        lineChart.getLegend().setTextColor(getResources().getColor(R.color.text_on_primary));
         lineChart.getLegend().setTextSize(12f);
-        lineChart.getLegend().setHorizontalAlignment(com.github.mikephil.charting.components.Legend.LegendHorizontalAlignment.LEFT);
-        lineChart.getLegend().setVerticalAlignment(com.github.mikephil.charting.components.Legend.LegendVerticalAlignment.TOP);
-        lineChart.getLegend().setForm(com.github.mikephil.charting.components.Legend.LegendForm.CIRCLE); // Hình dạng chú thích là hình tròn
+        lineChart.getLegend()
+                .setHorizontalAlignment(com.github.mikephil.charting.components.Legend.LegendHorizontalAlignment.LEFT);
+        lineChart.getLegend()
+                .setVerticalAlignment(com.github.mikephil.charting.components.Legend.LegendVerticalAlignment.TOP);
+        lineChart.getLegend().setForm(com.github.mikephil.charting.components.Legend.LegendForm.CIRCLE); // Hình dạng
+                                                                                                         // chú thích là
+                                                                                                         // hình tròn
         lineChart.getLegend().setXOffset(10f);
         lineChart.getLegend().setYOffset(5f);
         lineChart.getDescription().setEnabled(false);
@@ -419,11 +428,13 @@ public class StatisticFragment extends Fragment {
                 try {
                     String startStr = Encryption.decrypt(h.getStartTime());
                     String endStr = Encryption.decrypt(h.getEndTime());
-                    if (startStr == null || endStr == null) continue;
+                    if (startStr == null || endStr == null)
+                        continue;
 
                     Date startDate = sdfFull.parse(startStr);
                     Date endDate = sdfFull.parse(endStr);
-                    if (startDate == null || endDate == null) continue;
+                    if (startDate == null || endDate == null)
+                        continue;
 
                     Calendar startCal = Calendar.getInstance();
                     startCal.setTime(startDate);
@@ -468,7 +479,7 @@ public class StatisticFragment extends Fragment {
 
         dataSet.setDrawValues(true);
         dataSet.setValueTextSize(10f);
-        dataSet.setValueTextColor(getResources().getColor(R.color.text_primary));
+        dataSet.setValueTextColor(getResources().getColor(R.color.text_on_primary));
         dataSet.setValueFormatter(new ValueFormatter() {
             private final DecimalFormat mFormat = new DecimalFormat("0.000");
 
@@ -486,14 +497,15 @@ public class StatisticFragment extends Fragment {
             @Override
             public String getFormattedValue(float value) {
                 int idx = Math.round(value);
-                if (idx >= 0 && idx < reversedLabels.size()) return reversedLabels.get(idx);
+                if (idx >= 0 && idx < reversedLabels.size())
+                    return reversedLabels.get(idx);
                 return "";
             }
         });
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setGranularity(1f);
         xAxis.setDrawGridLines(false);
-        xAxis.setTextColor(Color.BLACK);
+        xAxis.setTextColor(getResources().getColor(R.color.text_on_primary));
         xAxis.setTextSize(10f);
         xAxis.setLabelCount(reversedLabels.size(), true);
 
@@ -502,17 +514,19 @@ public class StatisticFragment extends Fragment {
         leftAxis.setDrawAxisLine(false);
         leftAxis.setGridColor(getResources().getColor(R.color.bg_overlay));
         leftAxis.enableGridDashedLine(10f, 10f, 0f);
-        leftAxis.setTextColor(Color.BLACK);
+        leftAxis.setTextColor(getResources().getColor(R.color.text_on_primary));
         leftAxis.setTextSize(10f);
         leftAxis.setLabelCount(5, true);
 
         lineChart.getAxisRight().setEnabled(false);
         lineChart.getDescription().setEnabled(false);
         lineChart.getLegend().setEnabled(true);
-        lineChart.getLegend().setTextColor(getResources().getColor(R.color.text_primary));
+        lineChart.getLegend().setTextColor(getResources().getColor(R.color.text_on_primary));
         lineChart.getLegend().setTextSize(12f);
-        lineChart.getLegend().setHorizontalAlignment(com.github.mikephil.charting.components.Legend.LegendHorizontalAlignment.LEFT);
-        lineChart.getLegend().setVerticalAlignment(com.github.mikephil.charting.components.Legend.LegendVerticalAlignment.TOP);
+        lineChart.getLegend()
+                .setHorizontalAlignment(com.github.mikephil.charting.components.Legend.LegendHorizontalAlignment.LEFT);
+        lineChart.getLegend()
+                .setVerticalAlignment(com.github.mikephil.charting.components.Legend.LegendVerticalAlignment.TOP);
         lineChart.getLegend().setForm(com.github.mikephil.charting.components.Legend.LegendForm.CIRCLE);
         lineChart.getLegend().setXOffset(10f);
         lineChart.getLegend().setYOffset(5f);
@@ -536,7 +550,8 @@ public class StatisticFragment extends Fragment {
 
                 String combinedKey;
 
-                if (title == null || title.isEmpty()) continue;
+                if (title == null || title.isEmpty())
+                    continue;
 
                 if (episodeTitle == null || episodeTitle.isEmpty() || episodeTitle.equals(title)) {
                     // Giữ nguyên tên truyện chung nếu không có tên tập cụ thể
@@ -585,7 +600,7 @@ public class StatisticFragment extends Fragment {
 
         dataSet.setColors(colors);
         dataSet.setValueTextSize(14f);
-        dataSet.setValueTextColor(getResources().getColor(R.color.text_primary));
+        dataSet.setValueTextColor(getResources().getColor(R.color.text_on_primary));
         dataSet.setValueFormatter(new ValueFormatter() {
             private final DecimalFormat mFormat = new DecimalFormat("0");
 
@@ -607,7 +622,7 @@ public class StatisticFragment extends Fragment {
         xAxis.setDrawGridLines(false);
         xAxis.setGranularity(1f);
         xAxis.setLabelCount(labels.size());
-        xAxis.setTextColor(Color.DKGRAY);
+        xAxis.setTextColor(getResources().getColor(R.color.text_on_primary));
         xAxis.setTextSize(11f);
         xAxis.setAxisLineColor(Color.LTGRAY);
         xAxis.setLabelRotationAngle(-45);
@@ -629,7 +644,7 @@ public class StatisticFragment extends Fragment {
         leftAxis.setDrawAxisLine(false);
         leftAxis.setGridColor(getResources().getColor(R.color.bg_overlay));
         leftAxis.enableGridDashedLine(10f, 10f, 0f);
-        leftAxis.setTextColor(Color.DKGRAY);
+        leftAxis.setTextColor(getResources().getColor(R.color.text_on_primary));
 
         barChart.getAxisRight().setEnabled(false);
         barChart.getDescription().setEnabled(false);
@@ -640,7 +655,7 @@ public class StatisticFragment extends Fragment {
         barChart.setFitBars(true);
         barChart.setDrawBorders(false);
         barChart.setDrawGridBackground(false);
-        barChart.setBackgroundColor(getResources().getColor(R.color.bg_overlay));
+        barChart.setBackgroundColor(getResources().getColor(R.color.bg_tertiary));
         barChart.animateY(1200);
         barChart.setExtraOffsets(10f, 10f, 10f, 80f);
         barChart.invalidate();
@@ -650,9 +665,9 @@ public class StatisticFragment extends Fragment {
     private void drawPieChart(List<History> histories) {
         pieChart.clear();
 
-        long morningTime = 0;   // 0:00 - 11:59
+        long morningTime = 0; // 0:00 - 11:59
         long afternoonTime = 0; // 12:00 - 17:59
-        long eveningTime = 0;   // 18:00 - 23:59
+        long eveningTime = 0; // 18:00 - 23:59
 
         SimpleDateFormat sdfFull = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.getDefault());
         Calendar cal = Calendar.getInstance();
@@ -693,9 +708,12 @@ public class StatisticFragment extends Fragment {
 
         List<PieEntry> pieEntries = new ArrayList<>();
 
-        if (morningTime > 0) pieEntries.add(new PieEntry(morningTime, "Sáng"));
-        if (afternoonTime > 0) pieEntries.add(new PieEntry(afternoonTime, "Chiều"));
-        if (eveningTime > 0) pieEntries.add(new PieEntry(eveningTime, "Tối"));
+        if (morningTime > 0)
+            pieEntries.add(new PieEntry(morningTime, "Sáng"));
+        if (afternoonTime > 0)
+            pieEntries.add(new PieEntry(afternoonTime, "Chiều"));
+        if (eveningTime > 0)
+            pieEntries.add(new PieEntry(eveningTime, "Tối"));
 
         PieDataSet dataSet = new PieDataSet(pieEntries, "");
 
@@ -707,7 +725,7 @@ public class StatisticFragment extends Fragment {
         dataSet.setColors(colors);
         dataSet.setDrawValues(true);
         dataSet.setValueTextSize(14f);
-        dataSet.setValueTextColor(Color.BLACK);
+        dataSet.setValueTextColor(getResources().getColor(R.color.text_on_primary));
         dataSet.setSliceSpace(2f);
         dataSet.setYValuePosition(PieDataSet.ValuePosition.INSIDE_SLICE);
         dataSet.setXValuePosition(PieDataSet.ValuePosition.INSIDE_SLICE);
@@ -728,23 +746,27 @@ public class StatisticFragment extends Fragment {
         pieChart.getDescription().setEnabled(false);
         pieChart.setExtraOffsets(10f, 10f, 10f, 10f);
 
-        pieChart.setBackgroundColor(getResources().getColor(R.color.bg_overlay));
+        pieChart.setBackgroundColor(getResources().getColor(R.color.bg_tertiary));
         pieChart.setDrawHoleEnabled(true);
-        pieChart.setHoleColor(Color.WHITE);
+        pieChart.setHoleColor(getResources().getColor(R.color.bg_tertiary));
         pieChart.setTransparentCircleRadius(61f);
         pieChart.setHoleRadius(58f);
 
         pieChart.setCenterText(getString(R.string.total_reading_time));
         pieChart.setCenterTextSize(18f);
-        pieChart.setCenterTextColor(Color.BLACK);
+        pieChart.setCenterTextColor(getResources().getColor(R.color.text_on_primary));
 
         pieChart.setDrawEntryLabels(false);
 
         pieChart.setRotationEnabled(false);
         pieChart.getLegend().setWordWrapEnabled(true);
-        pieChart.getLegend().setVerticalAlignment(com.github.mikephil.charting.components.Legend.LegendVerticalAlignment.BOTTOM);
-        pieChart.getLegend().setHorizontalAlignment(com.github.mikephil.charting.components.Legend.LegendHorizontalAlignment.CENTER);
-        pieChart.getLegend().setOrientation(com.github.mikephil.charting.components.Legend.LegendOrientation.HORIZONTAL);
+        pieChart.getLegend().setTextColor(getResources().getColor(R.color.text_on_primary));
+        pieChart.getLegend()
+                .setVerticalAlignment(com.github.mikephil.charting.components.Legend.LegendVerticalAlignment.BOTTOM);
+        pieChart.getLegend().setHorizontalAlignment(
+                com.github.mikephil.charting.components.Legend.LegendHorizontalAlignment.CENTER);
+        pieChart.getLegend()
+                .setOrientation(com.github.mikephil.charting.components.Legend.LegendOrientation.HORIZONTAL);
         pieChart.getLegend().setDrawInside(false);
         pieChart.getLegend().setTextSize(13f);
         pieChart.getLegend().setYEntrySpace(5f);

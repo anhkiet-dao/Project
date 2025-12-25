@@ -11,29 +11,31 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardToolbar"
         android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="16dp"
-        app:cardBackgroundColor="?attr/colorPrimary"
-        app:cardElevation="0dp">
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        app:cardBackgroundColor="@color/border_focused"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="0dp"
+        app:contentPadding="0dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="25dp"
+            android:layout_height="50dp"
             android:background="@android:color/transparent"
             app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light"
-            app:titleTextColor="@android:color/white">
+            app:titleTextColor="@color/white">
 
             <TextView
                 android:id="@+id/textToolbarTitle"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:gravity="center"
                 android:text="Danh sách các tập"
-                android:textColor="@android:color/white"
-                android:textSize="18dp"
+                android:textAppearance="@style/TextAppearance.App.Input"
+                android:textColor="@color/white"
                 android:textStyle="bold" />
 
         </com.google.android.material.appbar.MaterialToolbar>
@@ -63,7 +65,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="Không có tập nào"
-            android:textColor="@android:color/darker_gray"
+            android:textColor="@color/border_disabled"
             android:textSize="18sp"
             android:visibility="gone" />
     </FrameLayout>

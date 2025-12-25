@@ -7,9 +7,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import com.example.do_an.R;
 
 public class InforAppFragment extends Fragment {
 
@@ -34,7 +37,7 @@ public class InforAppFragment extends Fragment {
                         "Hãy khám phá thế giới manga tuyệt vời ngay hôm nay và trải nghiệm cảm giác đọc truyện mượt mà, không gián đoạn!"
         );
         txtInfo.setTextSize(18);
-        txtInfo.setTextColor(Color.BLACK);
+        txtInfo.setTextColor(getResources().getColor(R.color.text_primary));
 
         layout.addView(txtInfo);
 

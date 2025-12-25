@@ -10,7 +10,6 @@ public class FullScreenManager {
     private final LinearLayout rootLayout;
     private final ImageView btnFullScreen;
     private final FullScreenCallback callback;
-    private final int paddingBottom;
 
     private int originalPaddingLeft;
     private int originalPaddingTop;
@@ -20,13 +19,11 @@ public class FullScreenManager {
     private boolean isFullScreen = false;
 
     public FullScreenManager(LinearLayout topBar, LinearLayout rootLayout,
-            ImageView btnFullScreen, FullScreenCallback callback,
-            int paddingBottomPx) {
+            ImageView btnFullScreen, FullScreenCallback callback) {
         this.topBar = topBar;
         this.rootLayout = rootLayout;
         this.btnFullScreen = btnFullScreen;
         this.callback = callback;
-        this.paddingBottom = paddingBottomPx;
 
         // Save original padding values
         saveOriginalPadding();
@@ -58,12 +55,12 @@ public class FullScreenManager {
 
     private void exitFullScreen() {
         topBar.setVisibility(View.VISIBLE);
-        // Restore original padding with the bottom padding for navigation bar
+        // Restore original padding values
         rootLayout.setPadding(
                 originalPaddingLeft,
                 originalPaddingTop,
                 originalPaddingRight,
-                paddingBottom);
+                originalPaddingBottom);
         callback.onFullScreenChanged(View.VISIBLE);
         btnFullScreen.setImageResource(callback.getEnterFullScreenIcon());
     }

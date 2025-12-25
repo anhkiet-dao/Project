@@ -27,10 +27,13 @@ public class PdfPageAdapter extends RecyclerView.Adapter<PdfPageAdapter.PdfPageV
     private ParcelFileDescriptor fileDescriptor;
     private Bitmap[] bitmapCache;
     public int pageMode = 1;
+
     public void setPageMode(int mode) {
-        if (mode < 1) mode = 1;
+        if (mode < 1)
+            mode = 1;
         this.pageMode = mode;
     }
+
     public PdfPageAdapter(Context context, File pdfFile) {
         this.context = context;
         try {
@@ -50,9 +53,11 @@ public class PdfPageAdapter extends RecyclerView.Adapter<PdfPageAdapter.PdfPageV
 
     @Override
     public void onBindViewHolder(@NonNull PdfPageViewHolder holder, int position) {
-        if (pdfRenderer == null) return;
+        if (pdfRenderer == null)
+            return;
 
-        if (bitmapCache == null) bitmapCache = new Bitmap[getItemCount()];
+        if (bitmapCache == null)
+            bitmapCache = new Bitmap[getItemCount()];
 
         if (bitmapCache[position] != null) {
             holder.pageImageView.setImageBitmap(bitmapCache[position]);
@@ -84,7 +89,8 @@ public class PdfPageAdapter extends RecyclerView.Adapter<PdfPageAdapter.PdfPageV
             Log.e(TAG, "Lỗi render trang " + pageIndex, e);
             return null;
         } finally {
-            if (page != null) page.close();
+            if (page != null)
+                page.close();
         }
     }
 
@@ -116,7 +122,8 @@ public class PdfPageAdapter extends RecyclerView.Adapter<PdfPageAdapter.PdfPageV
             leftBitmap.recycle();
 
             if (rightPage != null) {
-                Bitmap rightBitmap = Bitmap.createBitmap(rightPage.getWidth(), rightPage.getHeight(), Bitmap.Config.ARGB_8888);
+                Bitmap rightBitmap = Bitmap.createBitmap(rightPage.getWidth(), rightPage.getHeight(),
+                        Bitmap.Config.ARGB_8888);
                 rightPage.render(rightBitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
                 canvas.drawBitmap(rightBitmap, leftPage.getWidth(), 0, null);
                 rightBitmap.recycle();
@@ -128,8 +135,10 @@ public class PdfPageAdapter extends RecyclerView.Adapter<PdfPageAdapter.PdfPageV
             Log.e(TAG, "Lỗi render trang đôi", e);
             return null;
         } finally {
-            if (leftPage != null) leftPage.close();
-            if (rightPage != null) rightPage.close();
+            if (leftPage != null)
+                leftPage.close();
+            if (rightPage != null)
+                rightPage.close();
         }
     }
 
@@ -150,15 +159,18 @@ public class PdfPageAdapter extends RecyclerView.Adapter<PdfPageAdapter.PdfPageV
         } catch (Exception e) {
             Log.e(TAG, "Lỗi render trang " + pageIndex, e);
         } finally {
-            if (page != null) page.close();
+            if (page != null)
+                page.close();
         }
     }
 
     @Override
     public int getItemCount() {
-        if (pdfRenderer == null) return 0;
+        if (pdfRenderer == null)
+            return 0;
         int total = pdfRenderer.getPageCount();
-        if (pageMode == 1) return total;
+        if (pageMode == 1)
+            return total;
         // mỗi item hiển thị 2 trang
         return (total + 1) / 2; // ceil(total / 2)
     }

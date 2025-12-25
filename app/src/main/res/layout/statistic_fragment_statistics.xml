@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginHorizontal="10dp"
     android:background="@color/bg_primary"
     android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
         android:orientation="vertical">
 
         <RadioGroup
@@ -92,7 +92,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/accent"
+                    android:background="@color/bg_tertiary"
                     android:gravity="center"
                     android:orientation="vertical"
                     android:padding="10dp">
@@ -103,6 +103,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/sum_book"
                         android:textAppearance="@style/TextAppearance.App.TitleMedium"
+                        android:textColor="@color/text_on_primary"
                         android:textStyle="bold" />
 
                     <TextView
@@ -111,6 +112,7 @@
                         android:layout_height="wrap_content"
                         android:text="0"
                         android:textAppearance="@style/TextAppearance.App.TitleMedium"
+                        android:textColor="@color/text_on_primary"
                         android:textStyle="bold" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -126,7 +128,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/accent"
+                    android:background="@color/bg_tertiary"
                     android:gravity="center"
                     android:orientation="vertical"
                     android:padding="10dp">
@@ -137,6 +139,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/sum_hours"
                         android:textAppearance="@style/TextAppearance.App.TitleMedium"
+                        android:textColor="@color/text_on_primary"
                         android:textStyle="bold" />
 
                     <TextView
@@ -145,6 +148,7 @@
                         android:layout_height="wrap_content"
                         android:text="0"
                         android:textAppearance="@style/TextAppearance.App.TitleMedium"
+                        android:textColor="@color/text_on_primary"
                         android:textStyle="bold" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -163,6 +167,7 @@
             android:layout_width="match_parent"
             android:layout_height="400dp"
             android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="@color/bg_tertiary"
             app:cardCornerRadius="8dp"
             app:cardElevation="6dp">
 
@@ -187,6 +192,7 @@
             android:layout_width="match_parent"
             android:layout_height="450dp"
             android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="@color/bg_tertiary"
             app:cardCornerRadius="8dp"
             app:cardElevation="6dp">
 
@@ -211,6 +217,7 @@
             android:layout_width="match_parent"
             android:layout_height="300dp"
             android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="@color/bg_tertiary"
             app:cardCornerRadius="8dp"
             app:cardElevation="6dp">
 

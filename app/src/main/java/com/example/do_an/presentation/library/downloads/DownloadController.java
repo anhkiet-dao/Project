@@ -37,7 +37,7 @@ public class DownloadController {
     private boolean isActivityDestroyed = false;
     private final int OPTIMIZED_BUFFER_SIZE = 1024 * 1024;
     private final Handler uiHandler = new Handler(Looper.getMainLooper());
-    private TextView txtPageIndicator;
+    private View progressContainer;
 
     public interface PdfSetupCallback {
         void setup(File pdfFile);
@@ -55,8 +55,8 @@ public class DownloadController {
         void hideDownloadProgress();
     }
 
-    public void setTxtPageIndicator(TextView textView) {
-        this.txtPageIndicator = textView;
+    public void setProgressContainer(View progressContainer) {
+        this.progressContainer = progressContainer;
     }
 
     private LoadingListener loadingListener;
@@ -75,12 +75,15 @@ public class DownloadController {
     }
 
     private void runOnUiThread(Runnable action) {
-        if (context instanceof Activity) ((Activity) context).runOnUiThread(action);
-        else uiHandler.post(action);
+        if (context instanceof Activity)
+            ((Activity) context).runOnUiThread(action);
+        else
+            uiHandler.post(action);
     }
 
     private void hideLoadingOnUi() {
-        if (loadingListener != null) runOnUiThread(() -> loadingListener.hideLoading());
+        if (loadingListener != null)
+            runOnUiThread(() -> loadingListener.hideLoading());
     }
 
     private void showToast(String message) {
@@ -104,16 +107,18 @@ public class DownloadController {
     }
 
     public void downloadPdfWithOkHttp(final String pdfUrl, final String fileName, final String storyDocumentId,
-                                      final String author, final String coverImageUrl) {
+            final String author, final String coverImageUrl) {
 
         new Thread(() -> {
             DownloadedPdfEntity existingPdf = pdfDao.getPdfByFileName(fileName);
             File pdfDir = new File(context.getExternalFilesDir(null), "PDF");
-            if (!pdfDir.exists()) pdfDir.mkdirs();
+            if (!pdfDir.exists())
+                pdfDir.mkdirs();
             File localFile = new File(pdfDir, fileName);
 
             if (localFile.exists()) {
-                @SuppressLint({"StringFormatInvalid", "LocalSuppress"}) String msg = context.getString(R.string.file_already_downloaded, fileName.replace(".pdf", ""));
+                @SuppressLint({ "StringFormatInvalid", "LocalSuppress" })
+                String msg = context.getString(R.string.file_already_downloaded, fileName.replace(".pdf", ""));
                 showToast(msg);
                 logDebug(msg);
                 if (loadingListener != null)
@@ -161,7 +166,8 @@ public class DownloadController {
                         fos = new FileOutputStream(localFile);
                         byte[] buffer = new byte[OPTIMIZED_BUFFER_SIZE];
                         int len;
-                        while ((len = is.read(buffer)) != -1) fos.write(buffer, 0, len);
+                        while ((len = is.read(buffer)) != -1)
+                            fos.write(buffer, 0, len);
                         fos.flush();
 
                         final File finalPdfFile = localFile;
@@ -186,9 +192,12 @@ public class DownloadController {
                             runOnUiThread(() -> loadingListener.hideDownloadProgress());
                     } finally {
                         try {
-                            if (fos != null) fos.close();
-                            if (is != null) is.close();
-                            if (response != null) response.close();
+                            if (fos != null)
+                                fos.close();
+                            if (is != null)
+                                is.close();
+                            if (response != null)
+                                response.close();
                         } catch (IOException ignored) {
                         }
                     }
@@ -198,7 +207,8 @@ public class DownloadController {
     }
 
     private Call downloadPdfToCache(final String pdfUrl, final String fileName, final PdfSetupCallback callback) {
-        if (loadingListener != null) runOnUiThread(() -> loadingListener.showLoading());
+        if (loadingListener != null)
+            runOnUiThread(() -> loadingListener.showLoading());
 
         OkHttpClient client = new OkHttpClient.Builder()
                 .connectTimeout(60, TimeUnit.SECONDS)
@@ -230,7 +240,8 @@ public class DownloadController {
 
                     is = response.body().byteStream();
                     File cacheDir = new File(context.getCacheDir(), "PDF");
-                    if (!cacheDir.exists()) cacheDir.mkdirs();
+                    if (!cacheDir.exists())
+                        cacheDir.mkdirs();
 
                     pdfFile = new File(cacheDir, fileName);
                     fos = new FileOutputStream(pdfFile);
@@ -250,7 +261,8 @@ public class DownloadController {
 
                     runOnUiThread(() -> {
                         callback.setup(finalPdfFile);
-                        if (txtPageIndicator != null) txtPageIndicator.setVisibility(View.VISIBLE);
+                        if (progressContainer != null)
+                            progressContainer.setVisibility(View.VISIBLE);
                         hideLoadingOnUi();
                         logDebug(context.getString(R.string.download_ready));
                     });
@@ -260,12 +272,16 @@ public class DownloadController {
                     hideLoadingOnUi();
                 } finally {
                     try {
-                        if (is != null) is.close();
-                        if (fos != null) fos.close();
-                        if (response != null) response.close();
+                        if (is != null)
+                            is.close();
+                        if (fos != null)
+                            fos.close();
+                        if (response != null)
+                            response.close();
                     } catch (IOException ignored) {
                     }
-                    if (call.isCanceled() && pdfFile != null) pdfFile.delete();
+                    if (call.isCanceled() && pdfFile != null)
+                        pdfFile.delete();
                 }
             }
         });
@@ -274,7 +290,8 @@ public class DownloadController {
     }
 
     @SuppressLint("StringFormatInvalid")
-    private void loadPdfFromFirestore(final String storyDocumentId, final PdfSetupCallback callback, final StringConsumer urlConsumer) {
+    private void loadPdfFromFirestore(final String storyDocumentId, final PdfSetupCallback callback,
+            final StringConsumer urlConsumer) {
         db.collection("Truyentranh").document(storyDocumentId)
                 .get()
                 .addOnSuccessListener(doc -> {
@@ -299,22 +316,25 @@ public class DownloadController {
     }
 
     public Call loadAndSetupPdf(final String episodePdfLink, final String pdfPath, final String mainStoryTitle,
-                                final PdfSetupCallback callback, final StringConsumer urlConsumer) {
+            final PdfSetupCallback callback, final StringConsumer urlConsumer) {
 
-        if (loadingListener != null) runOnUiThread(() -> loadingListener.showLoading());
+        if (loadingListener != null)
+            runOnUiThread(() -> loadingListener.showLoading());
 
         if (pdfPath != null) {
             final File pdfFile = new File(pdfPath);
             if (pdfFile.exists()) {
                 logDebug(context.getString(R.string.load_pdf_local));
                 callback.setup(pdfFile);
-                if (loadingListener != null) runOnUiThread(() -> loadingListener.hideLoading());
+                if (loadingListener != null)
+                    runOnUiThread(() -> loadingListener.hideLoading());
                 findAndSetCurrentReadUrl(mainStoryTitle, urlConsumer);
                 return null;
             } else {
                 logError(context.getString(R.string.load_pdf_missing, pdfPath));
                 showToast(context.getString(R.string.load_pdf_missing_toast));
-                if (loadingListener != null) runOnUiThread(() -> loadingListener.hideLoading());
+                if (loadingListener != null)
+                    runOnUiThread(() -> loadingListener.hideLoading());
                 return null;
             }
         }
@@ -335,9 +355,11 @@ public class DownloadController {
                     if (pdfFile.exists()) {
                         logDebug(context.getString(R.string.load_pdf_room_exists));
                         callback.setup(pdfFile);
-                        if (loadingListener != null) loadingListener.hideLoading();
+                        if (loadingListener != null)
+                            loadingListener.hideLoading();
                         urlConsumer.set(localPdf.pdfUrl);
-                        if (txtPageIndicator != null) txtPageIndicator.setVisibility(View.VISIBLE);
+                        if (progressContainer != null)
+                            progressContainer.setVisibility(View.VISIBLE);
                         return;
                     } else {
                         logDebug(context.getString(R.string.load_pdf_room_missing));
@@ -361,7 +383,8 @@ public class DownloadController {
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
                         String pdfUrl = doc.getString("pdfUrl");
-                        if (pdfUrl != null && !pdfUrl.isEmpty()) urlConsumer.set(pdfUrl);
+                        if (pdfUrl != null && !pdfUrl.isEmpty())
+                            urlConsumer.set(pdfUrl);
                     }
                 });
     }

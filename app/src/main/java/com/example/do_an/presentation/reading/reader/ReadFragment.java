@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -26,6 +27,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.do_an.presentation.reading.chatbot.ChatbotFragment;
 import com.example.do_an.presentation.reading.note.NoteFragment;
+import com.example.do_an.presentation.library.series.SeriesFragment;
 import com.example.do_an.R;
 import com.example.do_an.presentation.reading.reader.adapter.PdfPageAdapter;
 import com.example.do_an.presentation.reading.reader.util.FullScreenManager;
@@ -50,10 +52,13 @@ public class ReadFragment extends Fragment implements DownloadController.Loading
     private static final String TAG = "ReadFragment";
     private static final int REQUEST_AUDIO_PERMISSION = 1001;
 
-    private TextView textTitle, textPageIndicator, textLoading;
+    private TextView textTitle, textLoading;
+    private View progressContainer;
     private ViewPager2 pdfViewPager;
-    private ImageView btnFavorite, btnNote, btnFullScreen, btnSettings, btnChatbot;
-    private LinearLayout topBar, rootLayout, loadingLayout;
+    private ImageView btnFavorite, btnNote, btnSettings;
+    private LinearLayout topBar, loadingLayout;
+    private FrameLayout rootLayout;
+    private View bottomControlsContainer;
     private ProgressBar progressDownload;
     private Switch switchVoiceControl;
     private View settingsContainer;
@@ -72,7 +77,8 @@ public class ReadFragment extends Fragment implements DownloadController.Loading
     private ReadFragmentDataExtractor dataExtractor;
     private VoiceCommandHandler voiceCommandHandler;
     private OcrProcessor ocrProcessor;
-    private FullScreenManager fullScreenManager;
+
+    private boolean isControlsVisible = false;
 
     private DownloadedPdfDao pdfDao;
     private Call currentDownloadCall;
@@ -149,6 +155,9 @@ public class ReadFragment extends Fragment implements DownloadController.Loading
             speechController.shutdown();
         if (currentDownloadCall != null)
             currentDownloadCall.cancel();
+
+        // Restore bottom nav when leaving reading screen
+        showBottomNav();
     }
 
     // =========================================================
@@ -157,18 +166,17 @@ public class ReadFragment extends Fragment implements DownloadController.Loading
 
     private void bindViews(View view) {
         textTitle = view.findViewById(R.id.txtTieuDe);
-        textPageIndicator = view.findViewById(R.id.txtPageIndicator);
+        progressContainer = view.findViewById(R.id.progressContainer);
         textLoading = view.findViewById(R.id.txtLoading);
 
         pdfViewPager = view.findViewById(R.id.pdfViewPager);
         btnFavorite = view.findViewById(R.id.btnFavorite);
         btnNote = view.findViewById(R.id.btnNote);
-        btnFullScreen = view.findViewById(R.id.btnfull);
         btnSettings = view.findViewById(R.id.btnSettings);
-        btnChatbot = view.findViewById(R.id.btnChatbot);
 
         topBar = view.findViewById(R.id.topBar);
-        rootLayout = (LinearLayout) view;
+        bottomControlsContainer = view.findViewById(R.id.bottomControlsContainer);
+        rootLayout = (FrameLayout) view;
         loadingLayout = view.findViewById(R.id.loadingLayout);
         progressDownload = view.findViewById(R.id.progressDownload);
 
@@ -186,15 +194,10 @@ public class ReadFragment extends Fragment implements DownloadController.Loading
         pdfDao = db.downloadedPdfDao();
         downloadController = new DownloadController(ctx, pdfDao);
         downloadController.setLoadingListener(this);
-        downloadController.setTxtPageIndicator(textPageIndicator);
+        downloadController.setProgressContainer(progressContainer);
 
         voiceCommandHandler = new VoiceCommandHandler(createVoiceCommandCallback());
         ocrProcessor = new OcrProcessor(createOcrCallback());
-
-        int paddingDp = (int) (getResources().getDisplayMetrics().density * 47);
-        fullScreenManager = new FullScreenManager(
-                topBar, rootLayout, btnFullScreen,
-                createFullScreenCallback(), paddingDp);
     }
 
     private void setupUi() {
@@ -202,6 +205,19 @@ public class ReadFragment extends Fragment implements DownloadController.Loading
             textTitle.setText(dataExtractor.getCurrentTitle());
         }
         setupPdfController();
+
+        // Start in immersive mode and hide bottom nav
+        hideControls();
+        hideBottomNav();
+
+        // Setup tap to toggle using touch listener
+        setupTapToToggle();
+    }
+
+    private void setupTapToToggle() {
+        // Use circular button in center to toggle controls
+        View btnToggle = getView().findViewById(R.id.btnToggleControls);
+        btnToggle.setOnClickListener(v -> toggleControls());
     }
 
     private void bindActions(View root) {
@@ -215,9 +231,7 @@ public class ReadFragment extends Fragment implements DownloadController.Loading
 
         btnBack.setOnClickListener(v -> onBackIntent());
         btnFavorite.setOnClickListener(v -> onFavoriteIntent());
-        btnChatbot.setOnClickListener(v -> onChatbotIntent());
         btnNote.setOnClickListener(v -> onNoteIntent());
-        btnFullScreen.setOnClickListener(v -> onFullScreenIntent());
 
         pdfViewerController.setupSettingsView(settingsContainer, (AppCompatButton) btnCloseSettings, btnSettings);
 
@@ -242,7 +256,7 @@ public class ReadFragment extends Fragment implements DownloadController.Loading
                 pdfViewPager,
                 textTitle,
                 settingsManager,
-                textPageIndicator,
+                progressContainer,
                 this::getCurrentTitle,
                 url -> currentReadUrl = url);
         pdfViewPager.registerOnPageChangeCallback(
@@ -272,6 +286,38 @@ public class ReadFragment extends Fragment implements DownloadController.Loading
             progressDownload.setVisibility(View.VISIBLE);
     }
 
+    private void toggleControls() {
+        if (isControlsVisible) {
+            hideControls();
+        } else {
+            showControls();
+        }
+    }
+
+    private void showControls() {
+        isControlsVisible = true;
+        topBar.setVisibility(View.VISIBLE);
+        bottomControlsContainer.setVisibility(View.VISIBLE);
+    }
+
+    private void hideControls() {
+        isControlsVisible = false;
+        topBar.setVisibility(View.GONE);
+        bottomControlsContainer.setVisibility(View.GONE);
+    }
+
+    private void hideBottomNav() {
+        if (navigationListener != null) {
+            navigationListener.setBottomNavVisibility(View.GONE);
+        }
+    }
+
+    private void showBottomNav() {
+        if (navigationListener != null) {
+            navigationListener.setBottomNavVisibility(View.VISIBLE);
+        }
+    }
+
     // =========================================================
     // 3️⃣ Intent handlers
     // =========================================================
@@ -296,7 +342,26 @@ public class ReadFragment extends Fragment implements DownloadController.Loading
     }
 
     private void onBackIntent() {
-        requireActivity().onBackPressed();
+        // If opened from Favorite, just go back
+        if (getArguments() != null && getArguments().getBoolean("IS_FROM_FAVORITE", false)) {
+            getParentFragmentManager().popBackStack();
+            return;
+        }
+
+        // Navigate to SeriesFragment to show chapter list
+        Bundle args = new Bundle();
+        args.putString("STORY_NAME", dataExtractor.getMainStoryTitle());
+        args.putString("STORY_AUTHOR", dataExtractor.getCurrentAuthor());
+        args.putString("STORY_ID", dataExtractor.getCurrentStoryId());
+        args.putString("STORY_IMAGE_URL", dataExtractor.getCurrentImageUrl());
+
+        SeriesFragment seriesFragment = SeriesFragment.newInstance(args);
+
+        getParentFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragmentContainer, seriesFragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     private void onFavoriteIntent() {
@@ -326,10 +391,6 @@ public class ReadFragment extends Fragment implements DownloadController.Loading
                 .add(R.id.fragmentContainer, f)
                 .addToBackStack(null)
                 .commit();
-    }
-
-    private void onFullScreenIntent() {
-        fullScreenManager.toggle();
     }
 
     private void onVoiceControlToggled(boolean enabled) {
@@ -478,7 +539,7 @@ public class ReadFragment extends Fragment implements DownloadController.Loading
 
             @Override
             public void onToggleFullScreen() {
-                fullScreenManager.toggle();
+                toggleControls();
             }
 
             @Override
@@ -516,7 +577,7 @@ public class ReadFragment extends Fragment implements DownloadController.Loading
 
             @Override
             public boolean isFullScreen() {
-                return fullScreenManager.isFullScreen();
+                return !isControlsVisible;
             }
 
             @Override
@@ -546,25 +607,6 @@ public class ReadFragment extends Fragment implements DownloadController.Loading
             public void onError(String message) {
                 hideLoading();
                 Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-            }
-        };
-    }
-
-    private FullScreenManager.FullScreenCallback createFullScreenCallback() {
-        return new FullScreenManager.FullScreenCallback() {
-            @Override
-            public void onFullScreenChanged(int bottomNavVisibility) {
-                navigationListener.setBottomNavVisibility(bottomNavVisibility);
-            }
-
-            @Override
-            public int getEnterFullScreenIcon() {
-                return R.drawable.ic_fullscreen;
-            }
-
-            @Override
-            public int getExitFullScreenIcon() {
-                return R.drawable.ic_exit_full;
             }
         };
     }
